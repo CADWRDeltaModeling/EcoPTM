@@ -1,0 +1,31 @@
+/**
+ *
+ */
+package gov.ca.water.ecoptm;
+
+
+/**
+ * @author xwang
+ *
+ */
+public class ParticleBasicSurvivalBehavior implements SurvivalBehavior {
+
+	/**
+	 *
+	 */
+	public ParticleBasicSurvivalBehavior() {
+		// TODO Auto-generated constructor stub
+		// currently doing nothing
+	}
+
+	/* (non-Javadoc)
+	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle, float)
+	 */
+	@Override
+	public void isSurvived(Particle p) {
+		// TODO Auto-generated method stub
+		// currently doing nothing
+
+	}
+
+}
