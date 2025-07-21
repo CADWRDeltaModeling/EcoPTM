@@ -470,7 +470,7 @@ public class PTMUtil {
 		return d1 == d2 ? true: Math.abs(d1-d2) < EPSILON*Math.min(Math.abs(d1),Math.abs(d2));
 	}
 	public static double getRandomNumber(){
-		return _rng.getRandomNumber();
+		return _rng.getUniform();
 	}
 	public static double getNextGaussian(){
 		return _rng.getGaussian();

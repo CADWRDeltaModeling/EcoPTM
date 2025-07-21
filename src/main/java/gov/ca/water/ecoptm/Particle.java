@@ -19,16 +19,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 package gov.ca.water.ecoptm;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-
-//import edu.cornell.RngPack.*;
-//TODO change the way random numbers are called
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.simple.RandomSource;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
-import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
-import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
-import org.apache.commons.rng.sampling.distribution.MarsagliaNormalizedGaussianSampler;
-
 /**
  *
  *  This class is the core definition of a Particle and its movement in
@@ -176,7 +166,7 @@ public class Particle{
 	private int _randomSeed;
 	
 	private PTMrng _rng;
-	public float getRandomNumber() {return _rng.getRandomNumber();}
+	public float getRandomNumber() {return _rng.getUniform();}
 	public double getGaussian() {return _rng.getGaussian();}
 	/**
 	 *  Factor used in repositioning when a no outflow condition is encountered

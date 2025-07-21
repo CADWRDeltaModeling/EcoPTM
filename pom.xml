@@ -37,18 +37,6 @@
   </dependencyManagement>
 
   <dependencies>
-  	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-rng-simple -->
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-rng-simple</artifactId>
-	    <version>1.6</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-rng-sampling -->
-	<dependency>
-	    <groupId>org.apache.commons</groupId>
-	    <artifactId>commons-rng-sampling</artifactId>
-	    <version>1.6</version>
-	</dependency>
 	<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml -->
 	<dependency>
     	<groupId>com.fasterxml.jackson.dataformat</groupId>
