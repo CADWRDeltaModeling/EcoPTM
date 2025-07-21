@@ -77,7 +77,7 @@ public class Node{
 	 *  Return a uniformly random number between 0-1 using drand48
 	 */
 	public final float getRandomNumber(){
-		return _rng.getRandomNumber();
+		return _rng.getUniform();
 	}
 
 	/**

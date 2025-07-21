@@ -1,11 +1,7 @@
 package gov.ca.water.ecoptm;
 
-import org.apache.commons.rng.UniformRandomProvider;
-import org.apache.commons.rng.sampling.distribution.GaussianSampler;
-import org.apache.commons.rng.sampling.distribution.MarsagliaNormalizedGaussianSampler;
-import org.apache.commons.rng.sampling.distribution.NormalizedGaussianSampler;
-import org.apache.commons.rng.sampling.distribution.SharedStateContinuousSampler;
-import org.apache.commons.rng.simple.RandomSource;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 
 /**
  * Random number generator used by Particle, Waterbody, PTMUtil, and Node classes
@@ -14,23 +10,21 @@ import org.apache.commons.rng.simple.RandomSource;
  */
 public class PTMrng {
 	
-	private UniformRandomProvider RNG = null;
-	private SharedStateContinuousSampler gaussianSampler = null;
+	private RandomGenerator RNG = null;
 	
+	/**
+	 * Create a Xoshiro256PlusPlus pseudorandom number generator
+	 * @param randomSeed			pseudorandom number generator seed
+	 */
 	public PTMrng(int randomSeed) {
-		// Create a Mersenne Twister uniform random number generator
-		RNG = RandomSource.MT.create(randomSeed);
-		
-		// Create a Gaussian RNG
-		NormalizedGaussianSampler sampler = MarsagliaNormalizedGaussianSampler.of(RNG);
-		gaussianSampler = GaussianSampler.of(sampler, 0.0, 1.0);
+		RNG = RandomGeneratorFactory.of("Xoshiro256PlusPlus").create(randomSeed);
 	}
 	
 	/**
 	 * Generate a random number from a uniform distribution
 	 * @return						random number from a uniform distribution
 	 */
-	public float getRandomNumber() {
+	public float getUniform() {
 		return RNG.nextFloat();
 	}
 	
@@ -39,7 +33,7 @@ public class PTMrng {
 	 * @return
 	 */
 	public double getGaussian() {
-		return gaussianSampler.sample();
+		return RNG.nextGaussian();
 	}
 
 }

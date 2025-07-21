@@ -198,7 +198,7 @@ public abstract class Waterbody{
 	 *  Generate a uniform random real number in (0,1)
 	 */
 	public final float getRandomNumber(){
-		return(_rng.getRandomNumber());
+		return(_rng.getUniform());
 	}
 
 	/**
