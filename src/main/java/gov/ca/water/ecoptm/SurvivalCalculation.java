@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -42,6 +44,7 @@ public class SurvivalCalculation {
 	static boolean writeRouteSurvival, writeFates, writeSurvDetail, showRouteSurvivalDetail;
 	public static final String WILDCARD = "99999";
 	static final int MISSING=-999;
+	private static DateFormat converter;
 
 	private Particle [] particleArray;
 	private Map<String, Float> reachSurvMap;
@@ -49,7 +52,7 @@ public class SurvivalCalculation {
 	private Map<String, Float> surv;
 
 	private Map<Integer, SimpleEntry<String, Long>> lastStationDatetimes;
-	private Map<Integer, String> fates;
+	private Map<Integer, Map<String, String>> fates;
 
 	// HashMap to store the survival calculation details
 	public Map<String, Map<String, String>> survDetails;
@@ -61,6 +64,8 @@ public class SurvivalCalculation {
 
 		// Enable/disable printing of route survival calculation details for testing
 		showRouteSurvivalDetail = false;
+		
+		converter = new SimpleDateFormat("MM/dd/yyyy  HH:mm:ss");
 	}
 
 	public SurvivalCalculation(Particle [] particleArray) {
@@ -497,6 +502,7 @@ public class SurvivalCalculation {
 		int numDied, numStuck, numTransported, numExited, numLost;
 		Map<String, Integer> transportPrevStations;
 		String transportSeq;
+		Map<String, String> thisFate;
 
 		lastStationDatetimes = new HashMap<>();
 		fates = new HashMap<>();
@@ -511,6 +517,7 @@ public class SurvivalCalculation {
 
 		// Loop over vFish
 		for(int i=0; i<particleArray.length; i++) {
+			thisFate = new HashMap<>();
 
 			p = particleArray[i];
 			thisArrivalDatetimes = p.getArrivalDatetimes();
@@ -531,15 +538,19 @@ public class SurvivalCalculation {
 			particleTransported = thisTransportDatetime!=null;
 
 			if(particleDied) {
-				fates.put(p.getId(), "died");
+				// Record fate and datetime
+				thisFate.put("died", converter.format(PTMUtil.modelTimeToCalendar(thisDeathDatetime.getValue(), Globals.TIME_ZONE).getTime()));
+				fates.put(p.getId(), thisFate);
 				numDied++;
 			}
 			else if(particleStuck) {
-				fates.put(p.getId(), "stuck");
+				thisFate.put("stuck", converter.format(PTMUtil.modelTimeToCalendar(thisStuckDatetime.getValue(), Globals.TIME_ZONE).getTime()));
+				fates.put(p.getId(), thisFate);
 				numStuck++;
 			}
 			else if(particleTransported) {
-				fates.put(p.getId(), "transported");
+				thisFate.put("transported", converter.format(PTMUtil.modelTimeToCalendar(thisTransportDatetime.getValue(), Globals.TIME_ZONE).getTime()));
+				fates.put(p.getId(), thisFate);
 				numTransported++;
 
 				transportSeq = thisArrivalDatetimes.get(thisArrivalDatetimes.size()-2).getKey() + "_" + thisArrivalDatetimes.getLast().getKey();
@@ -553,7 +564,8 @@ public class SurvivalCalculation {
 			else if(thisArrivalDatetimes!=null && !particleDied) {
 				for(String exitStation : PTMFixedData.getConfig().exit_stations) {
 					if(thisArrivalDatetimes.size()>0 && thisArrivalDatetimes.getLast().getKey().equals(exitStation)) {
-						fates.put(p.getId(), "exited");
+						thisFate.put("exited", converter.format(PTMUtil.modelTimeToCalendar(thisArrivalDatetimes.getLast().getValue(), Globals.TIME_ZONE).getTime()));
+						fates.put(p.getId(), thisFate);
 						numExited++;
 					}
 				}
@@ -561,7 +573,8 @@ public class SurvivalCalculation {
 
 			// If a fate hasn't been assigned, mark the vFish as lost
 			if (!fates.containsKey(p.getId())) {
-				fates.put(p.getId(), "lost");
+				thisFate.put("lost", "NA");
+				fates.put(p.getId(), thisFate);
 				numLost++;
 			}
 		}
@@ -583,7 +596,7 @@ public class SurvivalCalculation {
 	 * @param builder				NetcdfFormatWriter.Builder
 	 */
 	public void buildOutput(NetcdfFormatWriter.Builder builder) {
-		Dimension survGroupDim, survGroupLen, particleDim, stationCharLen, fateCharLen,
+		Dimension survGroupDim, survGroupLen, particleDim, stationCharLen, fateNumFields, fateCharLen,
 		survDetailsKeyDim, survDetailsCharLen;
 		Variable.Builder<?> survBuilder, fatesBuilder;
 		List<Dimension> survDims, fatesDims;
@@ -606,8 +619,9 @@ public class SurvivalCalculation {
 		stationCharLen = builder.addDimension("stationCharLen", 80);
 		builder.addVariable("lastStation", DataType.CHAR, "particle stationCharLen");
 
+		fateNumFields = builder.addDimension("fateNumFields", 2);
 		fateCharLen = builder.addDimension("fateCharLen", 80);
-		builder.addVariable("fate", DataType.CHAR, "particle fateCharLen");
+		builder.addVariable("fate", DataType.CHAR, "particle fateNumFields fateCharLen");
 
 		survDetailsCharLen = builder.addDimension("survDetailsCharLen", 80);
 		survDetailsKeyDim = builder.addDimension("survDetailsKey", survDetails.get("survival").size() + survDetails.get("routingFraction").size());
@@ -630,6 +644,7 @@ public class SurvivalCalculation {
 		ArrayChar charArray;
 		ArrayInt intArray;
 		int survDetailsIndex;
+		Map<String, String> thisFates;
 
 		// Write survival fractions
 		v = writer.findVariable("surv");
@@ -664,10 +679,15 @@ public class SurvivalCalculation {
 		// Write fates
 		v = writer.findVariable("fate");
 		shape = v.getShape();
-		charArray = new ArrayChar.D2(shape[0], shape[1]);
+		charArray = new ArrayChar.D3(shape[0], shape[1], shape[2]);
 		ima = charArray.getIndex();
 		for (int i=0; i<shape[0]; i++) {
-			charArray.setString(ima.set(i), fates.get(particleArray[i].getId()));
+			thisFates = fates.get(particleArray[i].getId());
+			
+			for (Map.Entry<String, String> entry: thisFates.entrySet()) {
+				charArray.setString(ima.set(i, 0), entry.getKey());
+				charArray.setString(ima.set(i, 1), entry.getValue());
+			}
 		}
 		writer.write(v, charArray);
 
@@ -745,6 +765,7 @@ public class SurvivalCalculation {
 	public void writeOutputCSV() {
 		String survOutputPathCSV, fatesOutputPathCSV, survDetailOutputPathCSV, line;
 		Particle p;
+		Map<String, String> thisFates;
 
 		// Write survival outputs to route survival outputs CSV file
 		survOutputPathCSV =  Globals.Environment.getPTMFixedInput().getFileName("routeSurvival");
@@ -782,7 +803,7 @@ public class SurvivalCalculation {
 
 			try(BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fatesOutputPathCSV)))) {
 
-				line = "particleID,lastStation,fate";
+				line = "particleID,lastStation,fate,datetime";
 				buffer.write(line);
 				buffer.newLine();
 
@@ -790,9 +811,12 @@ public class SurvivalCalculation {
 
 					p = particleArray[i];
 
-					line = p.getId() + "," + lastStationDatetimes.get(p.getId()).getKey() + "," + fates.get(p.getId());
-					buffer.write(line);
-					buffer.newLine();
+					thisFates = fates.get(p.getId());
+					for(Map.Entry<String, String> entry: thisFates.entrySet()) {
+						line = p.getId() + "," + lastStationDatetimes.get(p.getId()).getKey() + "," + entry.getKey() + "," + entry.getValue();
+						buffer.write(line);
+						buffer.newLine();
+					}
 				}
 			} catch (IOException e) {
 				PTMUtil.systemExit("Failed to write to fates output file, " + fatesOutputPathCSV + ": " + e);
