@@ -12,8 +12,8 @@ library(yaml)
 args <- commandArgs(trailingOnly=T)
 if(length(args)==0) {
     cat("Reading hard-coded path to configuration file.\n")
-    configFile <- "" # "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor/config_preprocessors.yaml"
-    workingDir <- "" # "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor"
+    configFile <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
 } else {
     cat("Reading path to configuration file as a command line argument\n")
     configFile <- args[1]
@@ -56,8 +56,12 @@ if(config$runInCondaEnv) {
 if(!require("rhdf5", quietly=T)) {
     cat("Installing rhdf5...\n")
     options(install.packages.compile.from.source="always")
-    install.packages("BiocManager", repos="http://cran.us.r-project.org", quiet=T)
+    install.packages("BiocManager", repos = "https://cloud.r-project.org", quiet=T)
     BiocManager::install("rhdf5")
+}
+if(!require("tzdb", quietly=T)) {
+    cat("Installing tzdb...\n")
+    install.packages("tzdb", repos="http://cran.rstudio.com", quiet=T)
 }
 cat("Done installing packages that are not available through conda.\n")
 
@@ -73,6 +77,20 @@ loadVar <- function(varName) {
     }
     else {return (config[[varName]])}
 }
+
+runArgsQA <- function() {
+    if(is.null(tideFile)) {
+        cat("Tide file is NULL. Is it specified in either the config file or command line arguments?\n")
+        return(FALSE)
+    }
+    
+    if(!file.exists(tideFile)) {
+        cat("Tide file does not exist. Did you specify the correct path?\n")
+        cat("Tide file: ", tideFile, "\n")
+        return(FALSE)
+    }
+    return(TRUE)
+}
 ####################################################################################################
 # Run
 ####################################################################################################
@@ -83,7 +101,12 @@ setwd(workingDir)
 if(length(args)==(1 + numOptArgs)) {
     tideFile <- args[2]
 } else {
-    tideFile <- loadVar("tideFile")
+    tideFile <- read_yaml(configFile)$tideFile
+}
+
+passedQA <- runArgsQA()
+if(!passedQA) {
+    stop("One or more configuration settings failed QA check. Aborting.")
 }
 
 GZIPlevel <- loadVar("GZIPlevel")

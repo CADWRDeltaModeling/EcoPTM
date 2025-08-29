@@ -4,7 +4,7 @@ runTidefilePreprocessorQA: false
 tideFile: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_scratch/v1.1.88.4_2009.h5 
 routingPreprocessor:
   runInCondaEnv: true
-  transProbsStartDate: 03jan2009
+  transProbsStartDate: 02jan2009
   transProbsEndDate: 31dec2009
   sampleTime_min: 15
   TClag_min: 90

@@ -11,8 +11,8 @@ library(yaml)
 args <- commandArgs(trailingOnly=T)
 if(length(args)==0) {
     cat("Reading hard-coded path to configuration file.\n")
-    configFile <- "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor/config_preprocessors.yaml"
-    workingDir <- "C:/Users/admin/Documents/QEDA/DWR/programs/ECO_PTM_SouthDelta/dsm2/src/ptm/scripts/routingPreprocessor"
+    configFile <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
 } else {
     cat("Reading path to configuration file as a command line argument\n")
     configFile <- args[1]
@@ -54,16 +54,20 @@ if(config$runInCondaEnv) {
 if(!require("rhdf5", quietly=T)) {
     cat("Installing rhdf5...\n")
     options(install.packages.compile.from.source="always")
-    install.packages("BiocManager", repos="http://cran.us.r-project.org", quiet=T)
+    install.packages("BiocManager", repos = "https://cloud.r-project.org", quiet=T)
     BiocManager::install("rhdf5")
 }
 if(!require("imputeTS", quietly=T)) {
     cat("Installing imputeTS...\n")
-    install.packages("imputeTS", repos="http://cran.us.r-project.org", quiet=T)
+    install.packages("imputeTS", repos="http://cran.rstudio.com", quiet=T)
 }
 if(!require("suncalc", quietly=T)) {
     cat("Installing suncalc...\n")
-    install.packages("suncalc", repos="http://cran.us.r-project.org", quiet=T)
+    install.packages("suncalc", repos="http://cran.rstudio.com", quiet=T)
+}
+if(!require("tzdb", quietly=T)) {
+    cat("Installing tzdb...\n")
+    install.packages("tzdb", repos="http://cran.rstudio.com", quiet=T)
 }
 
 library(rhdf5)
@@ -220,6 +224,11 @@ loadVar <- function(varName) {
 }
 
 runArgsQA <- function() {
+    if(is.null(tideFile)) {
+        cat("Tide file is NULL. Is it specified in either the config file or command line arguments?\n")
+        return(FALSE)
+    }
+    
     if(!file.exists(tideFile)) {
         cat("Tide file does not exist. Did you specify the correct path?\n")
         cat("Tide file: ", tideFile, "\n")
@@ -263,7 +272,7 @@ if(length(args)==(1 + numOptArgs)) {
     transProbsEndDate <- args[4]
     numCores <- round(as.numeric(args[5]), 0)
 } else {
-    tideFile <- loadVar("tideFile")
+    tideFile <- read_yaml(configFile)$tideFile
     transProbsStartDate <- loadVar("transProbsStartDate")
     transProbsEndDate <- loadVar("transProbsEndDate")
     # Number of CPU cores to use
@@ -329,7 +338,10 @@ if(transProbsStartDatetime>=transProbsEndDatetime) {
     stop("Start of requested datetime range cannot be the same as or after the end of the requested datetime range. Aborting.")
 }
 if((transProbsStartDatetime - minutes(TClag_min))<startDatetime | (transProbsEndDatetime + minutes(TClag_min))>endDatetime) {
-    stop("Requested range of data is outside of the range covered by the tide file. Aborting.")
+    stopMessage <- "Requested datetime range of data is outside of the range covered by the tide file. Aborting.\n\n"
+    stopMessage <- paste(stopMessage, "\nNote: requested datetime range must be at least", TClag_min, 
+                         "minutes after (before) start (end) of datetime range covered by the tide file.\n")
+    stop(stopMessage)
 }
 
 # Read the (external) channel numbers

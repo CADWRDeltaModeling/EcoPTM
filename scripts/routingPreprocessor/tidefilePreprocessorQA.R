@@ -40,8 +40,12 @@ if(config$runInCondaEnv) {
 if(!require("rhdf5", quietly=T)) {
     cat("Installing rhdf5...\n")
     options(install.packages.compile.from.source="always")
-    install.packages("BiocManager", repos="http://cran.us.r-project.org", quiet=T)
+    install.packages("BiocManager", repos = "https://cloud.r-project.org", quiet=T)
     BiocManager::install("rhdf5")
+}
+if(!require("tzdb", quietly=T)) {
+    cat("Installing tzdb...\n")
+    install.packages("tzdb", repos="http://cran.rstudio.com", quiet=T)
 }
 cat("Done installing packages that are not available through conda.\n")
 

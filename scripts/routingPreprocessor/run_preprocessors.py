@@ -50,7 +50,7 @@ class RunPreprocessors:
         """Run the routing preprocessor."""
         print("="*80)
         print("Launching routing preprocessor")
-        Rcommand = f"Rscript {self.workingDir}/routingPreprocessor.R {self.configFile}"
+        Rcommand = f'Rscript "{self.workingDir}/routingPreprocessor.R" "{os.path.abspath(self.configFile)}"'
 
         # Specify all routingPreprocessor.R command line arguments
         Rcommand = f"{Rcommand} {self.routingPreprocessorArgs}"
@@ -64,11 +64,14 @@ class RunPreprocessors:
             for line in p.stdout:
                 print(line, end="")
 
+        if p.returncode!=0:
+            print("Routing preprocessor failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+
     def runTidefilePreprocessor(self):
         """Run the tide file preprocessor."""
         print("="*80)
         print("Launching tide file preprocessor")  
-        Rcommand = f"Rscript {self.workingDir}/tidefilePreprocessor.R {self.configFile}"
+        Rcommand = f'Rscript "{self.workingDir}/tidefilePreprocessor.R" "{os.path.abspath(self.configFile)}"'
 
         # Specify all tidefilePreprocessor.R command line arguments
         Rcommand = f"{Rcommand} {self.tidefilePreprocessorArgs}"
@@ -82,11 +85,14 @@ class RunPreprocessors:
             for line in p.stdout:
                 print(line, end="")
 
+        if p.returncode!=0:
+            print("Tide file preprocessor failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+
     def runTidefilePreprocessorQA(self):
         """Run the tide file preprocessor QA script."""
         print("="*80)
         print("Launching tide file preprocessor QA")  
-        Rcommand = f"Rscript {self.workingDir}/tidefilePreprocessorQA.R {self.configFile}"
+        Rcommand = f'Rscript "{self.workingDir}/tidefilePreprocessorQA.R" "{os.path.abspath(self.configFile)}"'
         
         print(f"Rcommand: {Rcommand}")
 
@@ -97,10 +103,13 @@ class RunPreprocessors:
             for line in p.stdout:
                 print(line, end="")                
         
+        if p.returncode!=0:
+            print("Tide file QA failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+
     def setRoutingPreprocessorArgs(self, routingPreprocessorArgs):
         """Override specific routing preprocessor arguments"""
         # Assemble the command line arguments using either values passed in via the run_preprocessors.py
-        # command line arguments are from configFile
+        # command line arguments or from configFile
         self.routingPreprocessorArgs = ""
 
         # Sequence of command line arguments expected by routingPreprocessor.R
@@ -233,8 +242,8 @@ if __name__=="__main__":
         tideFile = r.findTideFile()
         print(f"Found tide file in working directory: {tideFile}")
 
-    routingPreprocessorArgs["tideFile"] = tideFile
-    tidefilePreprocessorArgs["tideFile"] = tideFile
+    routingPreprocessorArgs["tideFile"] = f'"{str(tideFile)}"'
+    tidefilePreprocessorArgs["tideFile"] = f'"{str(tideFile)}"'
 
     if runRoutingPreprocessor:
         r.setRoutingPreprocessorArgs(routingPreprocessorArgs)

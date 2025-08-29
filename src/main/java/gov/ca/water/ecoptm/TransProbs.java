@@ -115,7 +115,7 @@ public class TransProbs {
 		fields = firstIndex.split("_");
 		firstDatetimeStr = fields[1];
 
-		firstDatetime = ZonedDateTime.parse(firstDatetimeStr + "(America/Los_Angeles)",
+		firstDatetime = ZonedDateTime.parse(firstDatetimeStr + "(UTC-08:00)",
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
 	}
 
@@ -142,7 +142,7 @@ public class TransProbs {
 		for (int i=0; i<numChunks; i++) {
 			burnTimeStep();
 		}
-
+		
 		return readTimeStep();
 
 	}
@@ -165,7 +165,7 @@ public class TransProbs {
 		HashMap<String, Double> transProbs = new HashMap<String, Double>();
 
 		numTransProbs = numTrans*numStations;
-
+		
 		for (int i=0; i<numTransProbs; i++) {
 			line = readLine();
 			fields = line.split(",");
