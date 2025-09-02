@@ -489,7 +489,7 @@ public class PTMEnv{
 	private void setNodeInfo(){
 		if (DEBUG) System.out.println("Initializing nodes with wb arrays");
 		if (DEBUG) System.out.println(nodeArray[361]);
-		//nodeArray starts from 1. see PTMFixedInput.java line 287
+		//nodeArray starts from 1. see PTMFixedInput.java
 		for(int i=1; i < fixedInput.getMaximumNumberOfNodes()+1; i++){
 			if ( nodeArray[i] == null ) continue;
 			// waterbodies connecting to the node

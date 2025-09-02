@@ -135,6 +135,9 @@ public class PTMHydroInput{
 		readChanBottom();
 		readResVol();
 		readRes();
+		
+		readChannelFlowDims();
+		TidefileQA.runQAhydroInput();
 
 		resNodeConnect = Grid.getResNodeConnect();
 
@@ -458,6 +461,21 @@ public class PTMHydroInput{
 			flowChunk = var.read(new Section(origin, size));
 		} catch (IOException | InvalidRangeException ioe) {
 			PTMUtil.systemExit("Exception: " + ioe);
+		}
+	}
+	
+	public void readChannelFlowDims() {
+		Variable var;
+		String path;
+
+		path = "/hydro/data/channel_flow";
+
+		// Read channel_flow dimensions
+		try {
+			var = ncd.findVariable(path);
+			TidefileQA.setChannelFlowVals(var.getDimension(0).getLength(), var.getDimension(1).getLength(), var.getDimension(2).getLength());
+		} catch (Exception e) {
+			PTMUtil.systemExit("Exception: " + e);
 		}
 	}
 

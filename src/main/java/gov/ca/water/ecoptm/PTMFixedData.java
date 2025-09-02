@@ -91,7 +91,7 @@ public class PTMFixedData {
 	private static final int MAX_RESERVOIRS = 100;
 	private static final int MAX_DIVERSIONS = 0;
 	private static final int MAX_PUMPS = 0;
-	private static final int MAX_BOUNDARY_WATERBODIES = 1000;
+	private static final int MAX_BOUNDARY_WATERBODIES = 1100;
 	private static final int MAX_NODES = MAX_CHANNELS + 10;
 	private static final int MAX_RESERVOIR_NODES = 50;
 	private static final int MAX_CONVEYORS = 50;
@@ -119,6 +119,9 @@ public class PTMFixedData {
 	private static Map<String, Map<String, ArrayList<Integer>>> stageBoundaryFlowIndices;
 	private static List<String> stageBoundaryNames;
 	private static List<Integer> extNodeNums;
+	private static List<Integer> virtualExtNodeNums;
+	private static int maxRealExtNodeNums;
+	private static int intNodeNumOffset;
 	private static float theta;
 	private static Map<String, FluxGroup> fluxGroups;
 
@@ -139,11 +142,13 @@ public class PTMFixedData {
 		}
 
 		conveyorNodeNums = new HashMap<>();
+		virtualExtNodeNums = new ArrayList<Integer>();
 
 		ncd = Grid.getNCD();
 
 		// Read grid data from the tidefile
 		readChannel();
+		maxRealExtNodeNums = Collections.max(extNodeNums);
 
 		readReservoir();	    
 		readQext();
@@ -152,6 +157,9 @@ public class PTMFixedData {
 		readBoundaryStage();
 		createStageBoundaryFlowIndices();
 		readTransfer();
+		
+		// Run tide file QA for fixed data
+		TidefileQA.runQAfixedData();
 
 		Grid.addWaterbodiesToNodes();
 		// Reading resFlowConnect here so all the qextExtNodeNums are defined beforehand
@@ -1177,6 +1185,8 @@ public class PTMFixedData {
 		} catch (IOException ioe) {
 			PTMUtil.systemExit("Exception: " + ioe);
 		}
+		
+		TidefileQA.setChannelVals(numChannels, MAX_CHANNELS);
 	}
 
 	/**
@@ -1331,15 +1341,23 @@ public class PTMFixedData {
 		} catch (IOException ioe) {
 			PTMUtil.systemExit("Exception: " + ioe);
 		}
+		
+		TidefileQA.setQextVals(numBoundaryWaterbodies, MAX_BOUNDARY_WATERBODIES);
 	}
 
 	/**
 	 * Increment numVirtualNodes and return the new virtual node number
 	 * @return						new virtual node number
 	 */
-	public static int createVirtualNode() {	  
+	public static int createVirtualNode() {
+		int thisVirtualNodeNum;
+		
 		numVirtualNodes++;
-		return MAX_NODES + numVirtualNodes;
+		thisVirtualNodeNum = maxRealExtNodeNums + numVirtualNodes; 
+		
+		virtualExtNodeNums.add(thisVirtualNodeNum);
+		
+		return thisVirtualNodeNum;
 	}
 
 	/**
@@ -1525,6 +1543,14 @@ public class PTMFixedData {
 		}
 		return extChanNum;
 	}
+	
+	/**
+	 * Set intNodeNumOffset so internal node numbers of virtual nodes start after real nodes' numbers
+	 * @param intNodeNums			vector of internal node numbers
+	 */
+	public static void setIntNodeNumOffset(List<Integer> intNodeNums) {
+		intNodeNumOffset = Collections.min(virtualExtNodeNums) - (Collections.max(intNodeNums) + 1);
+	}
 
 	/**
 	 * Obtain the internal node number for the specified external node number
@@ -1537,7 +1563,7 @@ public class PTMFixedData {
 		// Virtual nodes have numbers outside of the range of the nodes specified in the tidefile =>
 		// external and internal nodeNums are the same
 		if(extNodeNum>Collections.max(extNodeNums)) {
-			return extNodeNum;
+			return extNodeNum-intNodeNumOffset;
 		}
 
 		intNodeNum = extNodeNums.indexOf(extNodeNum);

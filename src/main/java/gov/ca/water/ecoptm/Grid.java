@@ -171,7 +171,7 @@ public class Grid {
 		GridReservoir thisGridRes;
 		GridNode thisNode;
 		GridBoundary thisBoundary;
-		int extNodeNum, flowIndex;
+		int extNodeNum, intNodeNum, flowIndex;
 		Variable resFlowConnectVar;
 		Structure structure;
 		ArrayStructureBB arrayStructureBB;
@@ -193,6 +193,8 @@ public class Grid {
 			flowNameMember = members.get(5);
 			flowTypeMember = members.get(6);
 
+			PTMFixedData.setIntNodeNumOffset(intNodeNums);
+			
 			for (int i=0; i<arrayStructureBB.getSize(); i++) {
 				nameData = (ArrayChar.D1) arrayStructureBB.getArray(i, nameMember);
 				flowIndexData = (ArrayInt.D0) arrayStructureBB.getArray(i, flowIndexMember);
@@ -214,6 +216,7 @@ public class Grid {
 
 				if(flowType.equalsIgnoreCase("qext")) {
 					extNodeNum = PTMFixedData.getQextNodeNum(flowName);
+					intNodeNum = PTMFixedData.getIntNodeNum(extNodeNum);
 
 					thisGridRes = Grid.getReservoir(resName);
 					thisGridRes.addExtNodeNum(extNodeNum);
@@ -225,17 +228,18 @@ public class Grid {
 
 					// Add this hidden node to intNodeNums (if it's not in intNodeNums already, that implies
 					// that it was just added to extNodeNums, so the order of the two lists should be synced).
-					if(!intNodeNums.contains(extNodeNum)) {intNodeNums.add(extNodeNum);}
+					if(!intNodeNums.contains(PTMFixedData.getIntNodeNum(extNodeNum))) {intNodeNums.add(PTMFixedData.getIntNodeNum(extNodeNum));}
 
-					resNodeConnect.get(resName).get("nodeNum").add(extNodeNum);
+					resNodeConnect.get(resName).get("nodeNum").add(intNodeNum);
 					resNodeConnect.get(resName).get("flowIndex").add(flowIndex);
 					resNodeConnect.get(resName).get("flowType").add(QEXT_FLOW);
 				}
 				else if(flowType.equalsIgnoreCase("transfer")) {
 					// Currently only supporting a single node number associated with each conveyor => index = 0
 					extNodeNum = PTMFixedData.getConveyorNodeNum(flowName, 0);
+					intNodeNum = PTMFixedData.getIntNodeNum(extNodeNum);
 
-					resNodeConnect.get(resName).get("nodeNum").add(extNodeNum);
+					resNodeConnect.get(resName).get("nodeNum").add(intNodeNum);
 					resNodeConnect.get(resName).get("flowIndex").add(flowIndex);
 					resNodeConnect.get(resName).get("flowType").add(CONVEYOR_FLOW);
 				}
