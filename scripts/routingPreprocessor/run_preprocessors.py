@@ -75,7 +75,6 @@ class RunPreprocessors:
 
         # Specify all tidefilePreprocessor.R command line arguments
         Rcommand = f"{Rcommand} {self.tidefilePreprocessorArgs}"
-        
         print(f"Rcommand: {Rcommand}")
 
         with subprocess.Popen(Rcommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=self.shell,
@@ -87,6 +86,42 @@ class RunPreprocessors:
 
         if p.returncode!=0:
             print("Tide file preprocessor failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+            return
+
+        # Replace SZIP compression with GZIP
+        try:
+            tideFile = self.config["tideFile"]
+            GZIPlevel = self.config["tidefilePreprocessor"]["GZIPlevel"]
+            overwriteOrigTideFile = self.config["tidefilePreprocessor"]["overwriteOrigTideFile"]
+        except ValueError as e:
+            print("Unable to read all parameter values from configuration file.")
+            print(e)
+            sys.exit()
+        except KeyError as e:
+            print(f"Required parameter {e} missing from configuration file.")
+            sys.exit()
+
+        if not overwriteOrigTideFile:
+            newTideFile = f"{os.path.splitext(tideFile)[0]}_preprocessed.h5"
+        else:
+            newTideFile = tideFile
+        newTideFileGZIP = f"{os.path.splitext(newTideFile)[0]}_GZIP.h5"
+
+        h5repackCommand = f"h5repack -v -i {newTideFile} -o {newTideFileGZIP} -f GZIP={GZIPlevel}"
+        print(f"h5repack command: {h5repackCommand}")
+
+        print("Repacking tide file using GZIP...", end="")
+        with subprocess.Popen(h5repackCommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=self.shell,
+                              bufsize=1, universal_newlines=True) as p:
+
+            # Print stdout line-by-line
+            for line in p.stdout:
+                print(line, end="")
+
+        if p.returncode!=0:
+            print("h5repack failed to run. Try running the h5repack command shown above from the Command Prompt to diagnose.")
+            return
+        print("Done")
 
     def runTidefilePreprocessorQA(self):
         """Run the tide file preprocessor QA script."""

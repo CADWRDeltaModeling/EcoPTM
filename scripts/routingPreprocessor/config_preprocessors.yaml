@@ -1,7 +1,7 @@
-runRoutingPreprocessor: true
+runRoutingPreprocessor: false
 runTidefilePreprocessor: true
 runTidefilePreprocessorQA: false
-tideFile: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_scratch/v1.1.88.4_2009.h5 
+tideFile: C:/Users/admin/Documents/QEDA/DWR/fromXiao/tide_files_preprocess_21aug25/hist_fc_mss_nolk.h5
 routingPreprocessor:
   runInCondaEnv: true
   transProbsStartDate: 02jan2009
@@ -23,7 +23,7 @@ routingPreprocessor:
   plotTCendTime: "00:00"
 tidefilePreprocessor:
   runInCondaEnv: true
-  GZIPlevel: 6
+  GZIPlevel: 9
   overwriteOrigTideFile: false
   overwriteNewTideFile: true
 tidefilePreprocessorQA:
