@@ -121,7 +121,8 @@ class RunPreprocessors:
         if p.returncode!=0:
             print("h5repack failed to run. Try running the h5repack command shown above from the Command Prompt to diagnose.")
             return
-        print("Done")
+
+        print(f"Done preprocessing tide file.\nFinal preprocessed tide file saved to {newTideFileGZIP}")
 
     def runTidefilePreprocessorQA(self):
         """Run the tide file preprocessor QA script."""
@@ -140,6 +141,24 @@ class RunPreprocessors:
         
         if p.returncode!=0:
             print("Tide file QA failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+
+    def runConfigFileQA(self):
+        """Run the ECO-PTM configuration file QA script."""
+        print("="*80)
+        print("Launching ECO-PTM configuration file QA")
+        Rcommand = f'Rscript "{self.workingDir}/configFileQA.R" "{os.path.abspath(self.configFile)}"'
+        
+        print(f"Rcommand: {Rcommand}")
+
+        with subprocess.Popen(Rcommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=self.shell,
+                            bufsize=1, universal_newlines=True) as p:
+
+            # Print stdout line-by-line
+            for line in p.stdout:
+                print(line, end="")                
+        
+        if p.returncode!=0:
+            print("ECO-PTM configuration file QA failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
 
     def setRoutingPreprocessorArgs(self, routingPreprocessorArgs):
         """Override specific routing preprocessor arguments"""
@@ -205,6 +224,7 @@ if __name__=="__main__":
     parser.add_argument("--runBoth", action="store_true", dest="runBoth", required=False)
     parser.add_argument("--runRoutingPreprocessor", action="store_true", dest="runRoutingPreprocessor", required=False)
     parser.add_argument("--runTidefilePreprocessor", action="store_true", dest="runTidefilePreprocessor", required=False)
+    parser.add_argument("--runConfigFileQA", action="store_true", dest="runConfigFileQA", required=False)
     args = parser.parse_args()
 
     configFile = args.configFile
@@ -241,6 +261,7 @@ if __name__=="__main__":
         runRoutingPreprocessor = config["runRoutingPreprocessor"]
         runTidefilePreprocessor = config["runTidefilePreprocessor"]
         runTidefilePreprocessorQA = config["runTidefilePreprocessorQA"]
+        runConfigFileQA = config["runConfigFileQA"]
     except ValueError as e:
         print("Unable to read all parameter values from configuration file.")
         print(e)
@@ -259,6 +280,9 @@ if __name__=="__main__":
     elif args.runTidefilePreprocessor:
         runRoutingPreprocessor = False
         runTidefilePreprocessor = True
+
+    if args.runConfigFileQA:
+        runConfigFileQA = True
     
     r = RunPreprocessors(workingDir, configFile)
 
@@ -290,3 +314,6 @@ if __name__=="__main__":
     
     if runTidefilePreprocessorQA:
         r.runTidefilePreprocessorQA()
+
+    if runConfigFileQA:
+        r.runConfigFileQA()

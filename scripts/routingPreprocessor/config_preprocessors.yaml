@@ -1,6 +1,7 @@
 runRoutingPreprocessor: false
-runTidefilePreprocessor: true
+runTidefilePreprocessor: false
 runTidefilePreprocessorQA: false
+runConfigFileQA: true
 tideFile: C:/Users/admin/Documents/QEDA/DWR/fromXiao/tide_files_preprocess_21aug25/hist_fc_mss_nolk.h5
 routingPreprocessor:
   runInCondaEnv: true
@@ -30,3 +31,7 @@ tidefilePreprocessorQA:
   runInCondaEnv: true
   origFile: /Users/djackson/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_orig/v1.1.88.4_2011.h5
   preprocessedFile: /Users/djackson/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_post_tidefilePreprocessor/v1.1.88.4_2011.h5
+configFileQA:
+  runInCondaEnv: false
+  tideFile: C:/Users/admin/Documents/QEDA/DWR/fromXiao/tide_files_preprocess_21aug25/hist_fc_mss_nolk.h5 
+  configFile: C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/configFiles/ptmConfig_SouthDelta.yaml
