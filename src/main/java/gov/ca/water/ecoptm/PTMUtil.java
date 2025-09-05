@@ -147,6 +147,9 @@ public class PTMUtil {
 		return block;
 	}
 	public static void systemExit(String message){
+		message = "\n==================================================================================\n" +
+					message + 
+					"\n==================================================================================\n";
 		(new Exception(message)).printStackTrace();
 		System.exit(-1);
 	}

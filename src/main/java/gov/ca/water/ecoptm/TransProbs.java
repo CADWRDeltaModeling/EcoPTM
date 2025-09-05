@@ -2,6 +2,7 @@ package gov.ca.water.ecoptm;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -75,7 +76,9 @@ public class TransProbs {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+			PTMUtil.systemExit("Could not open transition probability file " + path + 
+								"\nIs it correctly specified in the trans_prob_path field of the configuration file?");
+		} 
 	}
 
 	/**
