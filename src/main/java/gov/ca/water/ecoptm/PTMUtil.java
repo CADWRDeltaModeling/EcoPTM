@@ -37,7 +37,7 @@ public class PTMUtil {
 	static Random rand = new Random();
 	//TODO temporary still use this because java.util.random doesn't work
 	// this value will be reset in setRandomNumber()
-	private static PTMrng _rng;
+	private static PTMrng _rng = new PTMrng(32001);
 	//TODO changed the way the random numbers are called
 	private static boolean _useNewRandomSeed = false;
 
