@@ -121,7 +121,7 @@ public class PTMFixedData {
 	private static List<Integer> extNodeNums;
 	private static List<Integer> virtualExtNodeNums;
 	private static int maxRealExtNodeNums;
-	private static int intNodeNumOffset;
+	private static int intNodeNumOffset = Grid.MISSING;
 	private static float theta;
 	private static Map<String, FluxGroup> fluxGroups;
 
@@ -1288,7 +1288,7 @@ public class PTMFixedData {
 				toType = toTypeData.toString().trim();
 				toID = toIDdata.toString().trim();
 
-				// Create a new GridReservoir object and add it to Grid
+				// Create a new GridConveyor object and add it to Grid
 				thisConveyor = new GridConveyor(thisConveyorName, fromType, fromID, toType, toID);
 				Grid.addConveyor(thisConveyor);
 
@@ -1560,9 +1560,11 @@ public class PTMFixedData {
 	public static int getIntNodeNum(int extNodeNum) {
 		int intNodeNum;
 
-		// Virtual nodes have numbers outside of the range of the nodes specified in the tidefile =>
-		// external and internal nodeNums are the same
+		// Virtual nodes have numbers outside of the range of the nodes specified in the tidefile
 		if(extNodeNum>Collections.max(extNodeNums)) {
+			if(intNodeNumOffset==Grid.MISSING) {
+				 PTMUtil.systemExit("Attempting to use intNodeNumOffset before it has been set. System exit.");
+			}
 			return extNodeNum-intNodeNumOffset;
 		}
 

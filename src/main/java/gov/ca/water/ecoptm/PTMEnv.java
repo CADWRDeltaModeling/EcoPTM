@@ -125,8 +125,9 @@ public class PTMEnv{
 				}
 				wbArray[i].setNodeArray(nodePtrArray);
 				int wbType = wbArray[i].getType();
-				if (wbType == Waterbody.RESERVOIR)
+				if (wbType == Waterbody.RESERVOIR) {
 					_reservoirObj2objNameID.put(((Reservoir)wbArray[i]).getName(), i);
+				}
 				else if (wbType == Waterbody.CONVEYOR)
 					_reservoirObj2objNameID.put(((Conveyor)wbArray[i]).getName(), i);
 				else if (wbType == Waterbody.BOUNDARY)

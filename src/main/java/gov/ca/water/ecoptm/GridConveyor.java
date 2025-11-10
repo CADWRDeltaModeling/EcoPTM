@@ -1,6 +1,9 @@
 
 package gov.ca.water.ecoptm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Object corresponding to a conveyor in the DSM2 HYDRO grid
  * 
@@ -11,6 +14,7 @@ public class GridConveyor extends GridWaterbody {
 
 	private String name;
 	private int conveyorNum;
+	// Note: nodeArray contains internal node numbers for real nodes and external node numbers for virtual nodes
 	private int[] nodeArray;
 	private String[] connectionTypes;
 	private String[] reservoirNames;
@@ -46,7 +50,7 @@ public class GridConveyor extends GridWaterbody {
 		}
 		else if(fromType.equalsIgnoreCase("reservoir")) {
 			newNodeNum = PTMFixedData.createVirtualNode();
-			Grid.createNode(newNodeNum);
+			Grid.createVirtualNode(newNodeNum);
 			nodeArray[0] = newNodeNum;
 
 			reservoirNames[0] = fromID;
@@ -58,7 +62,7 @@ public class GridConveyor extends GridWaterbody {
 		}
 		else if(toType.equalsIgnoreCase("reservoir")) {
 			newNodeNum = PTMFixedData.createVirtualNode();
-			Grid.createNode(newNodeNum);
+			Grid.createVirtualNode(newNodeNum);
 			nodeArray[1] = newNodeNum;
 
 			reservoirNames[1] = toID;
@@ -103,7 +107,24 @@ public class GridConveyor extends GridWaterbody {
 	}
 
 	@Override
+	// Return internal node numbers
 	public int[] getNodeArray() {
-		return nodeArray;
+		List<Integer> intNodeArray;
+
+		if(nodeArray==null) {
+			return nodeArray;
+		}
+		
+		intNodeArray = new ArrayList<>();
+		for(int i=0; i<nodeArray.length; i++) {
+			if(connectionTypes[i].equalsIgnoreCase("reservoir")) {
+				intNodeArray.add(PTMFixedData.getIntNodeNum(nodeArray[i]));
+			}
+			else {
+				intNodeArray.add(nodeArray[i]);
+			}
+		}
+		
+		return intNodeArray.stream().mapToInt(Integer::intValue).toArray();
 	}
 }

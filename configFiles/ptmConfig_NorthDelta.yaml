@@ -1,5 +1,5 @@
 ---
-tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_GZIP.h5
+tidefile: D:/QEDA/DWR/delta/dsm2v821/study/historical/output/hist_v821_GZIP.h5
 
 # ECO-PTM behavior configuration
 particle_type: Salmon_Particle

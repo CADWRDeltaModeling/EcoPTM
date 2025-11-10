@@ -37,6 +37,9 @@ public class Grid {
 	private static List<GridNode> nodes;
 	private static List<Integer> extNodeNums;
 	private static List<Integer> intNodeNums;
+	private static List<GridNode> virtualNodes;
+	private static List<Integer> virtualExtNodeNums;
+	private static List<Integer> virtualIntNodeNums;
 	private static List<GridReservoir> reservoirs;
 	private static List<Integer> intResNums;
 	private static Map<String, Map<String, List<Integer>>> resNodeConnect;
@@ -71,8 +74,11 @@ public class Grid {
 		channels = new ArrayList<>();
 		extChanNums = new ArrayList<>();
 		nodes = new ArrayList<>();
+		virtualNodes = new ArrayList<>();
 		extNodeNums = new ArrayList<>();
 		intNodeNums = new ArrayList<>();
+		virtualExtNodeNums = new ArrayList<>();
+		virtualIntNodeNums = new ArrayList<>();
 		reservoirs = new ArrayList<>();
 		intResNums = new ArrayList<>();
 		stageBoundaries = new ArrayList<>();
@@ -192,8 +198,6 @@ public class Grid {
 			flowIndexMember = members.get(4);
 			flowNameMember = members.get(5);
 			flowTypeMember = members.get(6);
-
-			PTMFixedData.setIntNodeNumOffset(intNodeNums);
 			
 			for (int i=0; i<arrayStructureBB.getSize(); i++) {
 				nameData = (ArrayChar.D1) arrayStructureBB.getArray(i, nameMember);
@@ -228,7 +232,9 @@ public class Grid {
 
 					// Add this hidden node to intNodeNums (if it's not in intNodeNums already, that implies
 					// that it was just added to extNodeNums, so the order of the two lists should be synced).
-					if(!intNodeNums.contains(PTMFixedData.getIntNodeNum(extNodeNum))) {intNodeNums.add(PTMFixedData.getIntNodeNum(extNodeNum));}
+					if(!intNodeNums.contains(PTMFixedData.getIntNodeNum(extNodeNum))) {
+						intNodeNums.add(PTMFixedData.getIntNodeNum(extNodeNum));
+					}
 
 					resNodeConnect.get(resName).get("nodeNum").add(intNodeNum);
 					resNodeConnect.get(resName).get("flowIndex").add(flowIndex);
@@ -318,6 +324,35 @@ public class Grid {
 
 		return tempNode;
 	}
+	
+	/**
+	 * Return a boolean indicating whether the grid contains the specified virtual node number
+	 * @param virtualNodeNum			virtual node number
+	 * @return						boolean indicating whether the grid contains the external node number
+	 */
+	public static boolean containsVirtualNode(int virtualNodeNum) {
+		return virtualExtNodeNums.contains(virtualNodeNum);
+	}
+
+	/**
+	 * Create a new GridNode object for a virtual node if it doesn't already exist
+	 * @param virtualNodeNum		virtual node number
+	 * @return						new or existing GridNode object
+	 */
+	public static GridNode createVirtualNode(int virtualNodeNum) {
+		GridNode tempNode = null;
+
+		if(!containsVirtualNode(virtualNodeNum)) {
+			tempNode = new GridNode(virtualNodeNum);
+			virtualNodes.add(tempNode);
+			virtualExtNodeNums.add(tempNode.getExtNodeNum());
+		}
+		else {
+			tempNode = virtualNodes.get(virtualExtNodeNums.indexOf(virtualNodeNum));
+		}
+		
+		return tempNode;
+	}
 
 	/**
 	 * Add all waterbodies to lists of nodes; create reservoirs and boundaries
@@ -337,6 +372,13 @@ public class Grid {
 		for(int i=0; i<extNodeNums.size(); i++) {
 			intNodeNums.add(PTMFixedData.getIntNodeNum(extNodeNums.get(i)));
 		}
+		PTMFixedData.setIntNodeNumOffset(intNodeNums);
+		
+		// Map external virtual node numbers to internal
+		for(int v : virtualExtNodeNums) {
+			virtualIntNodeNums.add(PTMFixedData.getIntNodeNum(v));
+		}
+		
 		for(int i=0; i<reservoirs.size(); i++) {
 			intResNums.add(PTMFixedData.getIntResNum(reservoirs.get(i).getName()));
 		}
@@ -346,6 +388,7 @@ public class Grid {
 		}
 		for(GridReservoir thisReservoir : reservoirs) {
 			for(int extNodeNum : thisReservoir.getExtNodeNums()) {
+				System.out.println("PTMFixedData.getIntNodeNum(extNodeNum): " + PTMFixedData.getIntNodeNum(extNodeNum));
 				thisNode = Grid.getIntNode(PTMFixedData.getIntNodeNum(extNodeNum));
 				thisNode.addReservoir(thisReservoir);
 			}
@@ -384,7 +427,12 @@ public class Grid {
 	 * @return						GridNode object
 	 */
 	public static GridNode getIntNode(int intNodeNum) {
-		if(intNodeNums.contains(intNodeNum)) {return nodes.get(intNodeNums.indexOf(intNodeNum));}
+		if(intNodeNums.contains(intNodeNum)) {
+			return nodes.get(intNodeNums.indexOf(intNodeNum));
+		}
+		else if(virtualIntNodeNums.contains(intNodeNum)) {
+			return virtualNodes.get(virtualIntNodeNums.indexOf(intNodeNum));
+		}
 		else {return null;}
 	}
 
@@ -568,6 +616,13 @@ public class Grid {
 	 * @return						boundary type
 	 */
 	public static String getBoundaryTypeForNode(int intNum) {
-		return nodes.get(intNodeNums.indexOf(intNum)).getBoundaryType();
+		if(intNodeNums.contains(intNum)) {
+			return nodes.get(intNodeNums.indexOf(intNum)).getBoundaryType();
+		}
+		else if(virtualIntNodeNums.contains(intNum)) {
+			return virtualNodes.get(virtualIntNodeNums.indexOf(intNum)).getBoundaryType();
+		}
+		
+		return null;
 	}
 }
