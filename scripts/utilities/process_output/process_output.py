@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime as dt
 from datetime import timedelta
 import yaml
+from pathlib import Path
 
 class ProcessOutput:
 
@@ -19,7 +20,50 @@ class ProcessOutput:
         """Initialize a ProcessOutput object""" 
         self.figWidth = 6
         self.figHeight = 6
-    
+
+    def extractFlux(self, fluxOutputDir, fluxFiles):
+        """Extract all flux time series
+
+        Keyword arguments:
+        fluxOutputDir (str) -- full path to the directory where the CSVs with time series should be saved
+        fluxFiles (list) -- list of paths to the netCDF flux output files
+        """ 
+        print("="*80)
+
+        # Make sure the output directory exists
+        os.makedirs(fluxOutputDir, exist_ok=True)
+        
+        for fluxFile in fluxFiles:
+            print(f"Extracting flux from {fluxFile}")
+            print(f"Extracting all flux time series outputs in {fluxFile}")
+
+            p = Path(fluxFile)
+            outputFile = str(p.with_suffix(".csv"))
+
+            ds = xr.open_dataset(fluxFile)
+
+            nodeFlux = ds["nodeFlux"].to_pandas()
+            nodeFlux.columns = [c.decode("utf8") for c in nodeFlux.columns]
+            nodeFlux.index = [i.decode("utf8") for i in nodeFlux.index]
+            
+            nodeFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in nodeFlux.index]
+
+            thisOutputFile = outputFile.replace(".csv", "_nodeFlux.csv")
+            nodeFlux.to_csv(thisOutputFile, index=False)
+            print(f"Saved node flux time series to {thisOutputFile}")
+            
+            groupFlux = ds["groupFlux"].to_pandas()
+            groupFlux.columns = [c.decode("utf8") for c in groupFlux.columns]
+            groupFlux.index = [i.decode("utf8") for i in groupFlux.index]
+            
+            groupFlux["datetime"] = [dt.strptime(d, "%m/%d/%Y %H:%M:%S") for d in groupFlux.index]
+
+            thisOutputFile = outputFile.replace(".csv", "_groupFlux.csv")
+            groupFlux.to_csv(thisOutputFile, index=False)
+            print(f"Saved group flux time series to {thisOutputFile}")
+            
+            ds.close()
+
     def createFluxDat(self, fluxOutputDir, fluxFiles, fluxSimLoc, fluxDatLocs, fluxDatDays):
         """Create dat file of flux outputs
         
@@ -281,3 +325,6 @@ if __name__=="__main__":
     
     if config["echoConfig"]:
         p.printConfig(config["echoConfigNetCDF"])
+    
+    if config["extractFlux"]:
+        p.extractFlux(config["fluxOutputDir"], config["fluxFiles"])

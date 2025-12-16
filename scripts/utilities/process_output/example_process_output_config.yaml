@@ -1,3 +1,4 @@
+extractFlux: false
 createFluxDat: true
 fluxOutputDir: "C:/Users/admin/Documents/QEDA/DWR/programs/dsm2/dsm2/src/ptm/scripts/utilities/process_output"
 fluxFiles: ["C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_neutrallyBuoyant_25apr25/output/ptm_out.ncd"]
