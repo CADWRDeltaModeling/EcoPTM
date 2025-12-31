@@ -122,7 +122,11 @@ class ProcessOutput:
 
                 flux = pd.merge(nodeFlux, groupFlux, on="datetime", how="outer")
                 flux["datetime"] = pd.to_datetime(flux["datetime"])
-                startDatetime = flux["datetime"].min()
+
+                # Flux outputs include one time step before the PTM start time => use second datetime entry
+                flux = flux.sort_values(by="datetime")
+                startDatetime = flux.iloc[1]["datetime"]
+
                 flux["daysFromStart"] = [(d - startDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
 
                 thisFlux = flux[flux["daysFromStart"]>=days].iloc[0]
