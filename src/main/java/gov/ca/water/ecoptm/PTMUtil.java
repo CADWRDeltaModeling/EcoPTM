@@ -489,8 +489,8 @@ public class PTMUtil {
 	}
 	 */
 	public static void setRandomNumber(){
-		_rng = new PTMrng(Long.valueOf(System.currentTimeMillis()).intValue());
-		//TODO changed the way the random numbers are called
+        // Use default entropy-based seed
+        _rng = new PTMrng();
 		_useNewRandomSeed = true;
 	}
 	public static boolean getUseNewRandomSeed(){return _useNewRandomSeed;}

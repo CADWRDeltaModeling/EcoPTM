@@ -2,6 +2,7 @@ package gov.ca.water.ecoptm;
 
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
+import java.security.SecureRandom;
 
 /**
  * Random number generator used by Particle, Waterbody, PTMUtil, and Node classes
@@ -9,17 +10,30 @@ import java.util.random.RandomGeneratorFactory;
  * @author Doug Jackson (QEDA Consulting, LLC)
  */
 public class PTMrng {
-	
+
 	private RandomGenerator RNG = null;
-	
+
 	/**
-	 * Create a Xoshiro256PlusPlus pseudorandom number generator
+	 * Create a Xoshiro256PlusPlus pseudorandom number generator using an entropy-based seed
+	 */
+	public PTMrng() {
+		SecureRandom secureRandom;
+		byte[] seed;
+
+		secureRandom = new SecureRandom();
+		// 32 bytes = 256 bits for the Xoshiro256PlusPlus algorithm
+		seed = secureRandom.generateSeed(32);
+		RNG = RandomGeneratorFactory.of("Xoshiro256PlusPlus").create(seed);
+	}
+
+	/**
+	 * Create a Xoshiro256PlusPlus pseudorandom number generator with a specified seed
 	 * @param randomSeed			pseudorandom number generator seed
 	 */
 	public PTMrng(int randomSeed) {
 		RNG = RandomGeneratorFactory.of("Xoshiro256PlusPlus").create(randomSeed);
 	}
-	
+
 	/**
 	 * Generate a random number from a uniform distribution
 	 * @return						random number from a uniform distribution
@@ -27,7 +41,7 @@ public class PTMrng {
 	public float getUniform() {
 		return RNG.nextFloat();
 	}
-	
+
 	/**
 	 * Generate a random number from a Gaussian distribution
 	 * @return

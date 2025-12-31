@@ -84,6 +84,20 @@ public class Globals{
 
 		return timeStr; 
 	}
+	
+    /**
+     * Get model date and time as a string
+     * @return                        model datetime as a String
+     */
+    public static String getModelDatetimeStr() {
+        String modelTime, modelDate;
+        
+        modelTime = Globals.getModelTime(Globals.currentModelTime);
+        modelDate = Globals.getModelDate(Globals.currentModelTime);
+        
+        return(modelDate + " " + modelTime);
+    }
+    
 	/**
 	 * model time zone
 	 */

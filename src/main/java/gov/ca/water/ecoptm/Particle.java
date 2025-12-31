@@ -210,13 +210,14 @@ public class Particle{
 		if (DEBUG) System.out.println("Initializing particle " + Id);
 		
 		if(PTMUtil.getUseNewRandomSeed()) {
-			_randomSeed = Long.valueOf(System.currentTimeMillis()).intValue();
+			// Use default entropy-based seed
+			_rng = new PTMrng();
 		}
 		else {
 			_randomSeed = pFI.getRandomSeed();
+			_rng = new PTMrng(_randomSeed);
 		}
-		_rng = new PTMrng(_randomSeed);
-		
+
 		first = true;
 		inserted = false;//particle not in the system yet
 		age = 0;
