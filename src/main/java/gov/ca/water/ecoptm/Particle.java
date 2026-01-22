@@ -269,7 +269,7 @@ public class Particle{
 	public final Waterbody getLocation(float [] px, float [] py, float [] pz){
 		Waterbody w;
 		w = wb;
-		if (inserted) {
+		if (inserted && (!_reInsert)) {
 			if (wb.getPTMType() == Waterbody.CHANNEL) {
 				px[0] = x;
 				py[0] = y;
@@ -472,7 +472,7 @@ public class Particle{
 		String rep = Id + " ";
 		if (this.wb != null) rep += this.wb.getEnvIndex() + " ";
 		else rep += -1 + " ";
-		if (this.inserted){
+		if (this.inserted && (!_reInsert)){
 			rep += this.x + " "
 					+ this.y + " "
 					+ this.z + " ";
