@@ -206,6 +206,8 @@ fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
 fish_screens:
   - [330, 700]
 
+max_leakage_gate_closed: 5.0
+
 survival_output_path: .\output\survival.csv
 
 # Station is defined by (channel number, distance from upstream node)
@@ -462,6 +464,8 @@ ptm_trans_b_coef: 0.3                 # Transverse b coefficient
 ptm_trans_c_coef: -1.5                # Transverse c coefficient
 
 ptm_num_animated: 2000                # Maximum number of particles to animate
+
+max_leakage_gate_closed: 5.0
 
 particle_group_output_header: [name, groupName]
 particle_group_output:

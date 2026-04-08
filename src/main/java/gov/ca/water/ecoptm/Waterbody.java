@@ -75,6 +75,26 @@ public abstract class Waterbody{
 	 *
 	 */
 	public int INITIAL_SEED = 10000;
+	
+	private boolean leakageSet = false;
+	private boolean prevGateClosed = false;
+	
+	private static Config config;
+	
+	// Margin of error when determining whether total flow is equal to leakage
+	private static float leakageMarginOfError;
+	
+	static {
+		config = PTMFixedData.getConfig();
+		if(config.isSet("max_leakage_gate_closed")) {
+			leakageMarginOfError = config.max_leakage_gate_closed;
+		}
+		else {
+			PTMUtil.printInfoMessage("No max_leakage_gate_closed found in configuration file. Setting equal to 0.0.");
+			leakageMarginOfError = 0.0f;
+		}
+	}
+	
 	/**
 	 * Construct an empty channel with no nodes
 	 */
@@ -105,8 +125,11 @@ public abstract class Waterbody{
 			_firstTimeSetFlows = new boolean[nNodes];
 			Arrays.fill(_firstTimeSetFlows, true);
 			flowAt = new float[nNodes];
+			instFlowAt = new float[nNodes];
 			velocityAt = new float[nNodes];
 			qualityAt = new float[nNodes][getNumConstituents()];
+			leakageAt = new float[nNodes];
+			timeAvgLeakageAt = new float[nNodes];
 		}
 		_rng = new PTMrng(INITIAL_SEED);
 	}
@@ -121,13 +144,26 @@ public abstract class Waterbody{
 	 */
 	public float getInflow(int nodeEnvId){
 		int nodeId = getNodeLocalIndex(nodeEnvId);
+		float nonLeakageFlow;
+		
 		//at gate flow == 0
-		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
+		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE) {
 			return 0.0f;
-		if (flowType(nodeId) == OUTFLOW)
-			return -1.0f*flowAt[nodeId];
-		return flowAt[nodeId];
+		}
+		
+		if (getLeakageSet()) {
+			nonLeakageFlow = flowAt[nodeId] - timeAvgLeakageAt[nodeId];
+		}
+		else {
+			nonLeakageFlow = flowAt[nodeId];
+		}
+		
+		if (flowType(nodeId) == OUTFLOW) {
+			return -1.0f*nonLeakageFlow;
+		}
+		return nonLeakageFlow;
 	}
+	
 	// sv is a swimming velocity from a particle
 	public abstract float getInflowWSV(int nodeEnvId, float sv);
 	/**
@@ -141,6 +177,7 @@ public abstract class Waterbody{
 	 */
 	public abstract boolean isAgSeep();
 	public abstract boolean isAgDiv();
+	public abstract boolean isDrain();
 	/**
 	 *  Get the type from particle's point of view
 	 */
@@ -233,6 +270,61 @@ public abstract class Waterbody{
 			flowAt[nodeId] = flowArray[nodeId];
 		}
 	}
+	
+	/**
+	 * Set instantaneous flow information to given flow array
+	 * @param flowArray				flow array
+	 */
+	public void setInstFlow(float[] flowArray) {
+		for (int nodeId=0; nodeId<nNodes; nodeId++) {
+			instFlowAt[nodeId] = flowArray[nodeId];
+		}
+	}
+	
+	/*
+	 * Set instantaneous and time-averaged leakage at the specified node
+	 */
+	public void setLeakage(float leakage, float timeAvgLeakage, int nodeId) {
+		int localIndex;
+		
+		localIndex = getNodeLocalIndex(nodeId);
+		
+		leakageAt[localIndex] = leakage;
+		timeAvgLeakageAt[localIndex] = timeAvgLeakage;
+		
+		// Flag indicating that leakage has been set for this waterbody
+		leakageSet = true;
+	}
+	
+	// Return flag indicating whether leakage has been set for this waterbody
+	public boolean getLeakageSet() {
+		return leakageSet;
+	}
+	
+	/*
+	 * Determine whether the gate is closed based on comparison of total flow and leakage 
+	 */
+	public boolean getGateClosed(int nodeId) {
+	
+		int localIndex;
+		
+		// Return false if leakage has not been set for this waterbody
+		if(!leakageSet) {return false;}
+		
+		localIndex = getNodeLocalIndex(nodeId);
+		
+		// If flow and leakage are both near zero, gate state is unknown => return previous value
+		if(Math.abs(instFlowAt[localIndex])<=leakageMarginOfError && Math.abs(leakageAt[localIndex])<=leakageMarginOfError) {
+			return prevGateClosed;
+		}
+		
+		// Gate is inferred to be closed if total flow==leakage within a margin of error
+		// Set prevGateClosed to remember this value and then return it
+		prevGateClosed = Math.abs(instFlowAt[localIndex]-leakageAt[localIndex])<leakageMarginOfError;
+		return prevGateClosed;
+		
+	}
+	
 	/**
 	 * sets the accounting name
 
@@ -358,7 +450,7 @@ public abstract class Waterbody{
 	/**
 	 *  Flow, depth, velocity, width and area information read from tide file
 	 */
-	protected float[] flowAt, previousFlowAt, deltaFlowAt, depthAt, velocityAt, widthAt;
+	protected float[] flowAt, instFlowAt, previousFlowAt, deltaFlowAt, depthAt, velocityAt, widthAt, leakageAt, timeAvgLeakageAt;
 	/**
 	 *  Water quality information read from Qual binary file
 	 */

@@ -67,6 +67,7 @@ class Conveyor extends Waterbody {
 	public int flowType(int nodeId){return OUTFLOW;}
 	public boolean isAgSeep(){ return false;}
 	public boolean isAgDiv(){ return false;}
+	public boolean isDrain() {return false;}
 	/**
 	 *  Get the type from particle's point of view
 	 */

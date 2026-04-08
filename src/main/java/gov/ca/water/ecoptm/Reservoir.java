@@ -44,6 +44,7 @@ public class Reservoir extends Waterbody{
 	public int flowType(int nodeId){return OUTFLOW;}
 	public boolean isAgSeep(){ return false;}
 	public boolean isAgDiv(){ return false;}
+	public boolean isDrain() {return false;}
 	/**
 	 *  Return the hydrodynamic type of Reservoir
 	 */

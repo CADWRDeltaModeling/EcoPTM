@@ -237,15 +237,29 @@ public class Channel extends Waterbody{
 	// SV has to be passed from a particle
 	public float getInflowWSV(int nodeEnvId, float sv){
 		int nodeId = getNodeLocalIndex(nodeEnvId);
+		float nonLeakageFlow;
+		
 		//at gate flow == 0
-		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
+		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE) {
 			return 0.0f;
-		if (flowType(nodeId) == OUTFLOW)
-			return -1.0f*(flowAt[nodeId]+sv*getFlowArea(length));
-		return flowAt[nodeId]+sv*getFlowArea(0.0f);
+		}
+		
+		if (getLeakageSet()) {
+			nonLeakageFlow = flowAt[nodeId] - timeAvgLeakageAt[nodeId];
+		}
+		else {
+			nonLeakageFlow = flowAt[nodeId];
+		}
+        
+		if (flowType(nodeId) == OUTFLOW) {
+			return -1.0f*(nonLeakageFlow + sv*getFlowArea(length));
+		}
+		return nonLeakageFlow + sv*getFlowArea(0.0f);
 	}
+	
 	public boolean isAgSeep(){ return false;}
 	public boolean isAgDiv(){ return false;}
+	public boolean isDrain() {return false;}
 
 	/**
 	 *  vertical profile multiplier

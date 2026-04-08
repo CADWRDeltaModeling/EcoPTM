@@ -11,8 +11,8 @@ library(yaml)
 args <- commandArgs(trailingOnly=T)
 if(length(args)==0) {
     cat("Reading hard-coded path to configuration file.\n")
-    configFile <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
-    workingDir <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
+    configFile <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
 } else {
     cat("Reading path to configuration file as a command line argument\n")
     configFile <- args[1]
@@ -36,6 +36,8 @@ TCstationNames <- c("TC_U", "TC_D", "TC_T")
 
 # Number used to indicate missing value
 missingVal <- -999
+
+expectedSampleTime_min <- 15
 
 ####################################################################################################
 # Install packages that aren't available through conda
@@ -280,6 +282,15 @@ if(length(args)==(1 + numOptArgs)) {
 }
 
 sampleTime_min <- loadVar("sampleTime_min")
+
+if(sampleTime_min!=expectedSampleTime_min) {
+    cat("---------------------------------------------------------\n")
+    cat("WARNING: sampleTime_min IS", sampleTime_min, "MINUTES.\n",
+        "IT IS STRONGLY RECOMMENDED THAT YOU USE A TIME STEP OF", expectedSampleTime_min, "MINUTES.\n")
+    cat("---------------------------------------------------------\n")
+}
+
+
 TClag_min <- loadVar("TClag_min")
 # Flag to indicate whether the 2011 statistical model should be used
 use2011 <- loadVar("use2011")
@@ -311,6 +322,7 @@ stationLoc$channelFrac <- stationLoc$channelDist_ft/stationLoc$channelLen_ft
 stationNames <- unique(stationLoc$stationName)
 
 # Read flows for all channels
+cat("Reading flows, start datetime, and end datetime...\n")
 channelFlows <- h5read(tideFile, "/hydro/data/channel flow")
 
 # Read the start datetime from the channel flow attributes
@@ -320,6 +332,20 @@ timeStep_min <- h5readAttributes(tideFile, "hydro")$'Time interval'
 numTimeSteps <- dim(channelFlows)[3]
 flowDatetimes <- seq(startDatetime, length=numTimeSteps, by=paste(timeStep_min, "min"))
 endDatetime <- flowDatetimes[length(flowDatetimes)]
+
+# Verify that timeStep_min and sampleTime_min are compatible
+cat(paste0("Specified output time step: ", sampleTime_min, " minutes. Channel flows time step in tide file: ", timeStep_min, " minutes.\n"))
+if(timeStep_min>sampleTime_min) {
+    if(timeStep_min%%sampleTime_min!=0) {
+        cat(paste0("WARNING: SPECIFIED OUTPUT TIME STEP (sampleTime_min=", sampleTime_min, 
+            ") IS NOT A FACTOR OF THE CHANNEL FLOW TIME STEP (", timeStep_min, ").\n"))   
+    }
+} else if(sampleTime_min>timeStep_min) {
+    if(sampleTime_min%%timeStep_min!=0) {
+        cat(paste0("WARNING: SPECIFIED OUTPUT TIME STEP (sampleTime_min=", sampleTime_min, 
+                   ") IS NOT A MULTIPLE OF THE CHANNEL FLOW TIME STEP (", timeStep_min, ").\n")) 
+    }
+}
 
 # All times are in PST (GMT+8)
 transProbsStartDatetime <- dmy(transProbsStartDate, tz="Etc/GMT+8")
@@ -398,7 +424,7 @@ stationFlow <- stationFlow %>% mutate(flow=upFlow + channelFrac*(downFlow-upFlow
 
 # Apply the Godin filter
 cat("Applying Godin filter.\n")
-stationFlow <- stationFlow %>% group_by(stationName) %>% mutate(netFlow=smoothGodin(flow))
+stationFlow <- stationFlow %>% group_by(stationName) %>% mutate(netFlow=smoothGodin(flow, increment=paste(sampleTime_min, "mins")))
 stationFlow$tidalFlow <- stationFlow$flow - stationFlow$netFlow
 
 stationFlow <- as.data.frame(stationFlow)

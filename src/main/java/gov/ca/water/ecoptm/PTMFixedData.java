@@ -112,6 +112,7 @@ public class PTMFixedData {
 	private static List<Float> resArea;
 	private static List<Float> resBottomElev;
 	private static List<String> qextNames;
+	private static Map<Integer, Integer> compIndicesUpNode, compIndicesDownNode;
 	private static Map<String, Integer> qextExtNodeNums;
 	private static Map<String, List<Integer>> conveyorNodeNums;
 	private static Map<String, Integer> qextFlowIndices;
@@ -147,6 +148,7 @@ public class PTMFixedData {
 		ncd = Grid.getNCD();
 
 		// Read grid data from the tidefile
+		readHydroCompPoint();
 		readChannel();
 		maxRealExtNodeNums = Collections.max(extNodeNums);
 
@@ -157,6 +159,7 @@ public class PTMFixedData {
 		readBoundaryStage();
 		createStageBoundaryFlowIndices();
 		readTransfer();
+		readGates();
 		
 		// Run tide file QA for fixed data
 		TidefileQA.runQAfixedData();
@@ -1105,6 +1108,80 @@ public class PTMFixedData {
 	}
 
 	/**
+	 * Read the hydro_comp_point table from the tidefile 
+	 */
+	public static void readHydroCompPoint() {
+		Variable hydroCompPointVar;
+		Structure structure;
+		ArrayStructureBB arrayStructureBB;
+		List<Member> members;
+		Member compIndexMember, intChanNumMember, distMember;
+		ArrayInt.D0 compIndexData, intChanNumData;
+		ArrayDouble.D0 distData;
+		int numEntries, thisCompIndex, thisIntChanNum;
+		double thisDist;
+		Map<Integer, Double> maxDistDownNode, minDistUpNode;
+			
+		// Read hydro_comp_point
+		try {
+			hydroCompPointVar = ncd.findVariable("/hydro/geometry/hydro_comp_point");
+			structure = (Structure) hydroCompPointVar;
+			arrayStructureBB = (ArrayStructureBB) structure.read();
+			members = arrayStructureBB.getMembers();
+			compIndexMember = members.get(0);
+			intChanNumMember = members.get(1);
+			distMember = members.get(2);
+			
+			numEntries = (int) arrayStructureBB.getSize();
+			
+			compIndicesUpNode = new HashMap<>();
+			compIndicesDownNode = new HashMap<>();
+			maxDistDownNode = new HashMap<>();
+			minDistUpNode = new HashMap<>();
+			for (int i=0; i<numEntries; i++) {
+				compIndexData = (ArrayInt.D0) arrayStructureBB.getArray(i, compIndexMember);
+				intChanNumData = (ArrayInt.D0) arrayStructureBB.getArray(i, intChanNumMember);
+				distData = (ArrayDouble.D0) arrayStructureBB.getArray(i, distMember);
+				
+				thisCompIndex = compIndexData.get();
+				thisIntChanNum = intChanNumData.get();
+				thisDist = distData.get();
+				
+				// Initialize and update upNode entries
+				if(!compIndicesUpNode.containsKey(thisIntChanNum)) {
+					compIndicesUpNode.put(thisIntChanNum, thisCompIndex);
+					minDistUpNode.put(thisIntChanNum, thisDist);
+				}
+				else {
+					// Update if we've found an entry with a smaller distance
+					if(thisDist<minDistUpNode.get(thisIntChanNum)) {
+						compIndicesUpNode.put(thisIntChanNum, thisCompIndex);
+						minDistUpNode.put(thisIntChanNum, thisDist);
+					}
+				}
+				
+				// Initialize and update downNode entries
+				if(!compIndicesDownNode.containsKey(thisIntChanNum)) {
+					compIndicesDownNode.put(thisIntChanNum, thisCompIndex);
+					maxDistDownNode.put(thisIntChanNum, thisDist);
+				}
+				else {
+					// Update if we've found an entry with a larger distance
+					if(thisDist>maxDistDownNode.get(thisIntChanNum)) {
+						compIndicesDownNode.put(thisIntChanNum, thisCompIndex);
+						maxDistDownNode.put(thisIntChanNum, thisDist);
+					}
+				}
+				
+			}
+		}
+		catch (IOException ioe) {
+			PTMUtil.systemExit("Exception: " + ioe);
+		}		
+	}
+	
+	
+	/**
 	 * Read the channel table from the tidefile
 	 */
 	public static void readChannel() {
@@ -1115,7 +1192,7 @@ public class PTMFixedData {
 		Member chanNumMember, chanLengthMember, upNodeMember, downNodeMember;
 		ArrayInt.D0 chanNumData, chanLengthData, upNodeData, downNodeData;
 		int[] nodes;
-		int boundaryNodeIndex;
+		int boundaryNodeIndex, thisIntChanNum;
 		GridChannel thisChannel;
 		List<Integer> coreNodes, boundaryNodes;
 
@@ -1141,13 +1218,16 @@ public class PTMFixedData {
 			numChannels = (int) arrayStructureBB.getSize();
 			extChanNodes = new int[numChannels][2];
 			for (int i=0; i<numChannels; i++) {
+				thisIntChanNum = i+1;
+				
 				chanNumData = (ArrayInt.D0) arrayStructureBB.getArray(i, chanNumMember);
 				chanLengthData = (ArrayInt.D0) arrayStructureBB.getArray(i,  chanLengthMember);
 				upNodeData = (ArrayInt.D0) arrayStructureBB.getArray(i, upNodeMember);
 				downNodeData = (ArrayInt.D0) arrayStructureBB.getArray(i, downNodeMember);
 
 				// Create a new GridChannel object and add it to Grid
-				thisChannel = new GridChannel(chanNumData.get(), upNodeData.get(), downNodeData.get());
+				thisChannel = new GridChannel(chanNumData.get(), upNodeData.get(), downNodeData.get(), 
+						compIndicesUpNode.get(thisIntChanNum), compIndicesDownNode.get(thisIntChanNum));
 				Grid.addChannel(thisChannel);
 
 				extChanNums.add(chanNumData.get());
@@ -1293,6 +1373,142 @@ public class PTMFixedData {
 				Grid.addConveyor(thisConveyor);
 
 				conveyorNames.add(nameData.getString().trim().toUpperCase());
+			}
+		} catch (IOException ioe) {
+			PTMUtil.systemExit("Exception: " + ioe);
+		}
+	}
+	
+	/**
+	 * Read gates tables from the tidefile
+	 */
+	public static void readGates() {
+		Variable weirVar, pipeVar, gateVar;
+		Structure structure;
+		ArrayStructureBB arrayStructureBB;
+		List<Member> members;
+		Member pipeNameMember, deviceMember, gateNameMember, fromObjMember, fromIDmember, toNodeMember;
+		ArrayChar.D1 pipeNameData, deviceData, gateNameData, fromObjData, fromIDdata;
+		ArrayInt.D0 toNodeData;
+		List<String> gateNames, fromObjs, fromIDs;
+		List<Integer> toNodes;
+		int numWeirsTotal, numPipes, numGates, thisToNode, thisIndex;
+		String thisPipeName, thisDevice, thisGateName, thisFromObj, thisFromID;
+		GridGate thisGate;
+		Map<String, Integer> numWeirs;
+		Map<String, ArrayList<String>> gatePipeDevice;
+		int gateIndex, deviceIndex;
+
+		numWeirsTotal = 0;
+		
+		// Read number of weirs for each gate
+		numWeirs = new HashMap<>();
+		try {
+			weirVar = ncd.findVariable("/hydro/input/gate_weir_device");
+			structure = (Structure) weirVar;
+			arrayStructureBB = (ArrayStructureBB) structure.read();
+			members = arrayStructureBB.getMembers();
+			gateNameMember = members.get(0);
+			deviceMember = members.get(1);
+			
+			numWeirsTotal = (int) arrayStructureBB.getSize();
+			
+			for(int i=0; i<numWeirsTotal; i++) {
+				gateNameData = (ArrayChar.D1) arrayStructureBB.getArray(i, gateNameMember);
+				deviceData = (ArrayChar.D1) arrayStructureBB.getArray(i, deviceMember);
+				
+				thisGateName = gateNameData.getString().trim().toUpperCase();
+				thisDevice = deviceData.getString().trim().toUpperCase();
+				
+				if(numWeirs.containsKey(thisGateName)) {
+					numWeirs.put(thisGateName, numWeirs.get(thisGateName)+1);
+				}
+				else {
+					numWeirs.put(thisGateName, 1);
+				}
+			}
+			
+		} catch (IOException ioe) {
+			PTMUtil.systemExit("Exception: " + ioe);
+		}
+
+		// Read gate names
+		gateNames = null;
+		fromObjs = null;
+		fromIDs = null;
+		toNodes = null;
+		try {
+			gateVar = ncd.findVariable("/hydro/input/gate");
+			structure = (Structure) gateVar;
+			arrayStructureBB = (ArrayStructureBB) structure.read();
+			members = arrayStructureBB.getMembers();
+			gateNameMember = members.get(0);
+			fromObjMember = members.get(1);
+			fromIDmember = members.get(2);
+			toNodeMember = members.get(3);
+			
+			gateNames = new ArrayList<>();
+			fromObjs = new ArrayList<>();
+			fromIDs = new ArrayList<>();
+			toNodes = new ArrayList<>();
+			numGates = (int) arrayStructureBB.getSize();
+			for(int i=0; i<numGates; i++) {
+				gateNameData = (ArrayChar.D1) arrayStructureBB.getArray(i, gateNameMember);
+				fromObjData = (ArrayChar.D1) arrayStructureBB.getArray(i, fromObjMember);
+				fromIDdata = (ArrayChar.D1) arrayStructureBB.getArray(i, fromIDmember);
+				toNodeData = (ArrayInt.D0) arrayStructureBB.getArray(i, toNodeMember);
+				
+				thisGateName = gateNameData.getString().trim().toUpperCase();
+				thisFromObj = fromObjData.getString().trim().toUpperCase();
+				thisFromID = fromIDdata.getString().trim().toUpperCase();
+				thisToNode = toNodeData.get();
+				
+				gateNames.add(thisGateName);
+				fromObjs.add(thisFromObj);
+				fromIDs.add(thisFromID);
+				toNodes.add(thisToNode);				
+			}
+		} catch (IOException ioe) {
+			PTMUtil.systemExit("Exception: " + ioe);
+		}	
+				
+		// Read gate_pipe_device device types
+		gatePipeDevice = new HashMap<>();
+		try {
+
+			pipeVar = ncd.findVariable("/hydro/input/gate_pipe_device");
+			structure = (Structure) pipeVar;
+			arrayStructureBB = (ArrayStructureBB) structure.read();
+			members = arrayStructureBB.getMembers();
+			pipeNameMember = members.get(0);
+			deviceMember = members.get(1);
+
+			numPipes = (int) arrayStructureBB.getSize();
+			for (int i=0; i<numPipes; i++) {
+				pipeNameData = (ArrayChar.D1) arrayStructureBB.getArray(i, pipeNameMember);
+				deviceData = (ArrayChar.D1) arrayStructureBB.getArray(i, deviceMember);
+				
+				thisPipeName = pipeNameData.getString().trim().toUpperCase();
+				thisDevice = deviceData.getString().trim().toUpperCase();
+
+				if(!gatePipeDevice.containsKey(thisPipeName)) {
+					gatePipeDevice.put(thisPipeName, new ArrayList<String>());
+				}
+				gatePipeDevice.get(thisPipeName).add(thisDevice);
+				
+				// Create a Gate object if this is a leakage device
+				// This implementation assumes that there is only one leakage device per pipe
+				if(thisDevice.equalsIgnoreCase("LEAKAGE")) {
+					gateIndex = gateNames.indexOf(thisPipeName);
+					thisFromObj = fromObjs.get(gateIndex);
+					thisFromID = fromIDs.get(gateIndex);
+					thisToNode = toNodes.get(gateIndex);
+					
+					deviceIndex = numWeirs.get(thisPipeName) + gatePipeDevice.get(thisPipeName).indexOf("LEAKAGE");
+					
+					thisGate = new GridGate(thisPipeName, thisFromObj, thisFromID, thisToNode, gateIndex, deviceIndex);
+					Grid.addGate(thisGate);
+				}				
 			}
 		} catch (IOException ioe) {
 			PTMUtil.systemExit("Exception: " + ioe);

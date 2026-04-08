@@ -22,6 +22,14 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 
 	static final float GATECLOSEDFLOW = Float.MIN_VALUE;
 	static final int MISSING_VALUE = -999;
+	
+	static Config config = PTMFixedData.getConfig();
+	
+	static {		
+		if(!config.isSet("ctmm_time_step_min")) {
+			PTMUtil.systemExit("Could not find ctmm_time_step_min. Please check config file.");
+		}
+	}
 
 	protected VelMethods velMethod;
 	public enum VelMethods {
@@ -109,7 +117,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		double[] flowSplitTransProbs;
 		Channel chosenChannel;
 		int confusionFactor, channelId;
-		float swimmingVel, outflow, smallLengthDiff, largeSwimmingVel, tmLeft_sec, PTMtimeStep_sec;
+		float swimmingVel, outflow, smallLengthDiff, largeSwimmingVel, tmLeft_sec, CTMMtimeStep_sec;
 		boolean wait;
 
 		// Define a small length difference to compare the current x position to the channel length
@@ -151,10 +159,11 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 			decisionType = "msm";
 		}
 
-		// Preprocessor provides transition probabilities per PTM time step. These need to be
+		// Preprocessor and flowSplitTransProbs provide transition probabilities per ctmm_time_step_min minutes. These need to be
 		// adjusted to match tmLeft
 		tmLeft_sec = p.getTmLeftInSecs();
-		PTMtimeStep_sec = 60f*Globals.Environment.getPTMTimeStep();
+		
+		CTMMtimeStep_sec = 60f*config.ctmm_time_step_min;
 
 		// Initialize adjusted transition probabilities;
 		adjTransProbToU = transProbToU;
@@ -164,17 +173,17 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		// Adjust transition probabilities
 		switch (fromChannelGroup) {
 		case UPSTREAM:
-			adjTransProbToU = Math.pow(transProbToU, PTMtimeStep_sec/tmLeft_sec);
+			adjTransProbToU = Math.pow(transProbToU, CTMMtimeStep_sec/tmLeft_sec);
 			adjTransProbToT = (1-adjTransProbToU)/(transProbToD/transProbToT + 1);
 			adjTransProbToD = 1 - (adjTransProbToU + adjTransProbToT);
 			break;
 		case DOWNSTREAM:
-			adjTransProbToD = Math.pow(transProbToD,  PTMtimeStep_sec/tmLeft_sec);
+			adjTransProbToD = Math.pow(transProbToD, CTMMtimeStep_sec/tmLeft_sec);
 			adjTransProbToU = (1-adjTransProbToD)/(transProbToT/transProbToU + 1);
 			adjTransProbToT = 1 - (adjTransProbToD + adjTransProbToU);
 			break;
 		case DISTRIB:
-			adjTransProbToT = Math.pow(transProbToT, PTMtimeStep_sec/tmLeft_sec);
+			adjTransProbToT = Math.pow(transProbToT, CTMMtimeStep_sec/tmLeft_sec);
 			adjTransProbToU = (1-adjTransProbToT)/(transProbToD/transProbToU + 1);
 			adjTransProbToD = 1 - (adjTransProbToT + adjTransProbToU);
 			break;
@@ -243,13 +252,8 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 
 			if (p.observer != null)
 				p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE, p);
-
-			// If we're not waiting, our work is done
-			if(!wait) {
-				return;
-			}
 		}
-
+		
 		if (wait){
 			p.particleWait = true;
 			if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
@@ -274,7 +278,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		double transProbFrom, transProbTo1, transProbTo2, meanWait_sec, distExit_ft;
 		float channelAreaFrom, channelAreaTo1, channelAreaTo2, inflowFrom, outflowTo1, outflowTo2,
 		posInflowFrom, posOutflowTo1, posOutflowTo2, totalFlow, relTransProbTo1, relTransProbTo2,
-		velFrom, velTo1, velTo2, vel, PTMtimeStep_sec;
+		velFrom, velTo1, velTo2, vel, CTMMtimeStep_sec;
 
 		// Minimum velocity based on the maximum no-action transition probability from the msm
 		float minVel_ftsec = 0.007f;
@@ -282,7 +286,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		// Initialize outputs
 		transProbFrom = transProbTo1 = transProbTo2 = MISSING_VALUE;
 
-		PTMtimeStep_sec = 60f*Globals.Environment.getPTMTimeStep();
+		CTMMtimeStep_sec = 60f*config.ctmm_time_step_min;
 
 		channelAreaFrom = getChannelArea(nodeId, channelFrom);
 		channelAreaTo1 = getChannelArea(nodeId, channelTo1);
@@ -360,7 +364,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		meanWait_sec = distExit_ft/(vel + Float.MIN_VALUE);
 
 		// Calculate no-action transition probability
-		transProbFrom = Math.min(1, Math.max(0, 1 - (PTMtimeStep_sec/meanWait_sec)));
+		transProbFrom = Math.min(1, Math.max(0, 1 - (CTMMtimeStep_sec/meanWait_sec)));
 
 		// Adjust the exit transition probabilities
 		transProbTo1 = (1 - transProbFrom)*relTransProbTo1;

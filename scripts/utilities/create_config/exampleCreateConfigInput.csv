@@ -1,5 +1,6 @@
 variable,value
-tidefile,C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5 
+tidefile,C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5
+trans_probs_path,C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv 
 release_loc_nodeID,17
 release_loc_channelID,17
 release_loc_distance,100

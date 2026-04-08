@@ -1,12 +1,13 @@
-runRoutingPreprocessor: false
-runTidefilePreprocessor: false
+runRoutingPreprocessor: true
+runTidefilePreprocessor: true
 runTidefilePreprocessorQA: false
-runConfigFileQA: true
-tideFile: C:/Users/admin/Documents/QEDA/DWR/fromXiao/tide_files_preprocess_21aug25/hist_fc_mss_nolk.h5
+runConfigFileQA: false
+runRepackTidefile: false
+tideFile: D:/QEDA/DWR/delta/DSM2-8.5.8be49770-win64_with_inputs/studies/historical/output/hist_fc_mss.h5 
 routingPreprocessor:
   runInCondaEnv: true
-  transProbsStartDate: 02jan2009
-  transProbsEndDate: 31dec2009
+  transProbsStartDate: 02jan2015
+  transProbsEndDate: 30dec2015
   sampleTime_min: 15
   TClag_min: 90
   use2011: false
@@ -14,13 +15,13 @@ routingPreprocessor:
   figWidth: 10
   figHeight: 5
   figDPI: 300
-  plotHORstartDate: 18may2013
+  plotHORstartDate: 18may2015
   plotHORstartTime: "08:00"
-  plotHORendDate: 20may2013
+  plotHORendDate: 20may2015
   plotHORendTime: "08:00"
-  plotTCstartDate: 20apr2016
+  plotTCstartDate: 20apr2015
   plotTCstartTime: "00:00"
-  plotTCendDate: 23apr2016
+  plotTCendDate: 23apr2015
   plotTCendTime: "00:00"
 tidefilePreprocessor:
   runInCondaEnv: true
@@ -32,6 +33,8 @@ tidefilePreprocessorQA:
   origFile: /Users/djackson/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_orig/v1.1.88.4_2011.h5
   preprocessedFile: /Users/djackson/Documents/QEDA/DWR/ECO_PTM_scenarios/v1.1.88.4_byYear_10apr24_post_tidefilePreprocessor/v1.1.88.4_2011.h5
 configFileQA:
-  runInCondaEnv: false
-  tideFile: C:/Users/admin/Documents/QEDA/DWR/fromXiao/tide_files_preprocess_21aug25/hist_fc_mss_nolk.h5 
-  configFile: C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/configFiles/ptmConfig_SouthDelta.yaml
+  runInCondaEnv: true
+  tideFile: D:/QEDA/DWR/delta/DSM2-8.5.8be49770-win64_with_inputs/studies/historical/output/hist_fc_mss.h5
+  configFile: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/testLeakage_14nov25/ptmConfig.yaml
+repackTidefile:
+  GZIPlevel: 9

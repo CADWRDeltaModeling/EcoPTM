@@ -7,7 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -37,12 +37,12 @@ public class TransProbs {
 	private static boolean fileOpen;
 
 	private static Map<String, Double> cache;
+	
+	private static final int EXPECTED_TIMESTEP_MIN = 15;
 
-	static {
+	static {		
 		numTrans = 6;
 		numStations = 2;
-
-		timeStep_min = 15;
 
 		chunkIndex = 0;
 
@@ -105,10 +105,12 @@ public class TransProbs {
 	 */
 	public static void readFirstDatetime() {
 
-		Map<String, Double> firstTimeStep;
+		Map<String, Double> firstTimeStep, secondTimeStep;
 		Map.Entry<String, Double> entry;
-		String firstIndex, firstDatetimeStr;
+		String firstIndex, firstDatetimeStr, secondDatetimeStr;
+		ZonedDateTime secondDatetime;
 		String[] fields;
+		Duration d;
 
 		firstTimeStep = readTimeStep();
 
@@ -117,9 +119,38 @@ public class TransProbs {
 
 		fields = firstIndex.split("_");
 		firstDatetimeStr = fields[1];
+		
+		secondTimeStep = readTimeStep();
+		
+		entry = secondTimeStep.entrySet().iterator().next();
+		firstIndex = entry.getKey();
+		
+		fields = firstIndex.split("_");
+		secondDatetimeStr = fields[1];
 
 		firstDatetime = ZonedDateTime.parse(firstDatetimeStr + "(UTC-08:00)",
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
+		secondDatetime = ZonedDateTime.parse(secondDatetimeStr + "(UTC-08:00)",
+				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
+		System.out.println("firstDatetime: " + firstDatetime + ", secondDatetime: " + secondDatetime);
+		d = Duration.between(firstDatetime, secondDatetime);
+		timeStep_min = Math.toIntExact(d.toMinutes());
+		
+		if(timeStep_min!=EXPECTED_TIMESTEP_MIN) {
+			PTMUtil.printInfoMessage("WARNING: TIME STEP IN TRANSITION PROBABILITIES FILE IS " + timeStep_min + " MINUTES.\n" + 
+					"IT IS STRONGLY RECOMMENDED THAT YOU USE A TIME STEP OF " + EXPECTED_TIMESTEP_MIN + " MINUTES.");
+		}
+		
+		if(Globals.Environment.getPTMTimeStep()!=EXPECTED_TIMESTEP_MIN) {
+			PTMUtil.printInfoMessage("WARNING: ptm_time_step IS " + Globals.Environment.getPTMTimeStep() + " MINUTES.\n" +
+					"IT IS STRONGLY RECOMMENDED THAT YOU USE A TIME STEP OF " + EXPECTED_TIMESTEP_MIN + " MINUTES.");
+		}
+		
+		if(Globals.Environment.getPTMTimeStep()!=timeStep_min) {
+			PTMUtil.printInfoMessage("WARNING: ptm_time_step (" + Globals.Environment.getPTMTimeStep() + " MINUTES) " +
+					" AND TIME STEP IN TRANSITION PROBABILITIES FILE (" + timeStep_min + " MINUTES) ARE NOT EQUAL.\n" +
+					"IT IS STRONGLY RECOMMENDED THAT BOTH BE SET TO " + EXPECTED_TIMESTEP_MIN + " MINUTES.");	
+		}		
 	}
 
 	/**

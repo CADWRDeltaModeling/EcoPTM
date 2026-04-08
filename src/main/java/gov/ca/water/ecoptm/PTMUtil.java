@@ -153,6 +153,13 @@ public class PTMUtil {
 		(new Exception(message)).printStackTrace();
 		System.exit(-1);
 	}
+	
+	public static void printInfoMessage(String message) {
+		System.out.println("\n----------------------------------------------------------------------------------\n" + 
+							message +
+							"\n----------------------------------------------------------------------------------\n");
+	}
+	
 	public static Calendar getHecTime(TimeZone timeZone){
 		Calendar hecTime0 = Calendar.getInstance(timeZone);
 		hecTime0.clear();

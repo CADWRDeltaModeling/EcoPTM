@@ -160,6 +160,42 @@ class RunPreprocessors:
         if p.returncode!=0:
             print("ECO-PTM configuration file QA failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
 
+    def runRepackTidefile(self):
+        """Repack the tidefile to remove SZIP compression."""
+        print("="*80)
+        print("Launching tide file repacking")  
+
+        # Replace SZIP compression with GZIP
+        try:
+            tideFile = self.config["tideFile"]
+            GZIPlevel = self.config["repackTidefile"]["GZIPlevel"]
+        except ValueError as e:
+            print("Unable to read all parameter values from configuration file.")
+            print(e)
+            sys.exit()
+        except KeyError as e:
+            print(f"Required parameter {e} missing from configuration file.")
+            sys.exit()
+
+        newTideFileGZIP = f"{os.path.splitext(tideFile)[0]}_repack_GZIP.h5"
+
+        h5repackCommand = f"h5repack -v -i {tideFile} -o {newTideFileGZIP} -f GZIP={GZIPlevel}"
+        print(f"h5repack command: {h5repackCommand}")
+
+        print("Repacking tide file using GZIP...", end="")
+        with subprocess.Popen(h5repackCommand, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=self.shell,
+                              bufsize=1, universal_newlines=True) as p:
+
+            # Print stdout line-by-line
+            for line in p.stdout:
+                print(line, end="")
+
+        if p.returncode!=0:
+            print("h5repack failed to run. Try running the h5repack command shown above from the Command Prompt to diagnose.")
+            return
+
+        print(f"Done repacking tide file.\nRepacked tide file saved to {newTideFileGZIP}")
+
     def setRoutingPreprocessorArgs(self, routingPreprocessorArgs):
         """Override specific routing preprocessor arguments"""
         # Assemble the command line arguments using either values passed in via the run_preprocessors.py
@@ -225,6 +261,7 @@ if __name__=="__main__":
     parser.add_argument("--runRoutingPreprocessor", action="store_true", dest="runRoutingPreprocessor", required=False)
     parser.add_argument("--runTidefilePreprocessor", action="store_true", dest="runTidefilePreprocessor", required=False)
     parser.add_argument("--runConfigFileQA", action="store_true", dest="runConfigFileQA", required=False)
+    parser.add_argument("--runRepackTidefile", action="store_true", dest="runRepackTidefile", required=False)
     args = parser.parse_args()
 
     configFile = args.configFile
@@ -262,6 +299,7 @@ if __name__=="__main__":
         runTidefilePreprocessor = config["runTidefilePreprocessor"]
         runTidefilePreprocessorQA = config["runTidefilePreprocessorQA"]
         runConfigFileQA = config["runConfigFileQA"]
+        runRepackTidefile = config["runRepackTidefile"]
     except ValueError as e:
         print("Unable to read all parameter values from configuration file.")
         print(e)
@@ -283,6 +321,9 @@ if __name__=="__main__":
 
     if args.runConfigFileQA:
         runConfigFileQA = True
+    
+    if args.runRepackTidefile:
+        runRepackTidefile = True
     
     r = RunPreprocessors(workingDir, configFile)
 
@@ -317,3 +358,6 @@ if __name__=="__main__":
 
     if runConfigFileQA:
         r.runConfigFileQA()
+    
+    if runRepackTidefile:
+        r.runRepackTidefile()

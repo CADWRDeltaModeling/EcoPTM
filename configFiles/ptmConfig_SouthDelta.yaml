@@ -1,5 +1,5 @@
 ---
-tidefile: 'C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5'
+tidefile: 'C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5'
 
 # ECO-PTM behavior configuration
 particle_type: Salmon_Particle
@@ -176,7 +176,8 @@ channel_groups:
 
 # Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
 output_path_entrainment: .\output\entrainment_SouthDelta.csv
-trans_probs_path: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv
+trans_probs_path: C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv
+ctmm_time_step_min: 15
 output_path_flux: ./output/flux_SouthDelta.csv
 
 channel_name_lookup_header: [Name, ChanneID]
@@ -224,6 +225,8 @@ dicu_filter_efficiency: 0.0
 fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
 fish_screens:
   - [330, 700]
+
+max_leakage_gate_closed: 5.0
 
 survival_output_path: .\output\survival_SouthDelta.csv
 # Station is defined by (channel number, distance from upstream node)
@@ -665,6 +668,8 @@ ptm_trans_c_coef: -1.5                # Transverse c coefficient
 
 ptm_num_animated: 2000                # Maximum number of particles to animate
 
+max_leakage_gate_closed: 5.0
+
 particle_group_output_header: [name, groupName]
 particle_group_output:
   - [GS, GS]
@@ -696,6 +701,7 @@ groups:
   - [chipps_east, chan, (288|294|291)]
   - [chipps_west, chan, (442|437)]
   - [ag_div, qext, dicu_div_.*]
+  - [ag_div, qext, bbid.*]
   - [swp, qext, swp]
   - [cvp, qext, cvp]
   - [mtz, stage, mtz.*]
