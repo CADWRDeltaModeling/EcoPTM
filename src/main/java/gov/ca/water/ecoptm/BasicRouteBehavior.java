@@ -84,15 +84,31 @@ public class BasicRouteBehavior {
 
 		float totalWbInflows = 0.0f;
 		int nodeId = p.nd.getEnvIndex();
+		
+		// If there's a closed gate between this node and the waterbody the vFish just came from,
+		// leave the vFish in the current waterbody
+		if(p.wb!=null && p.wb.getLeakageSet() && p.wb.getGateClosed(nodeId)) {
+			p.particleWait = true;
+			if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL) {
+				p.x = getXLocationInChannel((Channel)p.wb, p.nd);
+			}
+			return;
+		}
+		
 		int wbId = 0;
 		for (Waterbody wb: wbs){
 			if (wb == null)
 				PTMUtil.systemExit("when trying to route the particle, one of the water bodies is null, system exit.");
 			//TODO next three lines added in ECO_PTM to block particles from entering seepage flows (not in PTM)
-			if(wb.isAgSeep() || (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
+			if(wb.isAgSeep() || wb.isDrain() || (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled())) {
 				wbFlows[wbId] = 0.0f;
-			else
+			}
+			else if (wb.getLeakageSet() && wb.getGateClosed(nodeId)) {
+				wbFlows[wbId] = 0.0f;
+			}
+			else {
 				wbFlows[wbId] = Math.max(0.0f, wb.getInflow(nodeId));
+			}
 			totalWbInflows += wbFlows[wbId];
 			wbId++;
 		}
@@ -147,7 +163,9 @@ public class BasicRouteBehavior {
 			flow += modFlow;
 			//}while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
 		}while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
+        
 		p.wb = wbs[wbId];
+        
 		// send message to observer about change
 		if (p.observer != null)
 			p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);

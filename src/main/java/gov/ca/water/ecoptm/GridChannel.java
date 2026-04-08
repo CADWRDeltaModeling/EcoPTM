@@ -8,13 +8,15 @@ package gov.ca.water.ecoptm;
  */
 public class GridChannel extends GridWaterbody {
 
-	private int extChanNum, extUpNode, extDownNode, intChanNum;
+	private int extChanNum, extUpNode, extDownNode, intChanNum, compIndexUpNode, compIndexDownNode;
 	private GridNode upNode, downNode;
 
-	public GridChannel(int extChanNum, int extUpNode, int extDownNode) {
+	public GridChannel(int extChanNum, int extUpNode, int extDownNode, int compIndexUpNode, int compIndexDownNode) {
 		this.extChanNum = extChanNum;
 		this.extUpNode = extUpNode;
 		this.extDownNode = extDownNode;
+		this.compIndexUpNode = compIndexUpNode;
+		this.compIndexDownNode = compIndexDownNode;
 
 		upNode = null;
 		downNode = null;
@@ -71,6 +73,22 @@ public class GridChannel extends GridWaterbody {
 	 */
 	public int getExtDownNode() {
 		return extDownNode;
+	}
+	
+	/**
+	 * Obtain comp_index for upNode used to index into inst_flow table
+	 * @return						comp_index for upNode
+	 */
+	public int getCompIndexUpNode() {
+		return compIndexUpNode;
+	}
+	
+	/**
+	 * Obtain comp_index for downNode used to index into inst_flow table
+	 * @return						comp_index for downNode
+	 */
+	public int getCompIndexDownNode() {
+		return compIndexDownNode;
 	}
 
 	/**

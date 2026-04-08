@@ -29,6 +29,7 @@ public class Grid {
 	public static final int OBJ_RESERVOIR = 3;
 	public static final int OBJ_QEXT = 5;
 	public static final int OBJ_CONVEYOR = 6;
+	public static final int OBJ_GATE = 7;
 
 	public static Map<String, Integer> fluxTypes;
 
@@ -46,6 +47,7 @@ public class Grid {
 	private static List<GridBoundary> stageBoundaries;
 	private static List<GridBoundary> boundaries;
 	private static List<GridConveyor> conveyors;
+	private static List<GridGate> gates;
 	private static Map<Integer, GridWaterbody> waterbodies;
 
 	public static final int RES_FLOW = 0;
@@ -84,6 +86,7 @@ public class Grid {
 		stageBoundaries = new ArrayList<>();
 		boundaries = new ArrayList<>();
 		conveyors = new ArrayList<>();
+		gates = new ArrayList<>();
 	}
 
 	/**
@@ -464,6 +467,14 @@ public class Grid {
 	public static void addConveyor(GridConveyor thisConveyor) {
 		conveyors.add(thisConveyor);
 	}
+	
+	/**
+	 * Add a GridGate object to the grid
+	 * @param thisGate				GridGate object
+	 */
+	public static void addGate(GridGate thisGate) {
+		gates.add(thisGate);
+	}
 
 	/**
 	 * Create placeholder objects to fill empty spots in waterbody lists
@@ -485,7 +496,7 @@ public class Grid {
 		for(int localIndex=1; localIndex<=PTMFixedData.getMaxNumberOfChannels(); localIndex++) {
 			thisWaterbodyNum = PTMFixedData.getUniqueIdForChannel(localIndex);
 			if(!channelNums.contains(thisWaterbodyNum)) {
-				tempChannel = new GridChannel(Grid.MISSING, Grid.MISSING, Grid.MISSING);
+				tempChannel = new GridChannel(Grid.MISSING, Grid.MISSING, Grid.MISSING, Grid.MISSING, Grid.MISSING);
 				tempChannel.setIntChanNum(thisWaterbodyNum);
 				tempChannel.setIsPlaceholder(true);
 				channels.add(tempChannel);
@@ -600,6 +611,15 @@ public class Grid {
 	public static int getWaterbodyObjectType(int intNum) {
 		return waterbodies.get(intNum).getType();
 	}
+	
+	/**
+	 * Obtain waterbody with the specified internal waterbody number
+	 * @param intNum				internal waterbody number
+	 * @return						GridWaterbody object
+	 */
+	public static GridWaterbody getWaterbody(int intNum) {
+		return waterbodies.get(intNum);
+	}
 
 	/**
 	 * Obtain node internal number array for the specified internal waterbody number
@@ -624,5 +644,13 @@ public class Grid {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Obtain the complete list of GridGate objects
+	 * @return						List of GridGate objects
+	 */
+	public static List<GridGate> getGates() {
+		return gates;
 	}
 }

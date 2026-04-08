@@ -41,9 +41,13 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 package gov.ca.water.ecoptm;
 import java.io.IOException;
 import java.util.Map;
-
+import java.util.logging.FileHandler;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.HashMap;
 import java.nio.IntBuffer;
+import java.nio.file.Paths;
 /*
  * main function of PTM
  */
@@ -57,7 +61,26 @@ public class MainPTM {
 			// Initialize environment
 			if (DEBUG) System.out.println("Initializing environment");
 			configFile = args[0];
+			
+			String workingDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize().toString();
+			System.out.println("Working Directory = " + workingDir);
 			System.out.println("Configuration file: " + configFile);
+			
+			String logFile = Paths.get(workingDir, "ECO-PTM.log").toAbsolutePath().normalize().toString();
+			System.out.println("Log file: " + logFile);
+			
+			// Disable the default console manager for logging
+			LogManager.getLogManager().reset();
+	        Logger logger = Logger.getLogger(MainPTM.class.getName());
+	        
+	        FileHandler fileHandler = new FileHandler(logFile, false);
+	        fileHandler.setFormatter(new SimpleFormatter());
+	        fileHandler.setLevel(java.util.logging.Level.ALL);
+  
+            logger.addHandler(fileHandler);
+	
+            logger.info("ECO-PTM launched");
+            System.out.println("==================================================================================");
 
 			PTMEnv Environment = new PTMEnv();
 			if (DEBUG) System.out.println("Environment initialized");
@@ -207,6 +230,15 @@ public class MainPTM {
 				if ( animationOutput != null ) animationOutput.output();
 				// write out restart file information
 				if ( outRestart != null ) outRestart.output();
+				
+                Waterbody[] wbArray = Environment.getWbArray();
+                for(Waterbody wb : wbArray) {
+                    if(wb!=null && wb.getEnvIndex()==77) {
+                        //((Channel) wb).getInflowWSV(wb.getNodeEnvIndex(1), 0);
+                        wb.getInflow(wb.getNodeEnvIndex(1));
+                    }
+                }
+				
 			}
 			System.out.println("Execution time in milliseconds: " + (System.currentTimeMillis() - loopStartTime));
 			if(Environment.getParticleType().equalsIgnoreCase("Salmon_Particle")){

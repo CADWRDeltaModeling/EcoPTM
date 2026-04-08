@@ -73,6 +73,7 @@ public class Config {
 
 	public String output_path_entrainment;
 	public String trans_probs_path;
+	public int ctmm_time_step_min;
 	public String output_path_flux;
 
 	public String[] channel_name_lookup_header;
@@ -118,6 +119,8 @@ public class Config {
 	public boolean route_survival_write_all;
 	public boolean fates_write_all;
 	public boolean survival_detail_write_all;
+	
+	public float max_leakage_gate_closed;
 
 	// PTM configuration parameters
 	public String ptm_start_date;
@@ -260,6 +263,11 @@ public class Config {
 		this.survival_detail_write_all = survival_detail_write_all;
 		valuesSet.add("survival_detail_write_all");
 	}
+	
+	public void setMax_leakage_gate_closed(float max_leakage_gate_closed) {
+		this.max_leakage_gate_closed = max_leakage_gate_closed;
+		valuesSet.add("max_leakage_gate_closed");
+	}
 
 	public void setCross_stream_frac_method(String cross_stream_frac_method) {
 		this.cross_stream_frac_method = cross_stream_frac_method;
@@ -274,6 +282,11 @@ public class Config {
 	public void setCross_stream_frac_beta_b(float cross_stream_frac_beta_b) {
 		this.cross_stream_frac_beta_b = cross_stream_frac_beta_b;
 		valuesSet.add("cross_stream_frac_beta_b");
+	}
+	
+	public void setCtmm_time_step_min(int ctmm_time_step_min) {
+		this.ctmm_time_step_min = ctmm_time_step_min;
+		valuesSet.add("ctmm_time_step_min");
 	}
 
 	/**
@@ -381,7 +394,7 @@ public class Config {
 			travelTimeColDim = addDimension(builder, "travelTimeCol", this.travel_time_header);
 			travelTimeRowDim = addDimension(builder, "travelTimeRow", this.travel_time);
 			builder.addVariable("travel_time", DataType.CHAR, "travelTimeRow travelTimeCol strLen10");
-			builder.addVariable("traveltimeCol", DataType.CHAR, "travelTimeCol strLen50");
+			builder.addVariable("travelTimeCol", DataType.CHAR, "travelTimeCol strLen50");
 		}
 
 		// Dimensions for release_groups:release_loc and release_groups:releases
@@ -575,8 +588,8 @@ public class Config {
 		// Scalars
 		for(String varName : new String[] {"stst_threshold", "tidal_cycles_to_calculate_channel_direction", "confusion_probability_constant",
 				"max_confusion_probability", "confusion_probability_slope", "assess_probability", "stuck_threshold",
-				"dicu_filter_efficiency", "theta", "ptm_random_seed", "ptm_trans_constant", "ptm_vert_constant", "ptm_trans_a_coef",
-				"ptm_trans_b_coef", "ptm_trans_c_coef", "ptm_num_animated"}) {
+				"dicu_filter_efficiency", "max_leakage_gate_closed", "theta", "ptm_random_seed", "ptm_trans_constant", "ptm_vert_constant", "ptm_trans_a_coef",
+				"ptm_trans_b_coef", "ptm_trans_c_coef", "ptm_num_animated", "ctmm_time_step_min"}) {
 			builder.addVariable(varName, DataType.DOUBLE, new ArrayList<Dimension>());
 		}	
 	}
@@ -639,6 +652,7 @@ public class Config {
 		writeScalar(writer, "assess_probability", (double) this.assess_probability);
 		writeScalar(writer, "stuck_threshold", (double) this.stuck_threshold);
 		writeScalar(writer, "dicu_filter_efficiency", (double) this.dicu_filter_efficiency);
+		writeScalar(writer, "max_leakage_gate_closed", (double) this.max_leakage_gate_closed);
 		writeScalar(writer, "theta", (double) this.theta);
 		writeScalar(writer, "ptm_random_seed", (double) this.ptm_random_seed);
 		writeScalar(writer, "ptm_trans_constant", (double) this.ptm_trans_constant);
@@ -647,7 +661,8 @@ public class Config {
 		writeScalar(writer, "ptm_trans_b_coef", (double) this.ptm_trans_b_coef);
 		writeScalar(writer, "ptm_trans_c_coef", (double) this.ptm_trans_c_coef);
 		writeScalar(writer, "ptm_num_animated", (double) this.ptm_num_animated);
-
+		writeScalar(writer, "ctmm_time_step_min", (double) this.ctmm_time_step_min);
+		
 		// travel_time
 		if(this.travel_time_header!=null && this.travel_time!=null) {
 			writeStrArray(writer, "travel_time", this.travel_time);

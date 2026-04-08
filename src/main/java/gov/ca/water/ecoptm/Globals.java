@@ -98,6 +98,7 @@ public class Globals{
         return(modelDate + " " + modelTime);
     }
     
+
 	/**
 	 * model time zone
 	 */
@@ -115,5 +116,4 @@ public class Globals{
 	}
 	public static boolean DisplaySimulationTimestep = true;
 	public static boolean CalculateWritePTMFlux = true;
-
 }

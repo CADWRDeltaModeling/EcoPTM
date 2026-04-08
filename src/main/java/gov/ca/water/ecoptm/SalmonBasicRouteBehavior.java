@@ -41,17 +41,31 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		float[] wbFlows = new float[wbs.length];
 		int[] confusionFactors = new int[wbs.length];
 
-		float totalWbInflows = 0.0f;
 		int nodeId = p.nd.getEnvIndex();
+		
+		// If there's a closed gate between this node and the waterbody the vFish just came from,
+		// leave the vFish in the current waterbody
+		if(p.wb.getLeakageSet() && p.wb.getGateClosed(nodeId)) {
+			p.particleWait = true;
+			if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL) {
+				p.x = getXLocationInChannel((Channel)p.wb, p.nd);
+			}
+			return;
+		}
+		
+		float totalWbInflows = 0.0f;
 		int wbId = 0;
 		for (Waterbody wb: wbs){
 			if (wb == null)
 				PTMUtil.systemExit("when trying to route the particle, one of the water bodies is null, system exit.");
 			swimmingVels[wbId] = 0.0f;
-			if (wb.isAgSeep()
-					|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled())||(wb.getInflow(nodeId)==0.0f))  // gate or barrier
+			if (wb.isAgSeep() || wb.isDrain() || (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled())||(wb.getInflow(nodeId)==0.0f)) {  // gate or barrier
 				wbFlows[wbId] = 0.0f;
-			else{
+			}
+			else if (wb.getLeakageSet() && wb.getGateClosed(nodeId)) {
+				wbFlows[wbId] = 0.0f;
+			}
+			else {
 				if(wb.getPTMType() == Waterbody.CHANNEL){
 					Channel c = (Channel) wb;
 					int cId = c.getEnvIndex();
@@ -119,7 +133,9 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 				modFlow = wbFlows[wbId];
 			flow += modFlow;
 		}while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
+        
 		p.wb = wbs[wbId];
+
 		// send message to observer about change
 		if (p.observer != null)
 			p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);

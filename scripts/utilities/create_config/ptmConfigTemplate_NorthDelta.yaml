@@ -371,6 +371,8 @@ ptm_trans_c_coef: -1.5                # Transverse c coefficient
 
 ptm_num_animated: 2000                # Maximum number of particles to animate
 
+max_leakage_gate_closed: 5.0
+
 particle_group_output_header: [name, groupName]
 particle_group_output:
   - [GS, GS]
@@ -415,7 +417,7 @@ groups:
 io_file:
 #  - type: anim
 #    interval: 15min
-#    file: ./output/anim_db.bin
+#    file: ./output/ptm_out.ncd
   - type: trace
     interval: none
     file: ./output/trace.out

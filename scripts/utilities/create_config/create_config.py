@@ -36,10 +36,19 @@ class CreateConfig:
         configSouthDelta = self.replacePlaceholders(templateSouthDelta)
         configNorthDelta = self.replacePlaceholders(templateNorthDelta)
         
-        with open(os.path.join(self.outputDir, "ptmConfig_SouthDelta.yaml"), "w") as fH:
-            print(configSouthDelta, end="", file=fH)
-        with open(os.path.join(self.outputDir, "ptmConfig_NorthDelta.yaml"), "w") as fH:
-            print(configNorthDelta, end="", file=fH)
+        try:
+            with open(os.path.join(self.outputDir, "ptmConfig_SouthDelta.yaml"), "w") as fH:
+                print(configSouthDelta, end="", file=fH)
+            print(f"Wrote config file to {os.path.join(self.outputDir, "ptmConfig_SouthDelta.yaml")}")
+        except:
+            print(f"Could not write config file to {os.path.join(self.outputDir, "ptmConfig_SouthDelta.yaml")}")
+
+        try:
+            with open(os.path.join(self.outputDir, "ptmConfig_NorthDelta.yaml"), "w") as fH:
+                print(configNorthDelta, end="", file=fH)
+            print(f"Wrote config file to {os.path.join(self.outputDir, "ptmConfig_NorthDelta.yaml")}")
+        except:
+            print(f"Could not write config file to {os.path.join(self.outputDir, "ptmConfig_NorthDelta.yaml")}")
 
     def replacePlaceholders(self, template):
         """Replace placeholders in template with specified values"""
@@ -57,6 +66,8 @@ class CreateConfig:
         template = self.replacePlaceholder(template, "PTM_START_DATE_PLACEHOLDER", "ptm_start_date")
         template = self.replacePlaceholder(template, "PTM_END_DATE_PLACEHOLDER", "ptm_end_date")
 
+        template = self.replacePlaceholder(template, "TRANS_PROBS_PATH_PLACEHOLDER", "trans_probs_path")
+
         return template
 
     def replacePlaceholder(self, template, placeholder, variable):
@@ -67,17 +78,6 @@ class CreateConfig:
             print(f"Could not find {variable} in inputs. Leaving placeholder in output files")
         
         return template
-
-    def writeOutput(self):
-        """Write YAML configuration file."""
-        try:
-            with open(self.outputFileYAML, "w") as fH:
-                yaml.dump(self.config, fH, default_flow_style=None, indent=4, sort_keys=False)
-                
-            print("Finished converting config file.")
-            print(f"Output: {self.outputFileYAML}")
-        except:
-            print(f"Could not write output to:{self.outputFile}. Aborting")
     
 if __name__=="__main__":
     import argparse

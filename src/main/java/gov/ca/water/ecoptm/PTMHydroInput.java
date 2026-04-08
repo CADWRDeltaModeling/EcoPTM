@@ -92,15 +92,15 @@ public class PTMHydroInput{
 
 	private NetcdfFile ncd;
 	private int currentModelTime, prevIndex, nextIndex, chunkSize,
-	flowStartIndex, flowEndIndex, stageStartIndex, areaStartIndex,
-	resHeightStartIndex, resFlowStartIndex, qextFlowStartIndex, transferFlowStartIndex;
-	private boolean indexChanged;
+		flowStartIndex, flowEndIndex, instFlowStartIndex, instFlowEndIndex, stageStartIndex, areaStartIndex,
+		resHeightStartIndex, resFlowStartIndex, qextFlowStartIndex, transferFlowStartIndex, deviceFlowStartIndex;
+	private boolean indexChanged, leakageEnabled;
 	private float theta;
 	private String tidefile;
-	private List<Integer> julMin, chanFlowJulMin, chanStageJulMin, chanAreaJulMin, 
-	resHeightJulMin, resFlowJulMin, qextFlowJulMin, transferFlowJulMin;
+	private List<Integer> julMin, chanFlowJulMin, instFlowJulMin, chanStageJulMin, chanAreaJulMin, 
+		resHeightJulMin, resFlowJulMin, qextFlowJulMin, transferFlowJulMin, deviceFlowJulMin;
 	private Array chanBottomUp, chanBottomDown,
-	flowChunk, stageChunk, areaChunk, resHeightChunk, resFlowChunk, qextFlowChunk, transferFlowChunk;
+		flowChunk, instFlowChunk, stageChunk, areaChunk, resHeightChunk, resFlowChunk, qextFlowChunk, transferFlowChunk, deviceFlowChunk;
 	private Map<String, Map<String, List<Double>>> resVol;
 	private Map<String, Map<String, List<Integer>>> resNodeConnect;
 	private List<String> reservoirs;
@@ -113,21 +113,23 @@ public class PTMHydroInput{
 		System.out.println("Tidefile: " + tidefile);
 
 		chanFlowJulMin = createJulMin("/hydro/data/channel_flow");
+		instFlowJulMin = createJulMin("/hydro/data/inst_flow");
 		chanStageJulMin = createJulMin("/hydro/data/channel_stage");
 		chanAreaJulMin = createJulMin("/hydro/data/channel_area");
 		resHeightJulMin = createJulMin("/hydro/data/reservoir_height");
 		resFlowJulMin = createJulMin("/hydro/data/reservoir_flow");
 		qextFlowJulMin = createJulMin("/hydro/data/qext_flow");
 		transferFlowJulMin = createJulMin("/hydro/data/transfer_flow");
+		deviceFlowJulMin = createJulMin("/hydro/data/inst_device_flow");
 
 		// Verify that all of the julMin vectors are identical and therefore can be represented
 		// by the single julMin variable
-		if(!(chanFlowJulMin.equals(chanStageJulMin) && chanFlowJulMin.equals(chanAreaJulMin) && 
+		if(!(instFlowJulMin.equals(instFlowJulMin) && chanFlowJulMin.equals(chanStageJulMin) && chanFlowJulMin.equals(chanAreaJulMin) && 
 				chanFlowJulMin.equals(resHeightJulMin) &&
 				chanFlowJulMin.equals(resFlowJulMin) && chanFlowJulMin.equals(qextFlowJulMin) &&
-				chanFlowJulMin.equals(transferFlowJulMin))) {
+				chanFlowJulMin.equals(transferFlowJulMin) && chanFlowJulMin.equals(deviceFlowJulMin))) {
 			PTMUtil.systemExit("Channel flow, channel stage, channel area, reservoirHeight, reservoir flow, " +
-					"qext flow, and transfer flow must all have the same time stamps. Check tidefile. System exit");
+					"qext flow, transfer flow, and inst_device_flow must all have the same time stamps. Check tidefile. System exit");
 
 		}
 		julMin = chanFlowJulMin;
@@ -142,18 +144,23 @@ public class PTMHydroInput{
 		resNodeConnect = Grid.getResNodeConnect();
 
 		flowChunk = null;
+		instFlowChunk = null;
 		stageChunk = null;
 		areaChunk = null;
 		resHeightChunk = null;
 		resFlowChunk = null;
 		qextFlowChunk = null;
 		transferFlowChunk = null;
+		deviceFlowChunk = null;
 
 		indexChanged = false;
 		nextIndex = Grid.MISSING;
 
 		// Above 50, chunkSize appears to have a negligible effect on runtime => fix to 100
 		chunkSize = 100;
+		
+		// Assume leakage is enabled unless "/hydro/data/inst_device_flow" is not found in the tide file
+		leakageEnabled = true;
 	}
 
 	/**
@@ -185,6 +192,11 @@ public class PTMHydroInput{
 
 		// Read attributes	
 		var = ncd.findVariable(path);
+		
+		// If this element doesn't exist, copy Julian minutes from chanFlowJulMin
+		if(var==null) {
+			return chanFlowJulMin;
+		}
 
 		timeDim = var.getDimension(0);
 		attrib = var.attributes();
@@ -417,7 +429,10 @@ public class PTMHydroInput{
 	 */
 	public void updateChunks() {
 		if(flowChunk==null) {
+			// Call readDeviceFlowChunk first so leakageEnabled is set properly before calling readInstFlowChunk
+			readDeviceFlowChunk();
 			readFlowChunk();
+			readInstFlowChunk();
 			readStageChunk();
 			readAreaChunk();
 			readResHeightChunk();
@@ -427,7 +442,10 @@ public class PTMHydroInput{
 		}
 
 		if(nextIndex>flowEndIndex) {
+			// Call readDeviceFlowChunk first so leakageEnabled is set properly before calling readInstFlowChunk
+			readDeviceFlowChunk();
 			readFlowChunk();
+			readInstFlowChunk();
 			readStageChunk();
 			readAreaChunk();
 			readResHeightChunk();
@@ -464,6 +482,35 @@ public class PTMHydroInput{
 		}
 	}
 	
+	public void readInstFlowChunk() {
+		Variable var;
+		String path;
+		int[] origin, size;
+		int thisChunkSize;
+		
+		if(!leakageEnabled) {return;}
+		
+		path = "/hydro/data/inst_flow";
+		
+		// Read data for currentModeltime
+		try {
+			var = ncd.findVariable(path);
+			
+			thisChunkSize = Math.min(var.getDimension(0).getLength()-prevIndex, chunkSize);
+			
+			instFlowStartIndex = prevIndex;
+			instFlowEndIndex = instFlowStartIndex + thisChunkSize - 1;
+			origin = new int[] {flowStartIndex, 0, 0};
+			size = new int[] {thisChunkSize, var.getDimension(1).getLength()};
+			instFlowChunk = var.read(new Section(origin, size));
+		} catch (IOException | InvalidRangeException ioe) {
+			PTMUtil.systemExit("Exception: " + ioe);
+		}
+	}
+	
+	/**
+	 * Read channel flow dimensions
+	 */
 	public void readChannelFlowDims() {
 		Variable var;
 		String path;
@@ -634,6 +681,36 @@ public class PTMHydroInput{
 			PTMUtil.systemExit("Exception: " + ioe);
 		}
 	}
+	
+	public void readDeviceFlowChunk() {
+		Variable var;
+		String path;
+		int[] origin, size;
+		int thisChunkSize;
+		
+		if(!leakageEnabled) {return;}
+		
+		path = "/hydro/data/inst_device_flow";
+		
+		// Read data for currentModelTime
+		try {
+			var = ncd.findVariable(path);
+			
+			if(var==null) {
+				leakageEnabled = false;
+				return;
+			}
+			
+			thisChunkSize = Math.min(var.getDimension(0).getLength()-prevIndex, chunkSize);
+			
+			deviceFlowStartIndex = prevIndex;
+			origin = new int[] {deviceFlowStartIndex, 0, 0};
+			size = new int[] {thisChunkSize, var.getDimension(1).getLength(), var.getDimension(2).getLength()};
+			deviceFlowChunk = var.read(new Section(origin, size));
+		} catch (IOException | InvalidRangeException ioe) {
+			PTMUtil.systemExit("Exception: " + ioe);
+		}
+	}
 
 	/**
 	 * Calculate the current volume for the specified reservoir
@@ -753,11 +830,16 @@ public class PTMHydroInput{
 		//update Channel depths, flows and area of flow
 		float[] depthArray = new float[2];
 		float[] flowArray = new float[2];
+		float[] instFlowArray = new float[2];
 		float[] stageArray = new float[2];
 		float[] areaArray = new float[2];
 		int numConst = PTMFixedData.getQualConstituentNames().length;
 		float[][] qualityArray = new float[2][numConst];
 		Index index;
+		Channel chan;
+		GridChannel gridChan;
+		int compIndexUpNode, compIndexDownNode;
+		float prevLeakage, leakage, timeAvgLeakage;
 
 		float upNodeDepth, downNodeDepth, upNodeStage, downNodeStage, upNodeArea, downNodeArea;
 
@@ -807,10 +889,21 @@ public class PTMHydroInput{
 					qualityArray[Channel.DOWNNODE][0] = 0.f;
 				}
 
-				Channel chan = ((Channel) wbArray[channelNumber]);
+				// Read instantaneous flow and set for appropriate waterbody; only used for leakage
+				if(leakageEnabled) {
+					gridChan = ((GridChannel) Grid.getWaterbody(channelNumber));
+					compIndexUpNode = gridChan.getCompIndexUpNode();
+					compIndexDownNode = gridChan.getCompIndexDownNode();
+					index = instFlowChunk.getIndex();
+					instFlowArray[Channel.UPNODE] = instFlowChunk.getFloat(index.set(nextIndex-instFlowStartIndex, compIndexUpNode-1));
+					instFlowArray[Channel.DOWNNODE]= instFlowChunk.getFloat(index.set(nextIndex-instFlowStartIndex, compIndexDownNode-1));
+				}
+				
+				chan = ((Channel) wbArray[channelNumber]);
 				chan.setDepth(depthArray);
 				chan.setStage(stageArray);
 				chan.setFlow(flowArray);
+				chan.setInstFlow(instFlowArray);
 				chan.setArea(areaArray);
 			}//end if (wbArray)
 		}//end for (channelNumber)
@@ -891,13 +984,16 @@ public class PTMHydroInput{
 				System.out.println("Wb EnvIndex: " + envIndex
 						+ "extId: " + extId + ", flow = " + flowArray[0]);
 			}
-			if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
+			if (wbArray[envIndex] != null) {
+				wbArray[envIndex].setFlow(flowArray);
+			}
+
 		}
 
 		// update internal or conveyor flows
 		if (DEBUG) System.out.println("Updating internal flows");
 		flowArray = new float[2];
-		for (int intId = 0 ; intId < PTMFixedData.getMaxNumberOfConveyors(); intId ++){
+		for (int intId = 1 ; intId < PTMFixedData.getMaxNumberOfConveyors(); intId ++){
 			flowArray[0] = getConveyorFlow(intId);
 			flowArray[1] = -getConveyorFlow(intId);
 			int envIndex = PTMFixedData.getUniqueIdForConveyor(intId);
@@ -906,11 +1002,26 @@ public class PTMHydroInput{
 						+ "Id: " + intId + ", flow = "
 						+ flowArray[0] + ", " + flowArray[1]);
 			}
-			if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
+			if (wbArray[envIndex] != null) {
+				wbArray[envIndex].setFlow(flowArray);
+			}
+			
 		}
 
 		// update stage boundary flows ?
 		if (DEBUG) System.out.println("Updated all flows");
+		
+		// Update gate leakage
+		if(leakageEnabled) {
+			for (GridGate thisGate : Grid.getGates()) {
+				
+				index = deviceFlowChunk.getIndex();
+				prevLeakage = deviceFlowChunk.getFloat(index.set(prevIndex-deviceFlowStartIndex, thisGate.getDevFlowIndex(), thisGate.getGateFlowIndex()));
+				leakage = deviceFlowChunk.getFloat(index.set(nextIndex-deviceFlowStartIndex, thisGate.getDevFlowIndex(), thisGate.getGateFlowIndex()));
+				timeAvgLeakage = prevLeakage*(1-theta) + leakage*theta;
+				thisGate.setLeakage(leakage, timeAvgLeakage);
+			}
+		}
 	}
 
 	public final void updateNodesHydroInfo(Node [] nodeArray) {
@@ -1060,11 +1171,25 @@ public class PTMHydroInput{
 	}
 
 	/**
-	 * Get flow for the specified conveyor -- currently not implemented in the Java I/O code => return zero
-	 * @param cId					conveyor index
-	 * @return						flow (zero)
+	 * Get flow for the specified conveyor
+	 * @param cId					one-based conveyor index
+	 * @return						flow
 	 */
 	public float getConveyorFlow(int cId) {
-		return 0.0f;
+		Index index;
+		float flow;
+
+		if((cId-1)<transferFlowChunk.getShape()[1]) {
+			index = transferFlowChunk.getIndex();
+			flow = transferFlowChunk.getFloat(index.set(nextIndex-transferFlowStartIndex, cId-1));
+			
+			// In dynamicData.f90, get_conveyor_flow returns wb(id).flowToNode(1)
+			// Since transfer flows are from upNode, the sign needs to be flipped here so flowArray[0] = getConveyorFlow(intId);
+			// can be used above as in the Fortran I/O version of ECO-PTM.
+			return -flow;
+		}
+		else {
+			return 0.0f;
+		}
 	}
 }

@@ -85,7 +85,8 @@ channel_groups:
 
 # Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
 output_path_entrainment: .\output\entrainment_SouthDelta.csv
-trans_probs_path: C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv
+trans_probs_path: TRANS_PROBS_PATH_PLACEHOLDER
+ctmm_time_step_min: 15
 output_path_flux: ./output/flux_SouthDelta.csv
 
 channel_name_lookup_header: [Name, ChanneID]
@@ -574,6 +575,8 @@ ptm_trans_c_coef: -1.5                # Transverse c coefficient
 
 ptm_num_animated: 2000                # Maximum number of particles to animate
 
+max_leakage_gate_closed: 5.0
+
 particle_group_output_header: [name, groupName]
 particle_group_output:
   - [GS, GS]
@@ -605,6 +608,7 @@ groups:
   - [chipps_east, chan, (288|294|291)]
   - [chipps_west, chan, (442|437)]
   - [ag_div, qext, dicu_div_.*]
+  - [ag_div, qext, bbid.*]
   - [swp, qext, swp]
   - [cvp, qext, cvp]
   - [mtz, stage, mtz.*]
@@ -615,7 +619,7 @@ groups:
 io_file:
 #  - type: anim
 #    interval: 15min
-#    file: ./output/anim_db_southdelta.bin
+#    file: ./output/ptm_out.ncd
   - type: trace
     interval: none
     file: ./output/trace_southdelta.out

@@ -157,7 +157,7 @@ class ProcessOutput:
 
         with open(outputFile, "w") as fH:
             print(f"Saving survival output to {outputFile}")
-            header = "Date,Scenario"
+            header = "ptm_start_date,first_release_date,last_release_date,scenario"
             for loc in survDatLocs:
                 header+=f",{loc}"
             print(header, file=fH)
@@ -171,6 +171,17 @@ class ProcessOutput:
                 startDate = ds["ptm_start_date"].item().decode("utf8")
             except:
                 startDate = "NA"
+            
+            try:
+                releases = pd.DataFrame(ds["release_groups:releases"])
+                releaseDates = [dt.strptime(d.decode("utf8"), "%m/%d/%Y") for d in releases[1]]
+                firstReleaseDatetime = np.min(releaseDates)
+                lastReleaseDatetime = np.max(releaseDates)
+                firstReleaseDate = dt.strftime(firstReleaseDatetime, "%d%b%Y").upper()
+                lastReleaseDate = dt.strftime(lastReleaseDatetime, "%d%b%Y").upper()
+            except:
+                firstReleaseDate = "NA"
+                lastReleaseDate = "NA"
 
             try:
                 scenario = ds["simulation_scenario"].item().decode("utf8")
@@ -183,7 +194,7 @@ class ProcessOutput:
             ds.close()
 
             with open(outputFile, "a") as fH:
-                row = f"{startDate},{scenario}"
+                row = f"{startDate},{firstReleaseDate},{lastReleaseDate},{scenario}"
                 for loc in survDatLocs:
                     try:
                         thisSurv = surv.loc[surv["survGroup"]==loc, "surv"].values[0]
@@ -308,6 +319,7 @@ if __name__=="__main__":
     configFile = args.configFile
 
     # Read YAML configuration file
+    print("Reading configuration file")
     try:
         with open(configFile) as fH:
             config = yaml.safe_load(fH)
@@ -318,6 +330,7 @@ if __name__=="__main__":
         print(f"Error while parsing process_output configuration file: {e}")
         sys.exit()
 
+    print("Launching processes...")
     if config["createFluxDat"]:
         p.createFluxDat(config["fluxOutputDir"], config["fluxFiles"], config["fluxSimLoc"], config["fluxDatLocs"], config["fluxDatDays"])
     

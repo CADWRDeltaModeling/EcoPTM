@@ -10,7 +10,7 @@ import os
 import re
 import yaml
 from pyparsing import (Word, alphas, nums, alphanums, Suppress, ZeroOrMore, OneOrMore, Group, Optional, python_style_comment,
-    Regex, Keyword, Literal, Optional, LineStart)
+    Regex, Keyword, Literal, Optional, LineStart, LineEnd, restOfLine)
 import pyparsing as pp
 import numpy as np
 import pandas as pd
@@ -108,13 +108,12 @@ class ConvertConfig:
     def parsePaths(self, paths, text):
         """Parse paths and add to config."""
         for varName in paths:
-            parser = Group(Suppress(f"{paths[varName]}:") + 
-                Word(alphanums + r'._\\/:')(varName))
+            parser = Group(LineStart() + Suppress(f"{paths[varName]}:") + 
+                Optional(restOfLine(varName)) + LineEnd()) 
             result = parser.search_string(text)
             
             try:
-                val = result[0][0][varName]
-                
+                val = result[0][0][varName].strip()
                 self.config[varName] = val
             except:
                 self.reportFailure(varName)
@@ -122,11 +121,11 @@ class ConvertConfig:
     def extractVar(self, varName, text):
         """Extract variable and return."""
         parser = Group(LineStart() + Suppress(ZeroOrMore(" ")) + Suppress(varName + Optional(":")) +
-                       Word(alphanums + "${}-:./\\_")(varName))
+                       Word(alphanums + "${}-:./\\_ ")(varName) + LineEnd())
         result = parser.search_string(text)
         
         try:
-            val = result[0][0][varName]
+            val = result[0][0][varName].strip()
         except:
             val = None
         
@@ -136,6 +135,7 @@ class ConvertConfig:
         """Extract variables from config file."""
         
         # particle_type
+        self.config["particle_type"] = ""
         try:
             particleTypeParser = Word(alphas + "_")
             particle_type_inputs = Suppress("Particle_Type_Inputs")
@@ -151,16 +151,11 @@ class ConvertConfig:
         except:
             self.reportFailure("particle_type")
         
-        # time_zone
-        try:
-            parser = Group(Suppress("Time_Zone") + 
-                            Word(alphas)("time_zone") +
-                            Suppress("End_Time_Zone"))
-            result = parser.search_string(self.behaviorTextNoComment)
-            self.config["time_zone"] = result[0][0]["time_zone"]
-        except:
-            self.reportFailure("time_zone")
-            
+        if self.config["particle_type"].upper()=="SALMON_PARTICLE":
+            self.extractVariablesSalmon()
+        else:
+            self.extractVariablesParticle()
+
         # use_new_random_seed
         try:
             parser = Group(Suppress("Use_New_Random_Seed:") +
@@ -171,13 +166,147 @@ class ConvertConfig:
         except:
             self.reportFailure("use_new_random_seed")
     
+        # dicu_filter_efficiency
+        try:
+            parser = Group(Suppress("DICU_Filter") + 
+                            Suppress("Filter_Efficiency:") + Word(nums + ".")("dicu_filter_efficiency") +
+                            Suppress("End_DICU_Filter"))
+            result = parser.search_string(self.behaviorTextNoComment)
+            self.config["dicu_filter_efficiency"] = float(result[0][0]["dicu_filter_efficiency"])
+        except:
+            self.reportFailure("dicu_filter_efficiency")
         
+        # fish_screens
+        try:
+            header = Group(Word(alphanums) + Word(alphanums + "/"))
+            row = Group(Word(nums) + Word(nums))
+            parser = Group(Suppress("Fish_Screens") + 
+                            header("header") +
+                            OneOrMore(row)("rows") + 
+                            Suppress("End_Fish_Screens"))
+            result = parser.search_string(self.behaviorTextNoComment)
+            fishScreensHeader = list(result[0][0]["header"])
+            self.config["fish_screens_header"] = fishScreensHeader
+            fishScreens = pd.DataFrame(result[0][0]["rows"], columns=fishScreensHeader).reset_index(drop=True)
+            fishScreens = fishScreens.astype("int")
+            self.config["fish_screens"] = np.array(fishScreens).tolist()
+        except:
+            for v in ["fish_screens_header", "fish_screens"]:
+                self.reportFailure(v)
+        
+        self.parseScalars({"ptm_start_date":"PTM_START_DATE"}, "string", self.DSM2configTextNoComment)
+        self.config["ptm_start_time"] = "0000"
+        self.parseScalars({"ptm_end_date":"END_DATE", "ptm_end_time":"END_TIME"}, "string", self.DSM2configTextNoComment)
+        self.parseScalars({"ptm_time_step":"ptm_time_step",
+                              "display_intvl":"display_intvl"}, "string", self.PTMconfigTextNoComment)
+        self.parseScalars({"theta":"theta"}, "float", self.PTMconfigTextNoComment)
+        
+        for param in ["ptm_ivert", "ptm_itrans", "ptm_iey", "ptm_iez"]:
+            self.parseScalars({param:param}, "boolean", self.PTMconfigTextNoComment)
+        
+        # These variables are not present in the *.inp config files
+        self.config["ptm_iprof"] = False
+        self.config["ptm_igroup"] = False
+        
+        for param in ["ptm_flux_percent", "ptm_group_percent", "ptm_flux_cumulative"]:
+            self.parseScalars({param:param}, "boolean", self.PTMconfigTextNoComment)
+        
+        self.parseScalars({"ptm_random_seed":"ptm_random_seed"}, "int", self.PTMconfigTextNoComment)
+        
+        for param in ["ptm_trans_constant", "ptm_vert_constant", "ptm_trans_a_coef", "ptm_trans_b_coef",
+                      "ptm_trans_c_coef"]:
+            self.parseScalars({param:param}, "float", self.PTMconfigTextNoComment)
+            
+        self.parseScalars({"ptm_num_animated":"ptm_no_animated"}, "int", self.PTMconfigTextNoComment)    
+        
+        # This variable is not present in *.inp config files
+        self.config["max_leakage_gate_closed"] = 5.0
+
+        # particle_group_output
+        try:
+            header = Group(Word(alphas + "_")*4)
+            row = Group(Word(alphanums + "_")("name") + Word(alphanums + "_")("groupName") + Word(alphanums) + Word(alphanums + r"._\\/:${}"))
+            parser = Group(Suppress("PARTICLE_GROUP_OUTPUT") + 
+                          header("header") +
+                          ZeroOrMore(row, stop_on="END")("rows"))
+            result = parser.search_string(self.PTMconfigTextNoComment)
+            particleGroupHeader = list(result[0][0]["header"])
+            if len(result[0][0]["rows"])>0:
+                particleGroups = pd.DataFrame(result[0][0]["rows"], columns=particleGroupHeader).reset_index(drop=True)
+                particleGroups = particleGroups[particleGroupHeader[0:2]]
+                self.config["particle_group_output_header"] = ["name", "groupName"]
+                self.config["particle_group_output"] = np.array(particleGroups).tolist()
+        except:
+            for v in ["particle_group_output_header", "particle_group_output"]:
+                self.reportFailure(v)
+        
+        # particle_flux_output
+        try:
+            header = Group(Word(alphas + "_")*5)
+            row = Group(Word(alphanums + "_")("name") + Word(alphanums + "_:")("from") + Word(alphanums + "_:")("to") + 
+                        Word(alphanums) + Word(alphanums + r"._\\/:${}"))
+            parser = Group(Suppress("PARTICLE_FLUX_OUTPUT") +
+                            header("header") + 
+                            ZeroOrMore(row, stop_on="END")("rows"))
+            result = parser.search_string(self.PTMconfigTextNoComment)
+            particleFluxHeader = list(result[0][0]["header"])
+            if len(result[0][0]["rows"])>0:
+                particleFlux = pd.DataFrame(result[0][0]["rows"], columns=particleFluxHeader).reset_index(drop=True)
+                particleFlux[["from_wb_type", "from_wb"]] = particleFlux["FROM_WB"].str.split(":", expand=True)
+                particleFlux[["to_wb_type", "to_wb"]] = particleFlux["TO_WB"].str.split(":", expand=True)
+                particleFlux = particleFlux[["NAME", "from_wb", "from_wb_type", "to_wb", "to_wb_type"]]
+                self.config["particle_flux_output_header"] = ["name", "from_wb", "from_wb_type", "to_wb", "to_wb_type"]
+                self.config["particle_flux_output"] = np.array(particleFlux).tolist()
+        except:
+            for v in ["particle_flux_output_header", "particle_flux_output"]:
+                self.reportFailure(v)
+            
+        # Convert anything that can be converted into an int
+        for i in range(len(self.config["particle_flux_output"])):
+            for j in range(len(self.config["particle_flux_output"][i])):
+                try:
+                    self.config["particle_flux_output"][i][j] = int(self.config["particle_flux_output"][i][j])
+                except:
+                    pass
+        
+        # groups
+        try:
+            header = Group(Word(alphas + "_")*3)
+            row = Group(Word(alphanums + "_")("name") + Word(alphas)("type") + Word(alphanums + "_()|*."))
+            parser = Group(Suppress("GROUP_MEMBER") + 
+                            header("header") + 
+                            ZeroOrMore(row, stop_on="END")("rows"))
+            result = parser.search_string(self.PTMconfigTextNoComment)
+            groupsHeader = list(result[0][0]["header"])
+            if len(result[0][0]["rows"])>0:
+                groups = pd.DataFrame(result[0][0]["rows"], columns=["name", "type", "pattern"]).reset_index(drop=True)
+                groups["type"] = [t.lower() for t in groups["type"]]
+                groups.loc[groups["type"]=="channel", "type"] = "chan"
+                groups.loc[groups["type"]=="reservoir", "type"] = "res"
+                self.config["groups_header"] = ["name", "type", "pattern"]
+                self.config["groups"] = np.array(groups).tolist()
+        except:
+            for v in ["groups_header", "groups"]:
+                self.reportFailure(v)
+
+    def extractVariablesSalmon(self):
+        """Extract Salmon_Particle-specific variables from config file."""
+        # time_zone
+        try:
+            parser = Group(Suppress("Time_Zone") + 
+                            Word(alphas)("time_zone") +
+                            Suppress("End_Time_Zone"))
+            result = parser.search_string(self.behaviorTextNoComment)
+            self.config["time_zone"] = result[0][0]["time_zone"]
+        except:
+            self.reportFailure("time_zone")
+
         # travel_time
         try:
             outputPath = Suppress("Output_Path:") + Word(alphanums + r'._\\/:')
             header = Group(Word(alphanums) + Word(alphanums + "/") + Word(alphanums) + Word(alphanums + "_"))
             row = Group(Word(alphanums)("nodeID") + Word(alphanums)("waterbody") + 
-                        Word(alphanums)("distance") + Word(alphanums)("stationName"))
+                        Word(alphanums)("distance") + Word(alphanums + "_")("stationName"))
             parser = Group(Suppress("Travel_Time_Output") + 
                             outputPath("outputPath") + header("header") + 
                             OneOrMore(row)("rows") + 
@@ -196,7 +325,7 @@ class ConvertConfig:
         except:
             for v in ["travel_time_output_path", "travel_time_header", "travel_time"]:
                 self.reportFailure(v)
-            
+
         # release_groups
         try:
             releaseLocHeader = Group(Word(alphanums) + Word(alphanums + "/") + Word(alphanums) + Word(alphanums + "_"))
@@ -233,7 +362,7 @@ class ConvertConfig:
             self.config["release_groups"] = relGroups
         except:
             self.reportFailure("release_groups")
-        
+            
         # Swim inputs
         self.parseScalars({"sunrise":"Sunrise", "sunset":"Sunset"}, "string", self.behaviorTextNoComment)
         self.parseScalars({"stst_threshold":"STST_Threshold"}, "float", self.behaviorTextNoComment)
@@ -250,10 +379,10 @@ class ConvertConfig:
         # swimming_vel
         try:
             header = Group(Word(alphas + "_")*6)
-            row = Group(Word(alphas) + Word(nums + ".")*5)
+            row = Group(Word(alphas) + Word(nums + "-.")*5)
             parser = Group(Suppress("Swimming_Velocities") + 
-                                  header("header") + OneOrMore(row)("rows") + 
-                                  Suppress("End_Swimming_Velocities"))
+                                  header("header") + OneOrMore(row)("rows")) # + 
+                                  #Suppress("End_Swimming_Velocities"))
             result = parser.search_string(self.behaviorTextNoComment)
             swimmingVelHeader = list(result[0][0]["header"])
             self.config["swimming_vel_header"] = swimmingVelHeader
@@ -281,11 +410,8 @@ class ConvertConfig:
         except:
             self.reportFailure("channel_groups")
             
-        # Route inputs
-        self.parsePaths({"output_path_entrainment":"Output_Path_Entrainment", "trans_probs_path":"TransProbsPath",
-                            "output_path_flux":"Output_Path_Flux"}, self.behaviorTextNoComment)
+        # channel_name_lookup
         try:
-            # channel_name_lookup
             self.config["channel_name_lookup_header"] = ["Name", "ChanneID"]
             channelName = Group(Suppress("(") + Word(alphas + "_") + Suppress(",") + Word(nums + "_") + Suppress(")") + 
                                 Suppress(Optional(",")))
@@ -353,41 +479,13 @@ class ConvertConfig:
         except:
             self.reportFailure("barriers")
                     
-        # dicu_filter_efficiency
-        try:
-            parser = Group(Suppress("DICU_Filter") + 
-                            Suppress("Filter_Efficiency:") + Word(nums + ".")("dicu_filter_efficiency") +
-                            Suppress("End_DICU_Filter"))
-            result = parser.search_string(self.behaviorTextNoComment)
-            self.config["dicu_filter_efficiency"] = float(result[0][0]["dicu_filter_efficiency"])
-        except:
-            self.reportFailure("dicu_filter_efficiency")
-        
-        # fish_screens
-        try:
-            header = Group(Word(alphanums) + Word(alphanums + "/"))
-            row = Group(Word(nums) + Word(nums))
-            parser = Group(Suppress("Fish_Screens") + 
-                            header("header") +
-                            OneOrMore(row)("rows") + 
-                            Suppress("End_Fish_Screens"))
-            result = parser.search_string(self.behaviorTextNoComment)
-            fishScreensHeader = list(result[0][0]["header"])
-            self.config["fish_screens_header"] = fishScreensHeader
-            fishScreens = pd.DataFrame(result[0][0]["rows"], columns=fishScreensHeader).reset_index(drop=True)
-            fishScreens = fishScreens.astype("int")
-            self.config["fish_screens"] = np.array(fishScreens).tolist()
-        except:
-            for v in ["fish_screens_header", "fish_screens"]:
-                self.reportFailure(v)
-        
         # survival_groups
         try:
             stationPair = Group(Word("( ") + Word(alphanums + "_")("channel") + Word(" ,") + Word(nums + "-")("distance") + Word(") ,"))
             survOutputPath = Group(Suppress("Output_Path:") + Word(alphanums + r'._\\/:')("path"))
             row = Group(Word(alphanums + "_")("endStation") + Word(nums + ".-")("lambda") + Word(nums + ".-")("omega") + Word(nums + ".-")("x"))
             survGroup = Group(Word(alphanums + "_") + Word("Name:") + Word(alphanums + "_")("name") + 
-                                  Suppress("Start_Station:") + stationPair("startStation") + 
+                                  Suppress("Start_Station:") + OneOrMore(stationPair)("startStations") + 
                                   Suppress("End_Station:") + OneOrMore(stationPair)("endStations") +
                                   Optional(Suppress("Exchangeable_Start_Station:") + ZeroOrMore(stationPair)("exchangeableStartStations")) +
                                   (Word(alphas + "_")*4)("header") + OneOrMore(row)("rows") +
@@ -413,23 +511,52 @@ class ConvertConfig:
                 thisResult = result[0][0]["survGroups"][i]
                 thisEndStations = list()
                 for j in range(len(thisResult["endStations"])):
-                    thisEndStations.append([thisResult["endStations"][j]["channel"], int(thisResult["endStations"][j]["distance"])])
+                    try:
+                        thisEndStations.append([int(thisResult["endStations"][j]["channel"]), int(thisResult["endStations"][j]["distance"])])
+                    except:
+                        thisEndStations.append([thisResult["endStations"][j]["channel"], int(thisResult["endStations"][j]["distance"])])
+                
+                thisStartStations = list()
+                for j in range(len(thisResult["startStations"])):
+                    try:
+                        thisStartStations.append([int(thisResult["startStations"][j]["channel"]), int(thisResult["startStations"][j]["distance"])])
+                    except:
+                        thisStartStations.append([thisResult["startStations"][j]["channel"], int(thisResult["startStations"][j]["distance"])])
                 
                 thisSurvGroup = {"number":i+1, "name":thisResult["name"],
-                                  "start_stations": [[thisResult["startStation"]["channel"], int(thisResult["startStation"]["distance"])]],
+                                  "start_stations": thisStartStations,
                                   "end_stations":thisEndStations}
                 if len(thisResult["exchangeableStartStations"])>0:
                     thisExchStartStations = []
                     for j in range(len(thisResult["exchangeableStartStations"])):
-                        thisExchStartStations.append([thisResult["exchangeableStartStations"][j]["channel"], 
-                                                      int(thisResult["exchangeableStartStations"][j]["distance"])])
+
+                        try:
+                            thisExchStartStations.append([int(thisResult["exchangeableStartStations"][j]["channel"]), 
+                                                        int(thisResult["exchangeableStartStations"][j]["distance"])])
+                        except:
+                            thisExchStartStations.append([thisResult["exchangeableStartStations"][j]["channel"], 
+                                                        int(thisResult["exchangeableStartStations"][j]["distance"])])
                     thisSurvGroup["exchangeable_start_stations"] = thisExchStartStations
                 survParamsHeader = list(thisResult["header"])
                 thisSurvGroup["survival_params_header"] = survParamsHeader
                 survParams = pd.DataFrame(thisResult["rows"], columns=survParamsHeader).reset_index(drop=True)
                 for param in survParamsHeader[1:]:
                     survParams[param] = survParams[param].astype("float")
+
+                    # If any entries of this parameter are -999, they all should be int(-999)
+                    if np.sum(survParams[param]==-999)>0:
+                        try:
+                            survParams[param] = survParams[param].astype("int")
+                        except:
+                            pass
+
                 thisSurvGroup["survival_params"] = np.array(survParams).tolist()
+                
+                for j in range(len(thisSurvGroup["survival_params"])):
+                    try:
+                        thisSurvGroup["survival_params"][j][0] = int(thisSurvGroup["survival_params"][j][0])
+                    except:
+                        pass
                     
                 survGroups.append(thisSurvGroup)
             self.config["survival_groups"] = survGroups
@@ -479,7 +606,7 @@ class ConvertConfig:
             for v in ["individual_route_survival_header", "individual_route_survival"]:
                 self.reportFailure(v)
         
-        # These variables are not present in the *.inp config files
+        # This variable is not present in *.inp config files
         self.config["show_route_survival_detail"] = False
         
         # route_survival_equations
@@ -530,91 +657,14 @@ class ConvertConfig:
 
         # survival_detail_write_all is not present in the *.inp config files
         self.config["survival_detail_write_all"] = True
+
+        # Route inputs
+        self.parsePaths({"output_path_entrainment":"Output_Path_Entrainment", "trans_probs_path":"TransProbsPath",
+                            "output_path_flux":"Output_Path_Flux"}, self.behaviorTextNoComment)
         
-        self.parseScalars({"ptm_start_date":"PTM_START_DATE"}, "string", self.DSM2configTextNoComment)
-        self.config["ptm_start_time"] = "0000"
-        self.parseScalars({"ptm_end_date":"END_DATE", "ptm_end_time":"END_TIME"}, "string", self.DSM2configTextNoComment)
-        self.parseScalars({"ptm_time_step":"ptm_time_step",
-                              "display_intvl":"display_intvl"}, "string", self.PTMconfigTextNoComment)
-        self.parseScalars({"theta":"theta"}, "float", self.PTMconfigTextNoComment)
-        
-        for param in ["ptm_ivert", "ptm_itrans", "ptm_iey", "ptm_iez"]:
-            self.parseScalars({param:param}, "boolean", self.PTMconfigTextNoComment)
-        
-        # These variables are not present in the *.inp config files
-        self.config["ptm_iprof"] = False
-        self.config["ptm_igroup"] = False
-        
-        for param in ["ptm_flux_percent", "ptm_group_percent", "ptm_flux_cumulative"]:
-            self.parseScalars({param:param}, "boolean", self.PTMconfigTextNoComment)
-        
-        self.parseScalars({"ptm_random_seed":"ptm_random_seed"}, "int", self.PTMconfigTextNoComment)
-        
-        for param in ["ptm_trans_constant", "ptm_vert_constant", "ptm_trans_a_coef", "ptm_trans_b_coef",
-                      "ptm_trans_c_coef"]:
-            self.parseScalars({param:param}, "float", self.PTMconfigTextNoComment)
-            
-        self.parseScalars({"ptm_num_animated":"ptm_no_animated"}, "int", self.PTMconfigTextNoComment)    
-        
-        # particle_group_output
-        try:
-            header = Group(Word(alphas + "_")*4)
-            row = Group(Word(alphanums + "_")("name") + Word(alphanums + "_")("groupName") + Word(alphanums) + Word(alphanums + r"._\\/:${}"))
-            parser = Group(Suppress("PARTICLE_GROUP_OUTPUT") + 
-                          header("header") +
-                          ZeroOrMore(row, stop_on="END")("rows"))
-            result = parser.search_string(self.PTMconfigTextNoComment)
-            particleGroupHeader = list(result[0][0]["header"])
-            if len(result[0][0]["rows"])>0:
-                particleGroups = pd.DataFrame(result[0][0]["rows"], columns=particleGroupHeader).reset_index(drop=True)
-                particleGroups = particleGroups[particleGroupHeader[0:2]]
-                self.config["particle_group_output_header"] = ["name", "groupName"]
-                self.config["particle_group_output"] = np.array(particleGroups).tolist()
-        except:
-            for v in ["particle_group_output_header", "particle_group_output"]:
-                self.reportFailure(v)
-        
-        # particle_flux_output
-        try:
-            header = Group(Word(alphas + "_")*5)
-            row = Group(Word(alphanums + "_")("name") + Word(alphanums + "_:")("from") + Word(alphanums + "_:")("to") + 
-                        Word(alphanums) + Word(alphanums + r"._\\/:${}"))
-            parser = Group(Suppress("PARTICLE_FLUX_OUTPUT") +
-                            header("header") + 
-                            ZeroOrMore(row, stop_on="END")("rows"))
-            result = parser.search_string(self.PTMconfigTextNoComment)
-            particleFluxHeader = list(result[0][0]["header"])
-            if len(result[0][0]["rows"])>0:
-                particleFlux = pd.DataFrame(result[0][0]["rows"], columns=particleFluxHeader).reset_index(drop=True)
-                particleFlux[["from_wb_type", "from_wb"]] = particleFlux["FROM_WB"].str.split(":", expand=True)
-                particleFlux[["to_wb_type", "to_wb"]] = particleFlux["TO_WB"].str.split(":", expand=True)
-                particleFlux = particleFlux[["NAME", "from_wb", "from_wb_type", "to_wb", "to_wb_type"]]
-                self.config["particle_flux_output_header"] = ["name", "from_wb", "from_wb_type", "to_wb", "to_wb_type"]
-                self.config["particle_flux_output"] = np.array(particleFlux).tolist()
-        except:
-            for v in ["particle_flux_output_header", "particle_flux_output"]:
-                self.reportFailure(v)
-        
-        # groups
-        try:
-            header = Group(Word(alphas + "_")*3)
-            row = Group(Word(alphanums + "_")("name") + Word(alphas)("type") + Word(alphanums + "_()|*."))
-            parser = Group(Suppress("GROUP_MEMBER") + 
-                            header("header") + 
-                            ZeroOrMore(row, stop_on="END")("rows"))
-            result = parser.search_string(self.PTMconfigTextNoComment)
-            groupsHeader = list(result[0][0]["header"])
-            if len(result[0][0]["rows"])>0:
-                groups = pd.DataFrame(result[0][0]["rows"], columns=["name", "type", "pattern"]).reset_index(drop=True)
-                groups["type"] = [t.lower() for t in groups["type"]]
-                groups.loc[groups["type"]=="channel", "type"] = "chan"
-                groups.loc[groups["type"]=="reservoir", "type"] = "res"
-                self.config["groups_header"] = ["name", "type", "pattern"]
-                self.config["groups"] = np.array(groups).tolist()
-        except:
-            for v in ["groups_header", "groups"]:
-                self.reportFailure(v)
-            
+        # ctmm_time_step_min is not present in the *.inp config files
+        self.config["ctmm_time_step_min"] = 15
+
         # io_file
         try:            
             header = Group(Word(alphas)*5)
@@ -646,8 +696,64 @@ class ConvertConfig:
                 self.config["io_file"] = ioFiles     
         except:
             self.reportFailure("io_file")
-        
-    
+
+    def extractVariablesParticle(self):
+        """Extract particle-specific variables from config file."""
+        # particle_insertion
+        try:
+            header = Group(Word(alphas + "_")*4)
+            row = Group(Word(alphanums)("node") + Word(alphanums)("nparts") + Word(alphanums)("delay") + Word(alphanums)("duration"))
+            parser = Group(Suppress("PARTICLE_INSERTION") + 
+                          header("header") +
+                          ZeroOrMore(row, stop_on="END")("rows"))
+            result = parser.search_string(self.PTMconfigTextNoComment)
+            particleInsertionHeader = list(result[0][0]["header"])
+            if len(result[0][0]["rows"])>0:
+                particleInsertions = pd.DataFrame(result[0][0]["rows"], columns=particleInsertionHeader).reset_index(drop=True)
+                particleInsertions = particleInsertions[particleInsertionHeader[0:4]]
+                self.config["particle_insertion_header"] = ["node", "nparts", "delay", "duration"]
+                self.config["particle_insertion"] = np.array(particleInsertions).tolist()
+
+                for i in range(len(self.config["particle_insertion"])):
+                    for j in range(2):
+                        try:
+                            self.config["particle_insertion"][i][j] = int(self.config["particle_insertion"][i][j])
+                        except:
+                            pass
+        except:
+            for v in ["particle_insertion_header", "particle_insertion"]:
+                self.reportFailure(v)
+
+        # io_file
+        try:            
+            header = Group(Word(alphas)*5)
+            row = Group(Word(alphas)("model") + Word(alphas)("type") + Word(alphas)("io") + 
+                        Word(alphanums)("interval") + Word(alphanums + '"{}$/._')("file"))
+            parser = Group(Suppress("IO_FILE") + 
+                            header("header") + 
+                            ZeroOrMore(row, stop_on="END")("rows"))
+            result = parser.search_string(self.PTMconfigTextNoComment)
+            if len(result[0][0]["rows"])>0:
+                ioFiles = []
+                for i in range(len(result[0][0]["rows"])):
+                    # Only use trace file from *.inp config
+                    thisType = result[0][0]["rows"][i]["type"]
+                    if thisType=="trace":
+                        thisFile = {"type":result[0][0]["rows"][i]["type"],
+                                    "interval":result[0][0]["rows"][i]["interval"],
+                                    "file":result[0][0]["rows"][i]["file"]}
+                        ioFiles.append(thisFile)
+                # Add new output files with default paths
+                ioFiles.append({"type":"flux", "interval":"1hour", "file":"./output/ptm_out.ncd"})
+                ioFiles.append({"type":"echoConfig", "interval":"none", "file": "./output/echoConfig.yaml"})
+                ioFiles.append({"type":"echoConfigNetCDF", "interval":"none", "file": "./output/ptm_out.ncd"})
+
+                self.config["io_file"] = ioFiles     
+        except:
+            self.reportFailure("io_file")
+
+        return
+
     def reportFailure(self, varName):
         """Report a failed extraction and set variable to FAILED TO EXTRACT"""
         print(f"Could not extract {varName}. Skipping.")

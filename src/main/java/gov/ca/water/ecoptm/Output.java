@@ -103,7 +103,7 @@ public class Output {
 				}
 			}
 
-			if(path.equals(fileTypeToPath.get("survival"))) {
+			if(path.equals(fileTypeToPath.get("survival")) && (Environment.getParticleType().equalsIgnoreCase("Salmon_Particle"))) {
 				survOutput = new SurvivalCalculation(particleArray);
 				survOutput.run();
 				survOutput.buildOutput(builder);
@@ -133,7 +133,7 @@ public class Output {
 					}
 				}
 
-				if(path.equals(fileTypeToPath.get("survival"))) {
+				if(path.equals(fileTypeToPath.get("survival")) && (Environment.getParticleType().equalsIgnoreCase("Salmon_Particle"))) {
 					survOutput.writeOutput(writer);
 				}
 

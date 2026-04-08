@@ -1,6 +1,5 @@
 ---
-#tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_noSZIP.h5
-tidefile: 'E:/QEDA/DWR/ECO_PTM_scenarios/DCP_fromXiao_12sep24/diversion_in_noSZIP.h5'
+tidefile: C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/DCP_fromXiao_12sep24/diversion_in_repack_GZIP.h5
 
 simulation_scenario: test simulation scenario
 
@@ -12,11 +11,6 @@ time_zone: PST
 
 # true will use System.currentTimeMills as the random seed; false will use a default seed (usually for a debugging or tuning purpose)
 use_new_random_seed: true
-
-# Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
-output_path_entrainment:
-trans_probs_path: 
-output_path_flux: ./output/flux.csv
 
 dicu_filter_efficiency: 0.0
 
@@ -35,13 +29,12 @@ display_intvl: 1day
 
 particle_insertion_header: [node, nparts, delay, duration]
 particle_insertion:
-  - [335, 1000, 1day, 1day]
-  - [335, 1000, 2day, 1day]
+  - [341, 1000, 1day, 1day]
 
 # PTM configuration
-ptm_start_date: 21APR2015
+ptm_start_date: 21MAY2015
 ptm_start_time: 0000
-ptm_end_date: 28SEP2015
+ptm_end_date: 28OCT2015
 ptm_end_time: 0000
 ptm_time_step: 15min
 display_intvl: 1day
@@ -72,6 +65,8 @@ ptm_trans_b_coef: 0.3                 # Transverse b coefficient
 ptm_trans_c_coef: -1.5                # Transverse c coefficient
 
 ptm_num_animated: 2000                # Maximum number of particles to animate
+
+max_leakage_gate_closed: 5.0
 
 particle_group_output_header: [name, groupName]
 particle_group_output:
