@@ -55,7 +55,7 @@ if __name__=="__main__":
     if args.shapeFile is not None:
         DSM2flowlineShapefile = args.shapeFile
     else:
-        DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "DSM2_Flowline_Segments.shp")
+        DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "i12_DSM2_Model_VSDG1_Channels_Centerlines_Straightlines.shp")
     
     if args.titleFont is not None:
         titleFont = int(args.titleFont)
@@ -79,7 +79,7 @@ if __name__=="__main__":
     fluxFile1 = animFile1
     fluxFile2 = animFile1
     animatePlot = False
-    DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "DSM2_Flowline_Segments.shp")
+    DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "i12_DSM2_Model_VSDG1_Channels_Centerlines_Straightlines.shp")
     """
 
 ####################################################################################################
