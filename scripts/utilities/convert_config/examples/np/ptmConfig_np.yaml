@@ -1,0 +1,97 @@
+tidefile: C:/Users/dougj/Documents/QEDA/DWR/fromXiao/javaVS841_np_planning_17mar26/np/tidefiles/dcp1_gz.h5
+particle_type: neutrally_buoyant_particle
+particle_insertion_header: [node, nparts, delay, duration]
+particle_insertion:
+- [336, 4000, 0day, 1485minutes]
+io_file:
+- {type: trace, interval: none, file: ./output/trace.out}
+- {type: flux, interval: 1hour, file: ./output/ptm_out.ncd}
+- {type: echoConfig, interval: none, file: ./output/echoConfig.yaml}
+- {type: echoConfigNetCDF, interval: none, file: ./output/ptm_out.ncd}
+use_new_random_seed: true
+dicu_filter_efficiency: 0.0
+fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
+fish_screens:
+- [330, 700]
+- [337, 603]
+- [338, 605]
+ptm_start_date: 01APR2018
+ptm_start_time: '0000'
+ptm_end_date: 01AUG2018
+ptm_end_time: '0000'
+ptm_time_step: 15min
+display_intvl: 1day
+theta: 0.6
+ptm_ivert: true
+ptm_itrans: true
+ptm_iey: true
+ptm_iez: true
+ptm_iprof: false
+ptm_igroup: false
+ptm_flux_percent: true
+ptm_group_percent: true
+ptm_flux_cumulative: true
+ptm_random_seed: 32001
+ptm_trans_constant: 0.6
+ptm_vert_constant: 0.067
+ptm_trans_a_coef: 1.2
+ptm_trans_b_coef: 0.3
+ptm_trans_c_coef: -1.5
+ptm_num_animated: 2000
+max_leakage_gate_closed: 5.0
+particle_group_output_header: [name, groupName]
+particle_group_output:
+- [whole, whole]
+- [Oth_Div, other_div]
+- [clifton, clfct]
+particle_flux_output_header: [name, from_wb, from_wb_type, to_wb, to_wb_type]
+particle_flux_output:
+- [export_cvp, 216, chan, cvp, group]
+- [export_ccf, ccf_east, group, clifton_court, res]
+- [EXPORT_IF, 607, chan, 608, chan]
+- [export_swp, clifton_court, res, swp, group]
+- [past_mtz, 441, chan, mtz, group]
+- [diversion_ag, all, group, ag_div, group]
+- [To_NBA, 406, chan, nba, group]
+- [past_chipps, chipps_east, group, chipps_west, group]
+- [OLDR_Mouth, sjr_oldr_mouth, group, 124, chan]
+- [Columb_Trnr, SJR_Trnr_Col, group, Columb_Turnr, group]
+- [Dut_Fal_fish, SJR_West, group, Dut_False_Fish, group]
+- [MidR_Mouth, MIDR_Mouth_chan, group, 161, chan]
+- [franks_tract, franks_channels, group, franks_tract, res]
+- [transfer_337, 603, chan, 607, chan]
+- [flux_416_603, 416, chan, 603, chan]
+- [flux_416_415, 416, chan, 415, chan]
+- [flux_416_417, 416, chan, 417, chan]
+- [flux_417_418, 417, chan, 418, chan]
+- [flux_415_414, 415, chan, 414, chan]
+- [flux_603_607, 603, chan, 607, chan]
+- [flux_417_605, 417, chan, 605, chan]
+- [flux_605_607, 605, chan, 607, chan]
+- [flux_607_608, 607, chan, 608, chan]
+groups_header: [name, type, pattern]
+groups:
+- [whole, chan, .*]
+- [whole, res, .*]
+- [other_div, qext, ccc]
+- [other_div, qext, cccoldr]
+- [other_div, qext, ccw]
+- [other_div, qext, pump62]
+- [other_div, qext, pump63]
+- [clfct, res, clifton_court]
+- [franks_channels, chan, (121|122|276|277|278|264|268)]
+- [cvp, qext, cvp]
+- [ccf_east, chan, (232|217|82)]
+- [swp, qext, swp]
+- [mtz, stage, mtz.*]
+- [ag_div, qext, dicu_div_.*]
+- [ag_div, qext, bbid.*]
+- [nba, qext, northbay]
+- [chipps_east, chan, (288|294|291)]
+- [chipps_west, chan, (442|437)]
+- [sjr_oldr_mouth, chan, (43|42)]
+- [SJR_Trnr_Col, chan, (35|33|32|27|30|26|25)]
+- [Columb_Turnr, chan, (160|172)]
+- [SJR_West, chan, (50|49|83|48|47|46)]
+- [Dut_False_Fish, chan, (280|279|275|260)]
+- [MIDR_Mouth_chan, chan, (162|163)]

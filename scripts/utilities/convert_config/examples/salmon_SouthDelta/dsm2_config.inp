@@ -1,0 +1,23 @@
+
+ENVVAR
+NAME                     VALUE                                 
+DSM2MODIFIER             test_master               #Study name used for DSM2 output
+# lowFlow: 21APR2015, 28SEP2015, 05/01/2015; medFlow: 18MAR2012, 25AUG2012, 03/28/2012; highFlow: 15MAR2011, 22AUG2011, 03/25/2011              
+PTM_START_DATE           15MAR2011
+END_DATE                 22AUG2011
+END_TIME                 0000
+TEMPDIR                  N/A           
+#Input envvars          
+STUDYDIR                 .
+TSINPUTDIR               N/A   
+#Output                 
+DSM2OUTPUTDIR            ${STUDYDIR}/output
+OUTPUTFILE               N/A                                                                       
+#hydro                  
+#HYDROTIDEFILE            D:/QEDA/DWR/programs/test_ptm/data/hist_v822.h5
+HYDROTIDEFILE            C:/Users/dougj/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5
+#PTM
+PTMOUTFILE               ${DSM2OUTPUTDIR}/test_master.pof
+#PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout.txt
+PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout.dss
+END

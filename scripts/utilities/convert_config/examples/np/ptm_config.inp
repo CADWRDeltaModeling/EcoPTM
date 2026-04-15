@@ -1,0 +1,157 @@
+# PTM2 input files
+
+CONFIGURATION
+dsm2_config.inp
+END
+
+
+SCALAR
+NAME             VALUE
+title            "PTM SIMULATION: ${DSM2MODIFIER}"
+
+display_intvl    1day          # Frequency of console message
+binary_output    false
+dss_direct       true
+flush_output     15day         # Frequency of output flushing
+printlevel       1             # Message print level
+theta            0.6           # Theta to interpolate velocity
+
+run_start_date   ${PTM_START_DATE}   # PTM start date
+run_end_date     ${PTM_END_DATE}   # PTM end date
+run_start_time   0000                # PTM start time
+run_end_time     0000                # PTM end time
+temp_dir         ${TEMPDIR}          # temporary directory
+
+ptm_time_step           15min  # PTM time step
+ptm_no_animated         2000   # Maximum number of particles to animate
+
+ptm_ivert               t      # Use Vertical velocity profile
+ptm_itrans              t      # Use Transverse velocity profile
+ptm_iey                 t      # Use transverse mixing
+ptm_iez                 t      # Use vertical mixing
+
+ptm_flux_percent        t      # Output flux as percentage
+ptm_group_percent       t      # Output groups as percentage
+ptm_flux_cumulative     t      # Output flux as cumulative values
+
+ptm_random_seed         32001    # Starting Random Number Seed
+ptm_trans_constant      0.6      # Transverse Mixing Constant
+ptm_vert_constant       0.067   # Vertical Mixing Constant
+
+ptm_trans_a_coef        1.2      # Transverse a coefficient
+ptm_trans_b_coef        0.3      # Transverse b coefficient
+ptm_trans_c_coef        -1.5     # Transverse c coefficient
+END
+
+
+IO_FILE
+MODEL      TYPE      IO      INTERVAL    FILE
+ptm        trace     out     none        ./output/trace.out    # Trace output file. This file is neccessary to calculate the number of particles.
+#ptm        anim      out     15min       ./output/anim_db.bin  # Animation file. If the animation is not necessary, comment out this line.The PTM runs faster without this line.
+ptm        output    out     none        ./output/${DSM2MODIFIER}.pof                 #Echoed run status                      
+ptm        echo      out     none        ./output/ptm_echo_${DSM2MODIFIER}.inp        #Echoed input   
+ptm        behavior  in      none        "ptm_behavior_inputs.inp"    
+END
+
+
+TIDEFILE
+START_DATE      END_DATE      FILE
+runtime         length        ${HYDROTIDEFILE}       #The file name needs to be DCP_EX even for other scenarios because the AWS setup only takes this name.
+END
+
+
+GROUP
+NAME
+whole
+other_div
+clfct
+franks_channels
+cvp
+ccf_east
+swp
+mtz
+ag_div
+nba
+chipps_east
+chipps_west
+sjr_oldr_mouth
+SJR_Trnr_Col
+Columb_Turnr
+SJR_West
+Dut_False_Fish
+MIDR_Mouth_chan
+END
+
+
+GROUP_MEMBER
+GROUP_NAME    MEMBER_TYPE     PATTERN
+whole               channel             .*
+whole               reservoir           .*
+other_div           qext                ccc
+other_div           qext                cccoldr
+other_div           qext                ccw
+other_div           qext                pump62
+other_div           qext                pump63
+clfct               reservoir           clifton_court
+# This caused an error: Error in matching text pattern:(121|122|276|277|278|269|268|264
+# => remove channel 269
+#franks_channels     channel             (121|122|276|277|278|269|268|264)
+franks_channels     channel             (121|122|276|277|278|264|268)
+cvp                 qext                cvp
+ccf_east            channel             (232|217|82)
+swp                 qext                swp
+mtz                 stage               mtz.*
+ag_div              qext                dicu_div_.*
+ag_div              qext                bbid.*
+nba                 qext                northbay
+chipps_east         channel             (288|294|291)
+chipps_west         channel             (442|437)
+sjr_oldr_mouth      channel             (43|42)
+SJR_Trnr_Col        channel             (35|33|32|27|30|26|25)
+Columb_Turnr        channel             (160|172)
+SJR_West            channel             (50|49|83|48|47|46)
+Dut_False_Fish      channel             (280|279|275|260)
+MIDR_Mouth_chan     channel             (162|163)
+END
+  
+PARTICLE_GROUP_OUTPUT
+NAME         GROUP_NAME         INTERVAL      FILE
+whole        whole              1hour         ./output/ptmout.dss
+Oth_Div      other_div          1hour         ./output/ptmout.dss
+clifton      clfct              1hour         ./output/ptmout.dss
+END
+
+
+PARTICLE_FLUX_OUTPUT
+NAME          FROM_WB              TO_WB                INTERVAL  FILE
+export_cvp    chan:216              group:cvp             1hour     ./output/ptmout.dss
+export_ccf    group:ccf_east        res:clifton_court     1hour     ./output/ptmout.dss
+EXPORT_IF     chan:607              chan:608              1hour     ./output/ptmout.dss
+export_swp    res:clifton_court     group:swp             1hour     ./output/ptmout.dss
+past_mtz      chan:441              group:mtz             1hour     ./output/ptmout.dss
+diversion_ag  group:all             group:ag_div          1hour     ./output/ptmout.dss
+To_NBA        chan:406              group:nba             1hour     ./output/ptmout.dss
+past_chipps   group:chipps_east     group:chipps_west     1hour     ./output/ptmout.dss
+OLDR_Mouth    group:sjr_oldr_mouth  chan:124              1hour     ./output/ptmout.dss
+Columb_Trnr   group:SJR_Trnr_Col    group:Columb_Turnr    1hour     ./output/ptmout.dss
+Dut_Fal_fish  group:SJR_West        group:Dut_False_Fish  1hour     ./output/ptmout.dss 
+MidR_Mouth    group:MIDR_Mouth_chan chan:161             1hour     ./output/ptmout.dss
+franks_tract  group:franks_channels res:franks_tract      1hour     ./output/ptmout.dss
+transfer_337  chan:603				chan:607      1hour     ./output/ptmout.dss
+flux_416_603  chan:416				chan:603      1hour     ./output/ptmout.dss
+flux_416_415  chan:416				chan:415      1hour     ./output/ptmout.dss
+flux_416_417  chan:416				chan:417      1hour     ./output/ptmout.dss
+flux_417_418  chan:417				chan:418      1hour     ./output/ptmout.dss
+flux_415_414  chan:415				chan:414      1hour     ./output/ptmout.dss
+flux_603_607  chan:603				chan:607      1hour     ./output/ptmout.dss
+flux_417_605  chan:417				chan:605      1hour     ./output/ptmout.dss
+flux_605_607  chan:605				chan:607      1hour     ./output/ptmout.dss
+flux_607_608  chan:607				chan:608      1hour     ./output/ptmout.dss
+END
+
+
+PARTICLE_INSERTION
+NODE     NPARTS       DELAY     DURATION
+336      4000         0day        1485minutes
+#603      4000         0day        1485minutes
+END

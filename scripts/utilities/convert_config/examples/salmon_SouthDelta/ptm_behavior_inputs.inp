@@ -1,0 +1,539 @@
+Particle_Type_Inputs
+Salmon_Particle
+End_Particle_Type_Inputs
+
+#Time_Zone only takes PST, or MST, or CST, or EST.  if Time_Zone is not entered, default Time_Zone is PST. 
+Time_Zone
+PST
+End_Time_Zone
+
+Random_Sequence_Inputs
+# Yes will use System.currentTimeMills as the random seed;
+# No will use a default seed (usually for a debugging or tuning purpose)
+Use_New_Random_Seed: Yes
+End_Random_Sequence_Inputs
+
+Travel_Time_Output
+Output_Path: .\output\travel_time_in_min.csv
+# Node has to be upnode, and distance in feet is from upnode.
+# in DSM2 map, upstream of a flow arrow is upnode, downstream downnode
+# Only one travel time output location can be specified 
+NodeID          ChannelID/ReservoirName/Obj2objName   Distance          Station_Name
+#1             1                                     3158             DFD
+4             4                                     751             BCA
+6             6                                     6205             MOS
+8             54                                     0             ORE
+8             8                                     10             SJL
+14             14                                     2550             SJG
+16             16                                     2768             SJNB
+16             169                                     1644             RRI
+140             172                                     727             TC
+29             31                                     10             MAC
+33             37                                     3977             MF
+44             83                                     2275             JPT
+226             279                                     5742             FR
+43             310                                     6457             TMS
+52             59                                     0             ORS
+52             125                                     2357             MRS
+79             90                                     3711             OR4
+113             135                                     3315             MR4
+71             82                                     2609             RGU
+72             217                                     0             RGU
+72             232                                     0             RGU
+179             214                                     4490             CVPgate
+End_Travel_Time_Output
+
+# fish release inputs can have many groups.  
+# In each group, the release node should be the same,
+# but release time can be different.
+Fish_Release_Inputs
+Number_Of_Release_Groups:1
+Group_1
+NodeID	ChannelID/ReservoirName/Obj2objName   Distance       Station_Name   
+17       17                                 100         Vernalis   
+#7     7                                   100         HOR_U
+#25     25                                   100         TC_U
+#332     412                                   0         Sacramento
+Release_Date	Release_Time	Particle_Number	Release_Style
+03/25/2011	1:00	        100           Random
+03/25/2011	1:15	        100           Random
+03/25/2011	1:30	        100           Random
+03/25/2011	1:45			100           Random
+03/25/2011	2:00	        100           Random
+03/25/2011	2:15	        100           Random
+03/25/2011	2:30	        100           Random
+03/25/2011	2:45			100           Random
+03/25/2011	3:00	        100           Random
+03/25/2011	3:15	        100           Random
+03/25/2011	3:30	        100           Random
+03/25/2011	3:45			100           Random
+03/25/2011	4:00	        100           Random
+03/25/2011	4:15	        100           Random
+03/25/2011	4:30	        100           Random
+03/25/2011	4:45			100           Random
+03/25/2011	5:00	        100           Random
+03/25/2011	5:15	        100           Random
+03/25/2011	5:30	        100           Random
+03/25/2011	5:45			100           Random
+03/25/2011	6:00	        100           Random
+03/25/2011	6:15	        100           Random
+03/25/2011	6:30	        100           Random
+03/25/2011	6:45			100           Random
+03/25/2011	7:00	        100           Random
+03/25/2011	7:15	        100           Random
+03/25/2011	7:30	        100           Random
+03/25/2011	7:45			100           Random
+03/25/2011	8:00	        100           Random
+03/25/2011	8:15	        100           Random
+03/25/2011	8:30	        100           Random
+03/25/2011	8:45			100           Random
+03/25/2011	9:00	        100           Random
+03/25/2011	9:15	        100           Random
+03/25/2011	9:30	        100           Random
+03/25/2011	9:45			100           Random
+03/25/2011	10:00	        100           Random
+03/25/2011	10:15	        100           Random
+03/25/2011	10:30	        100           Random
+03/25/2011	10:45			100           Random
+03/25/2011	11:00	        100           Random
+03/25/2011	11:15	        100           Random
+03/25/2011	11:30	        100           Random
+03/25/2011	11:45			100           Random
+03/25/2011	12:00	        100           Random
+03/25/2011	12:15	        100           Random
+03/25/2011	12:30	        100           Random
+03/25/2011	12:45			100           Random
+03/25/2011	13:00	        100           Random
+03/25/2011	13:15	        100           Random
+03/25/2011	13:30	        100           Random
+03/25/2011	13:45			100           Random
+03/25/2011	14:00	        100           Random
+03/25/2011	14:15	        100           Random
+03/25/2011	14:30	        100           Random
+03/25/2011	14:45			100           Random
+03/25/2011	15:00	        100           Random
+03/25/2011	15:15	        100           Random
+03/25/2011	15:30	        100           Random
+03/25/2011	15:45			100           Random
+03/25/2011	16:00	        100           Random
+03/25/2011	16:15	        100           Random
+03/25/2011	16:30	        100           Random
+03/25/2011	16:45			100           Random
+03/25/2011	17:00	        100           Random
+03/25/2011	17:15	        100           Random
+03/25/2011	17:30	        100           Random
+03/25/2011	17:45			100           Random
+03/25/2011	18:00	        100           Random
+03/25/2011	18:15	        100           Random
+03/25/2011	18:30	        100           Random
+03/25/2011	18:45			100           Random
+03/25/2011	19:00	        100           Random
+03/25/2011	19:15	        100           Random
+03/25/2011	19:30	        100           Random
+03/25/2011	19:45			100           Random
+03/25/2011	20:00	        100           Random
+03/25/2011	20:15	        100           Random
+03/25/2011	20:30	        100           Random
+03/25/2011	20:45			100           Random
+03/25/2011	21:00	        100           Random
+03/25/2011	21:15	        100           Random
+03/25/2011	21:30	        100           Random
+03/25/2011	21:45			100           Random
+03/25/2011	22:00	        100           Random
+03/25/2011	22:15	        100           Random
+03/25/2011	22:30	        100           Random
+03/25/2011	22:45			100           Random
+03/25/2011	23:00	        100           Random
+03/25/2011	23:15	        100           Random
+03/25/2011	23:30	        100           Random
+03/25/2011	23:45			100           Random
+03/25/2011	24:00	        100           Random
+03/25/2011	24:15	        100           Random
+03/25/2011	24:30	        100           Random
+03/25/2011	24:45			100           Random
+End_Group_1
+End_Fish_Release_Inputs
+
+Swim_Inputs
+# North Delta Sunrise: 6:31
+# North Delta Sunset: 18:39 
+Sunrise: 5:19
+Sunset: 20:48
+# STST holding parameters
+STST_Threshold: -7.007
+Tidal_Cycles_to_Calculate_Channel_Direction: 2
+Constant_Confusion_Probability: -1.610
+Maximum_Confusion_Probability: 1.0
+Confusion_Probability_Slope: -0.55
+Random_Access: True
+Access_Probability: 0.01
+#If a particle is detected at the same channel after Stuck_Threshold, the particle is considered stuck and removed from the system.
+#The unit for Stuck threshold is day. 
+Stuck_Threshold: 30
+# user can define channel groups and assign a swimming velocity to each group. 
+# The group names have to be consistent with the names in the Channel_list
+Channel_Groups
+Swimming_Velocities
+# rearing holding in hours
+# Behavior parameter values updated 25oct24
+Group_Name              Constant_Swimming_Velocity		Standard_Deviation_Particles	Standard_Deviation_Times	Rearing_Holding_Mean	Day_time_not_swim_percent
+All                     0.240                                0.444                        0.915                        0.0                     0.085
+Riverine                0.456                                0.444                        0.915                        0.0                     0.084
+Transitional            0.070                                0.444                        0.915                        0.0                     0.054
+End_Swimming_Velocities 
+Channel_List       
+Riverine
+17,1,2,3,4,5,
+End_Riverine
+Transitional
+6,7,8,9,10,11,12,13,14,15,16,169,
+54,55,56,57,58,59,60,61,62,63,
+65,66,67,68,69,70,71,72,73,74,75,
+76,77,78,79,80,81,82,83,84,85,86,88,89,90,
+125,126,127,128,129,130,131,132,133,134,135,
+183,184,185,186,187,188,189,190,191,192,193,194,
+195,196,197,198,199,200,201,202,203,
+204,205,206,207,208,209,210,211,212,213,
+214,216,217,218,219,220,221,222,223,224,225,
+226,227,228,229,230,231,232,
+252,253,254,255,257,258,259,
+End_Transitional
+End_Channel_List
+End_Channel_Groups
+End_Swim_Inputs
+
+Route_Inputs
+# Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
+Output_Path_Entrainment: .\output\entrainment.csv
+TransProbsPath: C:/Users/dougj/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs_test_28aug25.csv
+Output_Path_Flux: ./output/flux.csv
+Flux_Calculation
+Name				Channels_from  		Channels_to
+Sutter Slough		(418,419)			(379)
+Steamboat Slough	(419,420)			(383)				
+Georgiana Slough	(422,423)			(366)
+Rio Vista			(387,398,429)		(430)
+Chipps				(288,291,294)		(437,442)
+End_Flux_Calculation 
+Special_Behaviors
+Channel_Name_Look_Up: (GS,366),(SACUPGS,422),(SACDOWNGS,423),(DCC,365),(SACUPDCC,421),(SACUPSUT,418),(SACDOWNSUT,419),(SUT,379),(STM,383),(SACDOWNSTM,420),(TC_U,25),(TC_T,172),(TC_D,31),(HOR_U,7),(HOR_T,54),(HOR_D,8)
+#users are allowed to modify calculated entrainment rates.  100 means no change,150 means calculated_chance*1.5, and 50 means calculated_chance*0.5
+#except for STM & SUT if and only if pct > 100, pct is added e.g. 110 means calculated_chance + 0.1 
+#Class_Name is a junction model class name.  The class will be located and instantiated and the junction model will be used when a fish particle reaches the junction
+NodeID		Class_Name 						Percent_Increase_Decrease					
+343         SalmonGSJRouteBehavior			100
+339 		SalmonSutterJRouteBehavior		100
+340         SalmonSTMJRouteBehavior			100
+342			SalmonDCCRouteBehavior 			100                         
+8			SalmonHORrouteBehavior 			-999
+26          SalmonTCrouteBehavior           -999                   
+End_Special_Behaviors
+# barrier operation 1: on, 0: off
+Barriers
+Number_of_barriers: 1
+Barrier1
+NodeID          ChannelID/ReservoirName/Obj2objName   Distance
+343             366
+Date        Time    On/Off
+1/1/1980    0:00    0     
+12/31/2022   21:20   0
+End_Barrier1
+End_Barriers
+DICU_Filter
+# not allow any particles to DICU
+Filter_Efficiency: 0.0
+End_DICU_Filter
+Fish_Screens
+NodeID          ChannelID/ReservoirName/Obj2objName 
+330              700
+End_Fish_Screens
+End_Route_Inputs
+
+Survival_Inputs
+Survival_Parameters
+Output_Path: .\output\survival_SouthDelta.csv
+# station is defined by (channel number, distance from upstream node)
+# the group number for a start station will be used as the key to search for the calculation group
+# Lambda and X in feet, Omega in feet/second
+# Survival parameters from SD_Survival_sts-start-end - 9Oct24.xlsx
+Number_of_Survival_Calculation_Group:25
+Group_1
+Name: DFD
+Start_Station: (1, 3158)
+End_Station: (4, 751)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+4    291259.8518    0.0191    33333.3344
+End_Group_1
+Group_2
+Name: BCA
+Start_Station: (4, 751)
+End_Station: (6, 6205)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+6    124153.5473    0.0734    30610.2372
+End_Group_2
+Group_3
+Name: MOS
+Start_Station: (6, 6205)
+End_Station: (54, 0), (8, 10)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+54    892575.4879    0.1878    14698.1632
+8    892575.4879    0.1878    14698.1632
+End_Group_3
+Group_4
+Name: ORE
+Start_Station: (54, 0)
+End_Station: (59, 10), (125, 2357)
+Exchangeable_Start_Station: (8, 10)
+End_Station		Lambda			Omega			X
+59    330157.4909    0.3261    19980.3156
+125    330157.4909    0.3261    19980.3156
+End_Group_4
+Group_5
+Name: SJL
+Start_Station: (8, 10)
+End_Station: (14, 2550)
+Exchangeable_Start_Station: (54, 0)
+End_Station		Lambda			Omega			X
+14    317706.7031    0.7708    58202.1016
+End_Group_5
+Group_6
+Name: SJG
+Start_Station: (14, 2550)
+End_Station: (16, 2768), (169, 1644)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+16    479655.5272    0.2937    8562.9924
+169    479655.5272    0.2937    8562.9924
+End_Group_6
+Group_7
+Name: SJNB
+Start_Station: (16, 2768)
+End_Station: (172, 727), (31, 10)
+Exchangeable_Start_Station: (169, 1644)
+End_Station		Lambda			Omega			X
+172    134186.3560    0.4485    47900.2640
+31    134186.3560    0.4485    47900.2640
+End_Group_7
+Group_8
+Name: RRI
+Start_Station: (169, 1644)
+End_Station: (172, 727), (31, 10)
+Exchangeable_Start_Station: (16, 2768)
+End_Station		Lambda			Omega			X
+172    134186.3560    0.4485    47900.2640
+31    134186.3560    0.4485    47900.2640
+End_Group_8
+Group_9
+Name: TC
+Start_Station: (172, 727)
+End_Station: (83, 2275), (279, 5742), (310, 6457), (90, 3711), (135, 3315)
+Exchangeable_Start_Station: (31, 10)
+End_Station		Lambda			Omega			X
+83    38421.9172    0.2556    135859.5844
+279    38421.9172    0.2556    135859.5844
+310    38421.9172    0.2106    135859.5844
+90    38421.9172    0.2556    67913.3880
+135    38421.9172    0.2556    63254.5952
+End_Group_9
+Group_10
+Name: MAC
+Start_Station: (31, 10)
+End_Station: (37, 3977), (90, 3711), (135, 3315), (83, 2275), (279, 5742), (310, 6457)
+Exchangeable_Start_Station: (172, 727)
+End_Station		Lambda			Omega			X
+37    91079.3992    0.4773    18799.2132
+90    38421.9172    0.2556    108103.6780
+135    38421.9172    0.2556    85793.9660
+83    116190.9486    0.3558    106397.6412
+279    116190.9486    0.3558    106397.6412
+310    116190.9486    0.3558    106397.6412
+End_Group_10
+Group_11
+Name: MF
+Start_Station: (37, 3977)
+End_Station: (83, 2275), (279, 5742), (310, 6457)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+83    116190.9486    0.3558    87598.4280
+279    116190.9486    0.3558    87598.4280
+310    116190.9486    0.3558    87598.4280
+End_Group_11
+Group_12
+Name: JPT
+Start_Station: (83, 2275)
+End_Station: (437, 15766)
+Exchangeable_Start_Station: (279, 5742) (310, 6457)
+End_Station		Lambda			Omega			X
+437    280980.9801    0.3078    82086.6168
+End_Group_12
+Group_13
+Name: FR
+Start_Station: (279, 5742)
+End_Station: (437, 15766)
+Exchangeable_Start_Station: (83, 2275) (310, 6457)
+End_Station		Lambda			Omega			X
+437     0.0000     0.0000     0.0000
+End_Group_13
+Group_14
+Name: TMS
+Start_Station: (310, 6457)
+End_Station: (437, 15766)
+Exchangeable_Start_Station: (83, 2275) (279, 5742)
+End_Station		Lambda			Omega			X
+437    97194.8850    0.3227    81791.3412
+End_Group_14
+Group_15
+Name: ORS
+Start_Station: (59, 10)
+End_Station: (82, 2609), (217, 0), (232, 0), (214, 4490), (90, 3711), (135, 3315)
+Exchangeable_Start_Station: (125, 2357)
+End_Station		Lambda			Omega			X
+82    366834.0012    0.5590    59678.4796
+217    366834.0012    0.5590    59678.4796
+232    366834.0012    0.5590    59678.4796
+214    366834.0012    0.5590    59678.4796
+90    366834.0012    0.5590    100688.9796
+135    366834.0012    0.5590    105413.3892
+End_Group_15
+Group_16
+Name: MRS
+Start_Station: (125, 2357)
+End_Station: (82, 2609), (217, 0), (232, 0), (214, 4490), (90, 3711), (135, 3315)
+Exchangeable_Start_Station: (59, 10)
+End_Station		Lambda			Omega			X
+82    366834.0012    0.5590    107808.4024
+217    366834.0012    0.5590    107808.4024
+232    366834.0012    0.5590    107808.4024
+214    366834.0012    0.5590    107808.4024
+90    366834.0012    0.5590    107939.6360
+135    366834.0012    0.5590    65485.5664
+End_Group_16
+Group_17
+Name: OR4
+Start_Station: (90, 3711)
+End_Station: (37, 3977), (83, 2275), (279, 5742), (310, 6457), (82, 2609), (217, 0), (232, 0), (214, 4490)
+Exchangeable_Start_Station: (135, 3315)
+End_Station		Lambda			Omega			X
+37    38421.9172    0.2556    103707.3524
+83    38421.9172    0.2556    150426.5140
+279    38421.9172    0.2556    150426.5140
+310    38421.9172    0.2556    150426.5140
+82    366834.0012    0.5590    30347.7700
+217    366834.0012    0.5590    30347.7700
+232    366834.0012    0.5590    30347.7700
+214    366834.0012    0.5590    30347.7700
+End_Group_17
+Group_18
+Name: MR4
+Start_Station: (135, 3315)
+End_Station: (37, 3977), (83, 2275), (279, 5742), (310, 6457), (82, 2609), (217, 0), (232, 0), (214, 4490)
+Exchangeable_Start_Station: (90, 3711)
+End_Station		Lambda			Omega			X
+37    38421.9172    0.2556    80479.0052
+83    38421.9172    0.2556    161679.7952
+279    38421.9172    0.2556    161679.7952
+310    38421.9172    0.2556    161679.7952
+82    366834.0012    0.5590    41174.5420
+217    366834.0012    0.5590    41174.5420
+232    366834.0012    0.5590    41174.5420
+214    366834.0012    0.5590    41174.5420
+End_Group_18
+Group_19
+Name: CVPgate
+Start_Station: (214, 4490)
+End_Station: (CVP, -999)
+Exchangeable_Start_Station: (232, 0) (217, 0) (82, 2609) (90, 3711) (135, 3315)
+End_Station		Lambda			Omega			X
+CVP    26210.6308    0.4775    3280.8400
+End_Group_19
+Group_20
+Name: MAL
+Start_Station: (437, 15766)
+End_Station: (441,0)
+Exchangeable_Start_Station:		
+End_Station		Lambda			Omega			X
+441    -999    -999    -999
+End_Group_20
+Group_21
+Name: RGU1
+Start_Station: (82, 2609)
+End_Station: (clifton_court, -999)
+Exchangeable_Start_Station: (214, 4490), (90, 3711), (135, 3315), (217, 0), (232, 0)
+End_Station		Lambda			Omega			X
+clifton_court 	9999999999		0				3280.84
+End_Group_21
+Group_22
+Name: RGU2
+Start_Station: (217, 0)
+End_Station: (clifton_court, -999)
+Exchangeable_Start_Station: (214, 4490), (90, 3711), (135, 3315), (82, 2609), (232, 0)
+End_Station		Lambda			Omega			X
+clifton_court 	9999999999		0				3280.84
+End_Group_22
+Group_23
+Name: RGU3
+Start_Station: (232, 0)
+End_Station: (clifton_court, -999)
+Exchangeable_Start_Station: (214, 4490), (90, 3711), (135, 3315), (217, 0), (82, 2609)
+End_Station		Lambda			Omega			X
+clifton_court 	9999999999		0				3280.84
+End_Group_23
+Group_24
+Name: CVPtank
+Start_Station: (CVP, -999)
+End_Station: (441, 0)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+441    -999    -999    -999
+End_Group_24
+Group_25
+Name: RGD
+Start_Station: (clifton_court, -999)
+End_Station: (441, 0)
+Exchangeable_Start_Station:
+End_Station		Lambda			Omega			X
+441    -999    -999    -999
+End_Group_25
+End_Survival_Parameters 
+Survival_Output
+Simulation_Start_Date: INSERTION_DATE
+Simulation_Scenario: STUDY_SCENARIO
+Particle_Flux
+Name            From_Survival_Calculation_Group      To_Survival_Calculation_Group
+End_Particle_Flux
+Individual_Route_Survival
+Name    Route_Survival_Calculation_Group_List
+SUT_suv     (2,4,9)
+STM_suv     (2,5,9)
+SAC_suv     (2,3,6,9)
+GEO_suv     (2,3,7,10)
+DCC_suv     (2,3,8,10)
+End_Individual_Route_Survival
+Route_Survival_Equations
+Name    Route_Survival_Equation
+SJR	S(DFD_BCA)*S(BCA_MOS)*S(MOS_ORE.SJL)*S(SJL_SJG)*S(SJG_SJNB.RRI)*[frac(SJG_SJNB/SJG_SJNB.RRI)*S(SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*S(RRI_MAC.TC)]*<S(MAC_MF)*frac(MAC_MF/MAC_MF.JPT.TMS.FR.OR4.MR4)*S(MF_JPT.TMS.FR)*{frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)}+S(MAC_JPT.TMS.FR)*{frac(MAC_JPT/MAC_MF.JPT.TMS.FR.OR4.MR4)*S(JPT_MAL)+frac(MAC_TMS/MAC_MF.JPT.TMS.FR.OR4.MR4)*S(TMS_MAL)}+S(MAC_OR4)*frac(MAC_OR4/MAC_MF.JPT.TMS.FR.OR4.MR4)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(MAC_MR4)*frac(MAC_MR4/MAC_MF.JPT.TMS.FR.OR4.MR4)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(MR4_TMS/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}>
+OMR	S(DFD_BCA)*S(BCA_MOS)*S(MOS_ORE.SJL)*S(ORE_ORS.MRS)*(frac(ORE_ORS/ORE_ORS.MRS)*<S(ORS_OR4)*frac(ORS_OR4/ORS_OR4.MR4.RGU#.CVPgate)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(ORS_MR4)*frac(ORS_MR4/ORS_OR4.MR4.RGU#.CVPgate)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(MR4_TMS/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(ORS_RGU#.CVPgate)*[frac(ORS_RGU#/ORS_OR4.MR4.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(ORS_CVPgate/ORS_OR4.MR4.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]>+frac(ORE_MRS/ORE_ORS.MRS)*<S(MRS_OR4)*frac(MRS_OR4/MRS_OR4.MR4.RGU#.CVPgate)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(MRS_MR4)*frac(MRS_MR4/MRS_OR4.MR4.RGU#.CVPgate)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(MR4_TMS/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(MRS_RGU#.CVPgate)*[frac(MRS_RGU#/MRS_OR4.MR4.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MRS_CVPgate/MRS_OR4.MR4.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]>)
+TC	S(DFD_BCA)*S(BCA_MOS)*S(MOS_ORE.SJL)*S(SJL_SJG)*S(SJG_SJNB.RRI)*[frac(SJG_SJNB/SJG_SJNB.RRI)*S(SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*S(RRI_MAC.TC)]*<S(TC_JPT.TMS.FR)*[frac(TC_JPT/TC_JPT.TMS.FR.OR4.MR4)*S(JPT_MAL)+frac(TC_TMS/TC_JPT.TMS.FR.OR4.MR4)*S(TMS_MAL)]+S(TC_OR4)*frac(TC_OR4/TC_JPT.TMS.FR.OR4.MR4)*{S(OR4_MF)*frac(OR4_MF/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(OR4_JPT.TMS.FR)*[frac(OR4_JPT/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(OR4_RGU#.CVPgate)*[frac(OR4_RGU#/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(OR4_CVPgate/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}+S(TC_MR4)*frac(TC_MR4/TC_JPT.TMS.FR.OR4.MR4)*{S(MR4_MF)*frac(MR4_MF/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(MF_JPT.TMS.FR)*[frac(MF_JPT/MF_JPT.TMS.FR)*S(JPT_MAL)+frac(MF_TMS/MF_JPT.TMS.FR)*S(TMS_MAL)]+S(MR4_JPT.TMS.FR)*[frac(MR4_JPT/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(JPT_MAL)+frac(OR4_TMS/OR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(TMS_MAL)]+S(MR4_RGU#.CVPgate)*[frac(MR4_RGU#/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(RGU#_RGD)*S(RGD_MAL)+frac(MR4_CVPgate/MR4_MF.JPT.TMS.FR.RGU#.CVPgate)*S(CVPgate_CVPtank)*S(CVPtank_MAL)]}>
+overall		S(SJR)*frac(MOS_SJL/MOS_ORE.SJL)*[frac(SJG_SJNB/SJG_SJNB.RRI)*frac(SJNB_MAC/SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*frac(RRI_MAC/SJNB_MAC.TC)]+S(OMR)*frac(MOS_ORE/MOS_ORE.SJL)+S(TC)*frac(MOS_SJL/MOS_ORE.SJL)*[frac(SJG_SJNB/SJG_SJNB.RRI)*frac(SJNB_TC/SJNB_MAC.TC)+frac(SJG_RRI/SJG_SJNB.RRI)*frac(RRI_TC/SJNB_MAC.TC)]
+End_Route_Survival_Equations
+Individual_Reach_Survival
+fromStation_toStations     survival
+RGD_MAL    0.0222
+CVPtank_MAL    0.6256
+End_Individual_Reach_Survival
+End_Survival_Output 
+End_Survival_Inputs
+
+Output_Options
+Display_Simulation_Timestep_Write_All: True
+Flux_Write_All: True
+Entrainment_Write_All: True
+Survival_Write_All: True
+Route_Surv_Write_All: True
+Fates_Write_All: True
+Surv_Detail_Write_All: True
+End_Output_Options
+

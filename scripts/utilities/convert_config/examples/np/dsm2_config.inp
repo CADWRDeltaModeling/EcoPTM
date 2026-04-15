@@ -1,0 +1,25 @@
+# Description
+ENVVAR
+NAME                     VALUE
+DSM2MODIFIER             salmon_841_planning                #Study name used for DSM2 output
+PTM_START_DATE           01APR2018
+PTM_END_DATE             01AUG2018
+END_TIME                 0000
+TEMPDIR                  N/A
+#Input envvars
+STUDYDIR                 .
+TSINPUTDIR               N/A
+#Output
+DSM2OUTPUTDIR            ${STUDYDIR}/output
+DSM2SHAREDDIR            ../../tidefiles 
+OUTPUTFILE               N/A
+#Hydro
+#HYDROTIDEFILE            ${DSM2SHAREDDIR}/hist_fc_mss_nolk.h5
+#HYDROTIDEFILE			  D:/wkdir/javaIOreplacement/private/windows/tidefiles/dcp1.h5
+HYDROTIDEFILE				C:/Users/dougj/Documents/QEDA/DWR/fromXiao/javaVS841_np_planning_17mar26/np/tidefiles/dcp1_gz.h5
+#PTM
+PTMOUTFILE               ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.pof
+PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout.dss
+END
+
+
