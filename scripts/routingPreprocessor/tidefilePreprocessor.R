@@ -12,8 +12,8 @@ library(yaml)
 args <- commandArgs(trailingOnly=T)
 if(length(args)==0) {
     cat("Reading hard-coded path to configuration file.\n")
-    configFile <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
-    workingDir <- "C:/Users/admin/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
+    #configFile <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
 } else {
     cat("Reading path to configuration file as a command line argument\n")
     configFile <- args[1]
@@ -21,7 +21,6 @@ if(length(args)==0) {
 }
 cat("Reading configuration from ", configFile, "\n")
 config <- read_yaml(configFile)$tidefilePreprocessor
-
 
 # Number of optional command line arguments (in addition to configFile)
 numOptArgs <- 1
@@ -122,6 +121,7 @@ if(overwriteOrigTideFile) {
     if(file.exists(newTideFile)) {
         if(overwriteNewTideFile) {
             cat("Overwriting tide file:", newTideFile, "\n")
+            scratch <- file.remove(newTideFile)
         } else {
             cat("Output tide file already exists and overwriteTideFile=false.\n")
             cat("Output tide file:", newTideFile, "\n")
@@ -157,14 +157,14 @@ channelH <- h5f&'hydro/input/channel'
 channel <- channelH[]
 
 if(nrow(modifyChannel)>0) {
-    # Determine which nodes might have changed connectivity; only include nodes whose connectivity has changed
+    # Determine which nodes might have changed connectivity; remember nodes whose connectivity has changed
     origChannel <- channel[which(channel$chan_no %in% modifyChannel$chan_no), ]
     allNodes <- unique(c(origChannel$upnode, origChannel$downnode, modifyChannel$upnode, modifyChannel$downnode))
     modNodes <- c()
     for(i in 1:length(allNodes)) {
         thisNode <- allNodes[i]
-        if(!(identical(unique(origChannel$chan_no[origChannel$upnode==thisNode]), unique(modifyChannel$chan_no[modifyChannel$upnode==thisNode]))
-             & identical(unique(origChannel$chan_no[origChannel$downnode==thisNode]), unique(modifyChannel$chan_no[modifyChannel$downnode==thisNode])))) {
+        if(!(identical(as.integer(unique(origChannel$chan_no[origChannel$upnode==thisNode])), as.integer(unique(modifyChannel$chan_no[modifyChannel$upnode==thisNode])))
+             & identical(as.integer(unique(origChannel$chan_no[origChannel$downnode==thisNode])), as.integer(unique(modifyChannel$chan_no[modifyChannel$downnode==thisNode]))))) {
             modNodes[length(modNodes)+1] <- thisNode
         }
     }
@@ -172,8 +172,12 @@ if(nrow(modifyChannel)>0) {
     # Modify connectivity, channel lengths, etc.
     for(i in 1:nrow(modifyChannel)) {
         thisMod <- modifyChannel[i, ]
-        row <- which(channel$chan_no==thisMod$chan_no)
-        channel[row, ] <- thisMod
+        rowIndex <- which(channel$chan_no==thisMod$chan_no)
+        
+        for(var in c("length", "upnode", "downnode")) {
+            colIndex <- which(names(channel)==var)
+            channel[rowIndex, colIndex] <- thisMod[[var]]
+        }
     }
 }
 
