@@ -21,7 +21,6 @@ if(length(args)==0) {
 }
 cat("Reading configuration from ", configFile, "\n")
 config <- read_yaml(configFile)$tidefilePreprocessor
-
 # Number of optional command line arguments (in addition to configFile)
 numOptArgs <- 1
 
@@ -148,6 +147,8 @@ h5f <- H5Fopen(tideFile)
 # Modify connectivity
 # Load the channel modifications
 modifyChannel <- read.csv("modifyChannel.csv")
+assumedOrigChannel <- modifyChannel %>% select(chan_no, starts_with("orig"))
+names(assumedOrigChannel) <- tolower(gsub("orig", "", names(assumedOrigChannel)))
 cutEnds <- modifyChannel %>% select(chan_no, length, cutEnd) %>% filter(cutEnd!="")
 modifyChannel$cutEnd <- NULL
 
@@ -155,6 +156,22 @@ modifyChannel$cutEnd <- NULL
 cat("Reading channel information.\n")
 channelH <- h5f&'hydro/input/channel'
 channel <- channelH[]
+
+# Verify that the tide file we're processing has the same original channel lengths and connectivity
+# as were assumed during creation of the configuration files
+for(i in 1:nrow(assumedOrigChannel)) {
+    thisAssumed <- assumedOrigChannel[i, ]
+    thisChan <- channel[which(channel$chan_no==thisAssumed$chan_no), ]
+    
+    for(var in c("length", "upnode", "downnode")) {
+        if(thisAssumed[[var]]!=thisChan[[var]]) {
+            cat("----------------------------------------------------------------------------------------------------------------------\n")
+            cat("WARNING:", var, "FOR CHANNEL", thisAssumed$chan_no, "DOES NOT MATCH VALUE ASSUMED WHEN CREATING CONFIGURATION FILES.\n")
+            cat(paste0("ASSUMED VALUE: ", thisAssumed[[var]], "; VALUE IN TIDE FILE: ", thisChan[[var]], "\n"))
+        }
+        
+    }
+}
 
 if(nrow(modifyChannel)>0) {
     # Determine which nodes might have changed connectivity; remember nodes whose connectivity has changed

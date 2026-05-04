@@ -11,7 +11,7 @@ library(yaml)
 args <- commandArgs(trailingOnly=T)
 if(length(args)==0) {
     cat("Reading hard-coded path to configuration file.\n")
-    configFile <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
+    #configFile <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor/config_preprocessors.yaml"
     workingDir <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
 } else {
     cat("Reading path to configuration file as a command line argument\n")
@@ -318,6 +318,24 @@ registerDoParallel(cores=numCores)
 
 # Read the locations of the stations
 stationLoc <- read.csv(stationLocFile)
+
+cat("Reading channel information.\n")
+channel <- h5read(tideFile, "/hydro/input/channel")
+
+# Verify that the tide file we're processing has the same channel lengths
+# as were assumed during creation of the configuration files
+for(i in 1:nrow(stationLoc)) {
+    thisStationLoc <- stationLoc[i, ]
+    thisChan <- channel[which(channel$chan_no==thisStationLoc$extChannelNum), ]
+    
+    if(thisStationLoc$channelLen_ft!=thisChan$length) {
+        cat("----------------------------------------------------------------------------------------------------------------------\n")
+        cat("WARNING:LENGTH FOR CHANNEL", thisStationLoc$extChannelNum, "DOES NOT MATCH VALUE ASSUMED WHEN CREATING CONFIGURATION FILES.\n")
+        cat(paste0("ASSUMED VALUE: ", thisStationLoc$channelLen_ft, "; VALUE IN TIDE FILE: ", thisChan$length, "\n"))
+    }
+}
+
+# Calculate channelFrac
 stationLoc$channelFrac <- stationLoc$channelDist_ft/stationLoc$channelLen_ft
 stationNames <- unique(stationLoc$stationName)
 
