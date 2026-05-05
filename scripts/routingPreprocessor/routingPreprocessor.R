@@ -552,17 +552,11 @@ r <- foreach(i=1:nrow(modelHORflow), .combine=rbind, .packages=c("lubridate", "i
                               modelHORflow[i, "netFlowScaled_HOR_T"], modelHORflow[i, "tidalFlowScaled_HOR_T"],
                               modelHORflow[i, "OOR"])
 
-    modelHORflow$qUD[i] <- thisProbs[1, 2]
-    modelHORflow$qUT[i] <- thisProbs[1, 3]
-    modelHORflow$qDU[i] <- thisProbs[2, 1]
-    modelHORflow$qDT[i] <- thisProbs[2, 3]
-    modelHORflow$qTU[i] <- thisProbs[3, 1]
-    modelHORflow$qTD[i] <- thisProbs[3, 2]
-    modelHORflow[i, ]
+    data.frame(qUD=thisProbs[1, 2], qUT=thisProbs[1, 3], qDU=thisProbs[2, 1],
+               qDT=thisProbs[2, 3], qTU=thisProbs[3, 1], qTD=thisProbs[3, 2])
 }
 cat("Assembling transition probabilities.\n", file=logFile, append=T)
-rownames(r) <- c()
-modelHORflow <- r
+modelHORflow[, c("qUD", "qUT", "qDU", "qDT", "qTU", "qTD")] <- r
 ######################################################
 # Calculate Turner Cut transition probabilities
 
@@ -590,17 +584,11 @@ r <- foreach(i=1:nrow(modelTCflow), .combine=rbind, .packages=c("lubridate", "im
                              modelTCflow[i, "netFlowScaled_TC_T"], modelTCflow[i, "tidalFlowScaled_TC_T"],
                              modelTCflow[i, "OOR"])
 
-    modelTCflow$qUD[i] <- thisProbs[1, 2]
-    modelTCflow$qUT[i] <- thisProbs[1, 3]
-    modelTCflow$qDU[i] <- thisProbs[2, 1]
-    modelTCflow$qDT[i] <- thisProbs[2, 3]
-    modelTCflow$qTU[i] <- thisProbs[3, 1]
-    modelTCflow$qTD[i] <- thisProbs[3, 2]
-    modelTCflow[i, ]
+    data.frame(qUD=thisProbs[1, 2], qUT=thisProbs[1, 3], qDU=thisProbs[2, 1],
+               qDT=thisProbs[2, 3], qTU=thisProbs[3, 1], qTD=thisProbs[3, 2])
 }
 cat("Assembling transition probabilities.\n", file=logFile, append=T)
-rownames(r) <- c()
-modelTCflow <- r
+modelTCflow[, c("qUD", "qUT", "qDU", "qDT", "qTU", "qTD")] <- r
 ######################################################
 # Combine HOR and TC transition probabilities and write to an output file
 transProbsHOR <- modelHORflow %>% select(datetime, qUD, qUT, qDU, qDT, qTU, qTD) %>% mutate(junction="HOR")
