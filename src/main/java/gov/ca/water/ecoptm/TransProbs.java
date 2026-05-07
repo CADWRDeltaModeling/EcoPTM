@@ -132,7 +132,7 @@ public class TransProbs {
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
 		secondDatetime = ZonedDateTime.parse(secondDatetimeStr + "(UTC-08:00)",
 				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
-		System.out.println("firstDatetime: " + firstDatetime + ", secondDatetime: " + secondDatetime);
+
 		d = Duration.between(firstDatetime, secondDatetime);
 		timeStep_min = Math.toIntExact(d.toMinutes());
 		

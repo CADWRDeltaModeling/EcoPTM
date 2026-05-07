@@ -8,8 +8,8 @@ library(yaml)
 args <- commandArgs(trailingOnly=T)
 if(length(args)==0) {
     cat("Reading hard-coded path to configuration file.\n")
-    configFile <- "" # "/Users/djackson/Documents/QEDA/DWR/programs/dsm2_master/dsm2/dsm2/src/ptm/scripts/routingPreprocessor/config_preprocessors.yaml"
-    workingDir <- "" # "/Users/djackson/Documents/QEDA/DWR/programs/dsm2_master/dsm2/dsm2/src/ptm/scripts/routingPreprocessor"
+    #configFile <- "" # "/Users/djackson/Documents/QEDA/DWR/programs/dsm2_master/dsm2/dsm2/src/ptm/scripts/routingPreprocessor/config_preprocessors.yaml"
+    workingDir <- "C:/Users/dougj/Documents/QEDA/DWR/programs/EcoPTM_private/scripts/routingPreprocessor"
 } else {
     cat("Reading path to configuration file as a command line argument\n")
     configFile <- args[1]
@@ -27,7 +27,7 @@ checkFlowChan <- c(checkFlowUpChan, checkFlowDownChan)
 # Install packages that aren't available through conda
 ####################################################################################################
 cat("=========================================================\n")
-cat("Running tidefilePreprocessor.R\n")
+cat("Running tidefilePreprocessorQA.R\n")
 cat("---------------------------------------------------------\n")
 cat("Installing packages that are not available through conda.\n")
 if(config$runInCondaEnv) {

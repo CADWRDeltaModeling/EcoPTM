@@ -74,6 +74,7 @@ if(!require("tzdb", quietly=T)) {
 
 library(rhdf5)
 library(tidyverse)
+library(tzdb)
 library(lubridate)
 if(config$runInCondaEnv) {
     # lubridate may set TZDIR to the wrong location when running within a conda environment
