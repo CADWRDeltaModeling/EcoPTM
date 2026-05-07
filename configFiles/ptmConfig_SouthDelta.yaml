@@ -1,8 +1,16 @@
 ---
-tidefile: 'C:/Users/dougj/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5'
+tidefile: C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/hist_fc_mss_preprocessed_GZIP.h5
 
 # ECO-PTM behavior configuration
 particle_type: Salmon_Particle
+
+# PTM configuration
+ptm_start_date: 15MAR2015
+ptm_start_time: 0000
+ptm_end_date: 22AUG2015
+ptm_end_time: 0000
+ptm_time_step: 15min
+display_intvl: 1day
 
 # timeZone only takes PST, or MST, or CST, or EST. If timeZone is not entered, default timeZone is PST. 
 time_zone: PST
@@ -44,98 +52,98 @@ release_groups:
     release_loc: [17, 17, 100, Vernalis]
     releases_header: [Release_Date, Release_Time, Particle_Number, Release_Style]
     releases:
-      - [03/25/2011, 1:00, 100, Random]
-      - [03/25/2011, 1:15, 100, Random]
-      - [03/25/2011, 1:30, 100, Random]
-      - [03/25/2011, 1:45, 100, Random]
-      - [03/25/2011, 2:00, 100, Random]
-      - [03/25/2011, 2:15, 100, Random]
-      - [03/25/2011, 2:30, 100, Random]
-      - [03/25/2011, 2:45, 100, Random]
-      - [03/25/2011, 3:00, 100, Random]
-      - [03/25/2011, 3:15, 100, Random]
-      - [03/25/2011, 3:30, 100, Random]
-      - [03/25/2011, 3:45, 100, Random]
-      - [03/25/2011, 4:00, 100, Random]
-      - [03/25/2011, 4:15, 100, Random]
-      - [03/25/2011, 4:30, 100, Random]
-      - [03/25/2011, 4:45, 100, Random]
-      - [03/25/2011, 5:00, 100, Random]
-      - [03/25/2011, 5:15, 100, Random]
-      - [03/25/2011, 5:30, 100, Random]
-      - [03/25/2011, 5:45, 100, Random]
-      - [03/25/2011, 6:00, 100, Random]
-      - [03/25/2011, 6:15, 100, Random]
-      - [03/25/2011, 6:30, 100, Random]
-      - [03/25/2011, 6:45, 100, Random]
-      - [03/25/2011, 7:00, 100, Random]
-      - [03/25/2011, 7:15, 100, Random]
-      - [03/25/2011, 7:30, 100, Random]
-      - [03/25/2011, 7:45, 100, Random]
-      - [03/25/2011, 8:00, 100, Random]
-      - [03/25/2011, 8:15, 100, Random]
-      - [03/25/2011, 8:30, 100, Random]
-      - [03/25/2011, 8:45, 100, Random]
-      - [03/25/2011, 9:00, 100, Random]
-      - [03/25/2011, 9:15, 100, Random]
-      - [03/25/2011, 9:30, 100, Random]
-      - [03/25/2011, 9:45, 100, Random]
-      - [03/25/2011, 10:00, 100, Random]
-      - [03/25/2011, 10:15, 100, Random]
-      - [03/25/2011, 10:30, 100, Random]
-      - [03/25/2011, 10:45, 100, Random]
-      - [03/25/2011, 11:00, 100, Random]
-      - [03/25/2011, 11:15, 100, Random]
-      - [03/25/2011, 11:30, 100, Random]
-      - [03/25/2011, 11:45, 100, Random]
-      - [03/25/2011, 12:00, 100, Random]
-      - [03/25/2011, 12:15, 100, Random]
-      - [03/25/2011, 12:30, 100, Random]
-      - [03/25/2011, 12:45, 100, Random]
-      - [03/25/2011, 13:00, 100, Random]
-      - [03/25/2011, 13:15, 100, Random]
-      - [03/25/2011, 13:30, 100, Random]
-      - [03/25/2011, 13:45, 100, Random]
-      - [03/25/2011, 14:00, 100, Random]
-      - [03/25/2011, 14:15, 100, Random]
-      - [03/25/2011, 14:30, 100, Random]
-      - [03/25/2011, 14:45, 100, Random]
-      - [03/25/2011, 15:00, 100, Random]
-      - [03/25/2011, 15:15, 100, Random]
-      - [03/25/2011, 15:30, 100, Random]
-      - [03/25/2011, 15:45, 100, Random]
-      - [03/25/2011, 16:00, 100, Random]
-      - [03/25/2011, 16:15, 100, Random]
-      - [03/25/2011, 16:30, 100, Random]
-      - [03/25/2011, 16:45, 100, Random]
-      - [03/25/2011, 17:00, 100, Random]
-      - [03/25/2011, 17:15, 100, Random]
-      - [03/25/2011, 17:30, 100, Random]
-      - [03/25/2011, 17:45, 100, Random]
-      - [03/25/2011, 18:00, 100, Random]
-      - [03/25/2011, 18:15, 100, Random]
-      - [03/25/2011, 18:30, 100, Random]
-      - [03/25/2011, 18:45, 100, Random]
-      - [03/25/2011, 19:00, 100, Random]
-      - [03/25/2011, 19:15, 100, Random]
-      - [03/25/2011, 19:30, 100, Random]
-      - [03/25/2011, 19:45, 100, Random]
-      - [03/25/2011, 20:00, 100, Random]
-      - [03/25/2011, 20:15, 100, Random]
-      - [03/25/2011, 20:30, 100, Random]
-      - [03/25/2011, 20:45, 100, Random]
-      - [03/25/2011, 21:00, 100, Random]
-      - [03/25/2011, 21:15, 100, Random]
-      - [03/25/2011, 21:30, 100, Random]
-      - [03/25/2011, 21:45, 100, Random]
-      - [03/25/2011, 22:00, 100, Random]
-      - [03/25/2011, 22:15, 100, Random]
-      - [03/25/2011, 22:30, 100, Random]
-      - [03/25/2011, 22:45, 100, Random]
-      - [03/25/2011, 23:00, 100, Random]
-      - [03/25/2011, 23:15, 100, Random]
-      - [03/25/2011, 23:30, 100, Random]
-      - [03/25/2011, 23:45, 100, Random]
+      - [03/25/2015, 1:00, 100, Random]
+      - [03/25/2015, 1:15, 100, Random]
+      - [03/25/2015, 1:30, 100, Random]
+      - [03/25/2015, 1:45, 100, Random]
+      - [03/25/2015, 2:00, 100, Random]
+      - [03/25/2015, 2:15, 100, Random]
+      - [03/25/2015, 2:30, 100, Random]
+      - [03/25/2015, 2:45, 100, Random]
+      - [03/25/2015, 3:00, 100, Random]
+      - [03/25/2015, 3:15, 100, Random]
+      - [03/25/2015, 3:30, 100, Random]
+      - [03/25/2015, 3:45, 100, Random]
+      - [03/25/2015, 4:00, 100, Random]
+      - [03/25/2015, 4:15, 100, Random]
+      - [03/25/2015, 4:30, 100, Random]
+      - [03/25/2015, 4:45, 100, Random]
+      - [03/25/2015, 5:00, 100, Random]
+      - [03/25/2015, 5:15, 100, Random]
+      - [03/25/2015, 5:30, 100, Random]
+      - [03/25/2015, 5:45, 100, Random]
+      - [03/25/2015, 6:00, 100, Random]
+      - [03/25/2015, 6:15, 100, Random]
+      - [03/25/2015, 6:30, 100, Random]
+      - [03/25/2015, 6:45, 100, Random]
+      - [03/25/2015, 7:00, 100, Random]
+      - [03/25/2015, 7:15, 100, Random]
+      - [03/25/2015, 7:30, 100, Random]
+      - [03/25/2015, 7:45, 100, Random]
+      - [03/25/2015, 8:00, 100, Random]
+      - [03/25/2015, 8:15, 100, Random]
+      - [03/25/2015, 8:30, 100, Random]
+      - [03/25/2015, 8:45, 100, Random]
+      - [03/25/2015, 9:00, 100, Random]
+      - [03/25/2015, 9:15, 100, Random]
+      - [03/25/2015, 9:30, 100, Random]
+      - [03/25/2015, 9:45, 100, Random]
+      - [03/25/2015, 10:00, 100, Random]
+      - [03/25/2015, 10:15, 100, Random]
+      - [03/25/2015, 10:30, 100, Random]
+      - [03/25/2015, 10:45, 100, Random]
+      - [03/25/2015, 11:00, 100, Random]
+      - [03/25/2015, 11:15, 100, Random]
+      - [03/25/2015, 11:30, 100, Random]
+      - [03/25/2015, 11:45, 100, Random]
+      - [03/25/2015, 12:00, 100, Random]
+      - [03/25/2015, 12:15, 100, Random]
+      - [03/25/2015, 12:30, 100, Random]
+      - [03/25/2015, 12:45, 100, Random]
+      - [03/25/2015, 13:00, 100, Random]
+      - [03/25/2015, 13:15, 100, Random]
+      - [03/25/2015, 13:30, 100, Random]
+      - [03/25/2015, 13:45, 100, Random]
+      - [03/25/2015, 14:00, 100, Random]
+      - [03/25/2015, 14:15, 100, Random]
+      - [03/25/2015, 14:30, 100, Random]
+      - [03/25/2015, 14:45, 100, Random]
+      - [03/25/2015, 15:00, 100, Random]
+      - [03/25/2015, 15:15, 100, Random]
+      - [03/25/2015, 15:30, 100, Random]
+      - [03/25/2015, 15:45, 100, Random]
+      - [03/25/2015, 16:00, 100, Random]
+      - [03/25/2015, 16:15, 100, Random]
+      - [03/25/2015, 16:30, 100, Random]
+      - [03/25/2015, 16:45, 100, Random]
+      - [03/25/2015, 17:00, 100, Random]
+      - [03/25/2015, 17:15, 100, Random]
+      - [03/25/2015, 17:30, 100, Random]
+      - [03/25/2015, 17:45, 100, Random]
+      - [03/25/2015, 18:00, 100, Random]
+      - [03/25/2015, 18:15, 100, Random]
+      - [03/25/2015, 18:30, 100, Random]
+      - [03/25/2015, 18:45, 100, Random]
+      - [03/25/2015, 19:00, 100, Random]
+      - [03/25/2015, 19:15, 100, Random]
+      - [03/25/2015, 19:30, 100, Random]
+      - [03/25/2015, 19:45, 100, Random]
+      - [03/25/2015, 20:00, 100, Random]
+      - [03/25/2015, 20:15, 100, Random]
+      - [03/25/2015, 20:30, 100, Random]
+      - [03/25/2015, 20:45, 100, Random]
+      - [03/25/2015, 21:00, 100, Random]
+      - [03/25/2015, 21:15, 100, Random]
+      - [03/25/2015, 21:30, 100, Random]
+      - [03/25/2015, 21:45, 100, Random]
+      - [03/25/2015, 22:00, 100, Random]
+      - [03/25/2015, 22:15, 100, Random]
+      - [03/25/2015, 22:30, 100, Random]
+      - [03/25/2015, 22:45, 100, Random]
+      - [03/25/2015, 23:00, 100, Random]
+      - [03/25/2015, 23:15, 100, Random]
+      - [03/25/2015, 23:30, 100, Random]
+      - [03/25/2015, 23:45, 100, Random]
 
 # Swim inputs
 # North Delta sunrise: 6:31
@@ -177,7 +185,7 @@ channel_groups:
 
 # Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
 output_path_entrainment: .\output\entrainment_SouthDelta.csv
-trans_probs_path: C:/Users/dougj/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv
+trans_probs_path: C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/routingProcessor_output/transProbs.csv
 ctmm_time_step_min: 15
 output_path_flux: ./output/flux_SouthDelta.csv
 
@@ -633,14 +641,6 @@ survival_write_all: true
 route_survival_write_all: true
 fates_write_all: true
 survival_detail_write_all: true
-
-# PTM configuration
-ptm_start_date: 15MAR2011
-ptm_start_time: 0000
-ptm_end_date: 22AUG2011
-ptm_end_time: 0000
-ptm_time_step: 15min
-display_intvl: 1day
 
 theta: 0.6                            # Theta to interpolate velocity
 

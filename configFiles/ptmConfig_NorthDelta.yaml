@@ -1,8 +1,16 @@
 ---
-tidefile: C:/delta/dsm2v821/study/historical/output/hist_v821_GZIP.h5
+tidefile: C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/hist_fc_mss_preprocessed_GZIP.h5
 
 # ECO-PTM behavior configuration
 particle_type: Salmon_Particle
+
+# PTM configuration
+ptm_start_date: 21APR2015
+ptm_start_time: 0000
+ptm_end_date: 28SEP2015
+ptm_end_time: 0000
+ptm_time_step: 15min
+display_intvl: 1day
 
 # timeZone only takes PST, or MST, or CST, or EST. If timeZone is not entered, default timeZone is PST. 
 time_zone: PST
@@ -432,14 +440,6 @@ entrainment_write_all: true
 survival_write_all: true
 route_survival_write_all: true
 fates_write_all: true
-
-# PTM configuration
-ptm_start_date: 21APR2015
-ptm_start_time: 0000
-ptm_end_date: 28SEP2015
-ptm_end_time: 0000
-ptm_time_step: 15min
-display_intvl: 1day
 
 theta: 0.6                            # Theta to interpolate velocity
 
