@@ -6,8 +6,8 @@ runRepackTidefile: false
 tideFile: D:/QEDA/DWR/delta/DSM2-8.5.8be49770-win64_with_inputs/studies/historical/output/hist_fc_mss.h5 
 routingPreprocessor:
   runInCondaEnv: true
-  transProbsStartDate: 02jan2015
-  transProbsEndDate: 30dec2015
+  transProbsStartDate: 02jan2015 # At least 90 minutes after the start of the datetime range covered by the tide file
+  transProbsEndDate: 30dec2015 # At least 90 minutes before the end of the datetime range covered by the tide file
   sampleTime_min: 15
   numCores: 8
 tidefilePreprocessor:

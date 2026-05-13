@@ -78,7 +78,7 @@ preprocessedFile <- loadVar("preprocessedFile")
 # Check channel lengths and flows
 origFH <- H5Fopen(origFile)
 newFH <- H5Fopen(preprocessedFile)
-f <- basename(preprocessedFile)
+f <- tools::file_path_sans_ext(basename(preprocessedFile))
 
 origChannelH <- origFH&'hydro/input/channel'
 origChannel <- origChannelH[]

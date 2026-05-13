@@ -67,6 +67,9 @@ class RunPreprocessors:
 
         if p.returncode!=0:
             print("Routing preprocessor failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+            return False
+        
+        return True
 
     def runTidefilePreprocessor(self):
         """Run the tide file preprocessor."""
@@ -87,7 +90,7 @@ class RunPreprocessors:
 
         if p.returncode!=0:
             print("Tide file preprocessor failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
-            return
+            return False
 
         # Replace SZIP compression with GZIP
         try:
@@ -121,7 +124,7 @@ class RunPreprocessors:
 
         if p.returncode!=0:
             print("h5repack failed to run. Try running the h5repack command shown above from the Command Prompt to diagnose.")
-            return
+            return False
 
         print(f"Deleting temporary tide file with SZIP compression: {newTideFile}")
         try:
@@ -131,6 +134,8 @@ class RunPreprocessors:
             print(f"Could not delete {newTideFile}")
 
         print(f"Done preprocessing tide file.\nFinal preprocessed tide file saved to {newTideFileGZIP}")
+
+        return True
 
     def runTidefilePreprocessorQA(self):
         """Run the tide file preprocessor QA script."""
@@ -149,6 +154,9 @@ class RunPreprocessors:
         
         if p.returncode!=0:
             print("Tide file QA failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+            return False
+
+        return True
 
     def runConfigFileQA(self):
         """Run the ECO-PTM configuration file QA script."""
@@ -167,6 +175,9 @@ class RunPreprocessors:
         
         if p.returncode!=0:
             print("ECO-PTM configuration file QA failed to run. Try running the Rcommand shown above from the Command Prompt to diagnose.")
+            return False
+        
+        return True
 
     def runRepackTidefile(self):
         """Repack the tidefile to remove SZIP compression."""
@@ -200,9 +211,11 @@ class RunPreprocessors:
 
         if p.returncode!=0:
             print("h5repack failed to run. Try running the h5repack command shown above from the Command Prompt to diagnose.")
-            return
+            return False
 
         print(f"Done repacking tide file.\nRepacked tide file saved to {newTideFileGZIP}")
+
+        return True
 
     def setRoutingPreprocessorArgs(self, routingPreprocessorArgs):
         """Override specific routing preprocessor arguments"""
@@ -355,17 +368,37 @@ if __name__=="__main__":
 
     if runRoutingPreprocessor:
         r.setRoutingPreprocessorArgs(routingPreprocessorArgs)
-        r.runRoutingPreprocessor()
+        success = r.runRoutingPreprocessor()
+        
+        if not success:
+            print("="*80)
+            sys.exit("routingPreprocessor failed to run.")
 
     if runTidefilePreprocessor:
         r.setTidefilePreprocessorArgs(tidefilePreprocessorArgs)
-        r.runTidefilePreprocessor()
+        success = r.runTidefilePreprocessor()
+
+        if not success:
+            print("="*80)
+            sys.exit("tidefilePreprocessor failed to run.")
     
     if runTidefilePreprocessorQA:
-        r.runTidefilePreprocessorQA()
+        success = r.runTidefilePreprocessorQA()
+
+        if not success:
+            print("="*80)
+            sys.exit("tidefilePreprocessorQA failed to run.")
 
     if runConfigFileQA:
-        r.runConfigFileQA()
+        success = r.runConfigFileQA()
+
+        if not success:
+            print("="*80)
+            sys.exit("configFileQA failed to run.")
     
     if runRepackTidefile:
-        r.runRepackTidefile()
+        success = r.runRepackTidefile()
+
+        if not success:
+            print("="*80)
+            sys.exit("repackTidefile failed to run.")
