@@ -10,17 +10,6 @@ routingPreprocessor:
   transProbsEndDate: 30dec2015
   sampleTime_min: 15
   numCores: 8
-  figWidth: 10
-  figHeight: 5
-  figDPI: 300
-  plotHORstartDate: 18may2015
-  plotHORstartTime: "08:00"
-  plotHORendDate: 20may2015
-  plotHORendTime: "08:00"
-  plotTCstartDate: 20apr2015
-  plotTCstartTime: "00:00"
-  plotTCendDate: 23apr2015
-  plotTCendTime: "00:00"
 tidefilePreprocessor:
   runInCondaEnv: true
   GZIPlevel: 9

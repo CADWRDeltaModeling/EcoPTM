@@ -12,6 +12,7 @@ import glob
 import sys
 import platform
 import shutil
+import pathlib
 import argparse
 import subprocess
 import zipfile
@@ -121,6 +122,13 @@ class RunPreprocessors:
         if p.returncode!=0:
             print("h5repack failed to run. Try running the h5repack command shown above from the Command Prompt to diagnose.")
             return
+
+        print(f"Deleting temporary tide file with SZIP compression: {newTideFile}")
+        try:
+            fH = pathlib.Path(newTideFile)
+            fH.unlink()
+        except:
+            print(f"Could not delete {newTideFile}")
 
         print(f"Done preprocessing tide file.\nFinal preprocessed tide file saved to {newTideFileGZIP}")
 

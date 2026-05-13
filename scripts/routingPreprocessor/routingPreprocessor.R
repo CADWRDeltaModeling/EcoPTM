@@ -295,19 +295,6 @@ if(sampleTime_min!=expectedSampleTime_min) {
     cat("---------------------------------------------------------\n")
 }
 
-figWidth <- loadVar("figWidth")
-figHeight <- loadVar("figHeight")
-figDPI <- loadVar("figDPI")
-
-plotHORstartDate <- loadVar("plotHORstartDate")
-plotHORstartTime <- loadVar("plotHORstartTime")
-plotHORendDate <- loadVar("plotHORendDate")
-plotHORendTime <- loadVar("plotHORendTime")
-plotTCstartDate <- loadVar("plotTCstartDate")
-plotTCstartTime <- loadVar("plotTCstartTime")
-plotTCendDate <- loadVar("plotTCendDate")
-plotTCendTime <- loadVar("plotTCendTime")
-
 passedQA <- runArgsQA()
 if(!passedQA) {
     stop("One or more configuration settings failed QA check. Aborting.")
@@ -368,10 +355,6 @@ if(timeStep_min>sampleTime_min) {
 # All times are in PST (GMT+8)
 transProbsStartDatetime <- dmy(transProbsStartDate, tz="Etc/GMT+8")
 transProbsEndDatetime <- dmy(transProbsEndDate, tz="Etc/GMT+8")
-plotHORstartDatetime <- dmy_hm(paste0(plotHORstartDate, plotHORstartTime), tz="Etc/GMT+8")
-plotHORendDatetime <- dmy_hm(paste0(plotHORendDate, plotHORendTime), tz="Etc/GMT+8")
-plotTCstartDatetime <- dmy_hm(paste0(plotTCstartDate, plotTCstartTime), tz="Etc/GMT+8")
-plotTCendDatetime <- dmy_hm(paste0(plotTCendDate, plotTCendTime), tz="Etc/GMT+8")
 
 cat("Tide file: ", tideFile, "\n")
 cat("Range of data available in tide file:", format(startDatetime, "%Y-%m-%d %H:%M:%S"), "to", format(endDatetime, "%Y-%m-%d %H:%M:%S"), "\n")
@@ -486,29 +469,8 @@ TCoOR <- stationFlow %>% filter(stationName %in% TCstationNames) %>% select(date
     pivot_wider(id_cols=datetime, names_from=stationName, values_from=OOR) %>%
     mutate(OOR=TC_U | TC_D | TC_T) %>% select(datetime, OOR)
 
-cat("Saving flow data to", file.path(outputDir, "stationFlow.csv"), "\n")
-write.csv(stationFlow, file.path(outputDir, "stationFlow.csv"), row.names=F)
-
 # Drop columns used to calculate OOR from stationFlow
 stationFlow <- stationFlow %>% select(datetime:barrier)
-
-# Plot HOR
-cat("Saving HOR flow plot to", file.path(outputDir, "plotHORflow.png"), "\n")
-plotHORflow <- stationFlow %>% filter(datetime>=plotHORstartDatetime, datetime<=plotHORendDatetime, stationName %in% HORstationNames)
-p <- ggplot(plotHORflow) + geom_line(aes(x=datetime, y=netFlow, color=stationName), linetype="dashed") +
-    geom_line(aes(x=datetime, y=tidalFlow, color=stationName)) +
-    ylab("flow") +
-    ylim(-2000, 2100) + labs(title="Head of Old River") + theme_light()
-ggsave(file.path(outputDir, "plotHORflow.png"), width=figWidth, height=figHeight, dpi=figDPI)
-
-# Plot Turner Cut
-cat("Saving Turner Cut flow plot to", file.path(outputDir, "plotTCflow.png"), "\n")
-plotTCflow <- stationFlow %>% filter(datetime>=plotTCstartDatetime, datetime<=plotTCendDatetime, stationName %in% TCstationNames)
-p <- ggplot(plotTCflow) + geom_line(aes(x=datetime, y=netFlow, color=stationName), linetype="dashed") +
-    geom_line(aes(x=datetime, y=tidalFlow, color=stationName)) +
-    ylab("flow") +
-    labs(title="Turner Cut") + theme_light()
-ggsave(file.path(outputDir, "plotTCflow.png"), width=figWidth, height=figHeight, dpi=figDPI)
 
 # Load fitted models
 fitHOR <- readRDS(fitHORfile)
