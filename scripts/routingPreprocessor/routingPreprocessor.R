@@ -34,6 +34,10 @@ flowBoundsFile <- file.path(workingDir, "flowBounds.csv")
 HORstationNames <- c("HOR_U", "HOR_D", "HOR_T")
 TCstationNames <- c("TC_U", "TC_D", "TC_T")
 
+# Model configuration
+TClag_min <- 90
+use2011 <- FALSE
+
 # Number used to indicate missing value
 missingVal <- -999
 
@@ -290,11 +294,6 @@ if(sampleTime_min!=expectedSampleTime_min) {
         "IT IS STRONGLY RECOMMENDED THAT YOU USE A TIME STEP OF", expectedSampleTime_min, "MINUTES.\n")
     cat("---------------------------------------------------------\n")
 }
-
-
-TClag_min <- loadVar("TClag_min")
-# Flag to indicate whether the 2011 statistical model should be used
-use2011 <- loadVar("use2011")
 
 figWidth <- loadVar("figWidth")
 figHeight <- loadVar("figHeight")

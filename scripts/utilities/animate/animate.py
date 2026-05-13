@@ -23,6 +23,7 @@ if __name__=="__main__":
     # Read in command line arguments
     parser = argparse.ArgumentParser(description="Script to plot particle and vFish positions.")
     parser.add_argument("--animatePlot", action="store_true", dest="animatePlot", required=False)
+    parser.add_argument("--pauseInterval_ms", action="store", dest="pauseInterval_ms", required=False)
     parser.add_argument("--animationStep", action="store", dest="animationStep", required=False)
     parser.add_argument("--animFile1", action="store", dest="animFile1", required=True)
     parser.add_argument("--animFile2", action="store", dest="animFile2", required=False)
@@ -46,6 +47,11 @@ if __name__=="__main__":
         animFile2 = args.animFile2
         fluxFile1 = args.fluxFile1
         fluxFile2 = args.fluxFile2
+
+    if args.pauseInterval_ms is not None:
+        pauseInterval_ms = int(args.pauseInterval_ms)
+    else:
+        pauseInterval_ms = 50
 
     if args.animationStep is not None:
         animationStep = int(args.animationStep)
@@ -251,7 +257,7 @@ if animatePlot:
     chanPlot = hv.Segments(chans, kdims=["upNodeX", "upNodeY", "downNodeX", "downNodeY"]).opts(color="orange")
 
     datetimePlayer = pn.widgets.Player(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), visible_buttons=["play", "pause"], 
-                                       name="Animation controls", loop_policy="loop", step=animationStep, interval=0, align="center", 
+                                       name="Animation controls", loop_policy="loop", step=animationStep, interval=pauseInterval_ms, align="center", 
                                        show_loop_controls=False, show_value=True)
     anim1rx = pn.rx(anim1)
     anim1 = chanPlot*anim1rx[anim1rx["datetimeIndex"]==datetimePlayer].hvplot(x="easting", y="northing", kind="scatter",

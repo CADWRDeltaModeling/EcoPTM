@@ -9,8 +9,6 @@ routingPreprocessor:
   transProbsStartDate: 02jan2015
   transProbsEndDate: 30dec2015
   sampleTime_min: 15
-  TClag_min: 90
-  use2011: false
   numCores: 8
   figWidth: 10
   figHeight: 5
