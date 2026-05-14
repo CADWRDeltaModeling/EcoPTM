@@ -178,6 +178,7 @@ public class MainPTM {
 						numberOfParticles,
 						Environment.getNumberOfAnimatedParticles(),
 						particleArray);
+				PTMUtil.printInfoMessage("Note: animation output can result in large output files.\nDisable by commenting out all three lines under type:anim in the io_file section of the config file.");
 			}catch(IOException ioe){
 				System.out.println("No animation file output");
 			}

@@ -511,6 +511,7 @@ groups:
   - [whole, res, .*]
 
 io_file:
+  # Note: animation output can result in large output files. Disable by commenting out all three lines if not using anim output.
   - type: anim
     interval: 15min
     file: ./output/ptm_out.ncd
