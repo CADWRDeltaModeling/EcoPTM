@@ -373,7 +373,8 @@ public class Config {
 	 */
 	public void buildOutput(NetcdfFormatWriter.Builder builder) {
 		Dimension strLen10, strLen50, strLen100, strLen300, strLen10000, travelTimeColDim, travelTimeRowDim,
-		releaseLocColDim, releaseLocRowDim, releasesColDim, releasesRowDim, swimmingVelColDim, swimmingVelRowDim,
+		releaseLocColDim, releaseLocRowDim, releasesColDim, releasesRowDim, 
+		particleInsertionColDim, particleInsertionRowDim, swimmingVelColDim, swimmingVelRowDim,
 		channelGroupsColDim, channelGroupsRowDim, channelNameLookupColDim, channelNameLookupRowDim,
 		specialBehaviorColDim, specialBehaviorRowDim, barriersColDim, barriersRowDim, fishScreensColDim, fishScreensRowDim, 
 		startStationsColDim, startStationsRowDim, endStationsColDim, endStationsRowDim, exchStationsColDim, exchStationsRowDim,
@@ -414,6 +415,13 @@ public class Config {
 			builder.addVariable("releaseLocCol", DataType.CHAR, "releaseLocCol strLen50");
 			builder.addVariable("releasesCol", DataType.CHAR, "releasesCol strLen50");
 
+		}
+		
+		if(this.particle_insertion_header!=null && this.particle_insertion!=null) {
+			particleInsertionColDim = addDimension(builder, "particleInsertionCol", this.particle_insertion_header);
+			particleInsertionRowDim = addDimension(builder, "particleInsertionRow", this.particle_insertion);
+			builder.addVariable("particle_insertion", DataType.CHAR, "particleInsertionRow particleInsertionCol strLen50");
+			builder.addVariable("particleInsertionCol", DataType.CHAR, "particleInsertionCol strLen10");
 		}
 
 		if(this.swimming_vel_header!=null && this.swimming_vel!=null) {
@@ -742,6 +750,12 @@ public class Config {
 			catch (Exception e) {
 				System.out.println("Could not write releases to netCDF output file. Skipping.");
 			}
+		}
+		
+		// particle_insertion
+		if(this.particle_insertion_header!=null && this.particle_insertion!=null) {
+			writeStrArray(writer, "particle_insertion", this.particle_insertion);
+			setColDim(writer, "particleInsertionCol", this.particle_insertion_header);
 		}
 
 		// swimming_vel

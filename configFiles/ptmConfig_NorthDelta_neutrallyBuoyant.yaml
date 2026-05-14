@@ -1,5 +1,5 @@
 ---
-tidefile: C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/hist_fc_mss_preprocessed_GZIP.h5
+tidefile: C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/hist_fc_mss_repack_GZIP.h5
 
 simulation_scenario: test simulation scenario
 
@@ -144,14 +144,14 @@ groups:
   - [DiscBay, res, discovery_bay]
   - [LibIs, res, liberty]
   - [clfct, res, clifton_court]
-#  - [ccf_east, chan, (232|217|82)]
-#  - [chipps_east, chan, (288|294|291)]
-#  - [chipps_west, chan, (442|437)]
-#  - [ag_div, qext, dicu_div_.*]
-#  - [ag_div, qext, bbid.*]
-#  - [swp, qext, swp]
-#  - [cvp, qext, cvp]
-#  - [mtz, stage, mtz.*]
+  - [ccf_east, chan, (232|217|82)]
+  - [chipps_east, chan, (288|294|291)]
+  - [chipps_west, chan, (442|437)]
+  - [ag_div, qext, dicu_div_.*]
+  - [ag_div, qext, bbid.*]
+  - [swp, qext, swp]
+  - [cvp, qext, cvp]
+  - [mtz, stage, mtz.*]
   - [franks, res, franks_tract]
   - [whole_chan, chan, .*]
   - [whole_res, res, .*]

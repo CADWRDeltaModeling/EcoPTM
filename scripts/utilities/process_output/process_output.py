@@ -3,6 +3,7 @@
 __author__ = "Doug Jackson, QEDA Consulting, LLC"
 __email__ = "doug@qedaconsulting.com"
 import os
+import re
 import sys
 import xarray as xr
 import pandas as pd
@@ -127,9 +128,23 @@ class ProcessOutput:
                 flux = flux.sort_values(by="datetime")
                 startDatetime = flux.iloc[1]["datetime"]
 
-                flux["daysFromStart"] = [(d - startDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
+                # Obtain the first release date
+                if ds["particle_type"].item().decode("utf8").upper()=="SALMON_PARTICLE":
+                    firstReleaseDate, lastReleaseDate = self.getReleaseDates(fluxFile)
+                    firstReleaseDatetime = dt.strptime(firstReleaseDate, "%d%b%Y")
+                else:
+                    delay_days = self.getDelayDays(fluxFile)
+                    firstReleaseDatetime = startDatetime + timedelta(days=delay_days)
 
-                thisFlux = flux[flux["daysFromStart"]>=days].iloc[0]
+                flux["daysFromRelease"] = [(d - firstReleaseDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
+
+                if flux["daysFromRelease"].max()<days:
+                    print("-"*80)
+                    print(f"No flux data found at or after {days} days from the first release date. The latest flux data is {int(np.floor(flux['daysFromRelease'].max()))} days after release. Skipping this fluxDatDays.")
+                    print("-"*80)
+                    continue
+                
+                thisFlux = flux[flux["daysFromRelease"]>=days].iloc[0]
 
                 with open(outputFile, "a") as fH:
                     row = f"{dt.strftime(startDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
@@ -140,6 +155,53 @@ class ProcessOutput:
                             row+=","
                     print(row, file=fH)
                 
+    def getDelayDays(self, outputFile):
+        """Obtain minimum release delay in days"""
+        ds = xr.open_dataset(outputFile)
+
+        particleInsertion = ds["particle_insertion"].to_pandas()
+        particleInsertion.columns = [c.decode("utf8") for c in particleInsertion.columns]
+
+        delays = [d.decode("utf8") for d in particleInsertion["delay"]]
+
+        delay_days = []
+        for d in delays:
+            
+            m = re.search(r"\d*", d)
+            if len(m.group())>0:
+            
+                if "DAY" in d.upper():
+                    delay_days.append(int(m.group(0)))
+                elif "HOUR" in d.upper():
+                    delay_days.append(int(m.group(0))/24)
+
+        try:
+            minDelay = np.array(delay_days).min().item()
+        except:
+            sys.exit("Could not obtain release delays.")
+
+        ds.close()
+
+        return minDelay
+        
+    def getReleaseDates(self, outputFile):
+        """Obtain release dates from a salmon simulation output file"""
+        ds = xr.open_dataset(outputFile)
+
+        try:
+            releases = pd.DataFrame(ds["release_groups:releases"])
+            releaseDates = [dt.strptime(d.decode("utf8"), "%m/%d/%Y") for d in releases[1]]
+            firstReleaseDatetime = np.min(releaseDates)
+            lastReleaseDatetime = np.max(releaseDates)
+            firstReleaseDate = dt.strftime(firstReleaseDatetime, "%d%b%Y").upper()
+            lastReleaseDate = dt.strftime(lastReleaseDatetime, "%d%b%Y").upper()
+        except:
+            sys.exit("Could not obtain release dates.")
+        
+        ds.close()
+
+        return firstReleaseDate, lastReleaseDate
+
     def createSurvDat(self, survOutputDir, survFiles, survDatLocs):
         """Create dat file of survival estimates
         
@@ -172,16 +234,7 @@ class ProcessOutput:
             except:
                 startDate = "NA"
             
-            try:
-                releases = pd.DataFrame(ds["release_groups:releases"])
-                releaseDates = [dt.strptime(d.decode("utf8"), "%m/%d/%Y") for d in releases[1]]
-                firstReleaseDatetime = np.min(releaseDates)
-                lastReleaseDatetime = np.max(releaseDates)
-                firstReleaseDate = dt.strftime(firstReleaseDatetime, "%d%b%Y").upper()
-                lastReleaseDate = dt.strftime(lastReleaseDatetime, "%d%b%Y").upper()
-            except:
-                firstReleaseDate = "NA"
-                lastReleaseDate = "NA"
+            firstReleaseDate, lastReleaseDate = self.getReleaseDates(survFile)
 
             try:
                 scenario = ds["simulation_scenario"].item().decode("utf8")
