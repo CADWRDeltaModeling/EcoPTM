@@ -323,7 +323,7 @@ for(i in 1:nrow(stationLoc)) {
 }
 
 # Calculate channelFrac
-stationLoc$channelFrac <- stationLoc$channelDist_ft/stationLoc$channelLen_ft
+stationLoc$channelFrac <- pmax(0, pmin(stationLoc$channelDist_ft/stationLoc$channelLen_ft, 1))
 stationNames <- unique(stationLoc$stationName)
 
 # Read flows for all channels
