@@ -24,58 +24,49 @@ public class SwimInputs {
 	}
 	public SwimInputs(String fishType) {
 		Config config;
-		boolean swimInputsSet;
 
 		config = PTMFixedData.getConfig();
 
-		// Verify that parameters have been explicitly set in the config file
-		// Abort if we're running a salmon or position-oriented particle and the swim inputs parameters aren't set.
-		swimInputsSet = true;
-		for (String par : new String[] {"sunrise", "sunset", "stst_threshold", "tidal_cycles_to_calculate_channel_direction",
-				"confusion_probability_constant", "max_confusion_probability", "confusion_probability_slope", 
-				"random_assess", "assess_probability", "stuck_threshold"}) {
-			if(!config.isSet(par)) {
-				swimInputsSet = false;
-				if (fishType.equalsIgnoreCase("SALMON_PARTICLE") || fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")) {
-					PTMUtil.systemExit(par + " missing in Swim inputs section");	
-				}
+		if (fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")) {
+			String smeltInputFileName = config.smelt_input_filename;
+			if (smeltInputFileName==null) {
+				PTMUtil.systemExit("No smelt input file name found, exit.");
+			}
+
+			try {
+				setSmeltParticleBehavior(smeltInputFileName);
+			} catch (IOException e) {
+				e.printStackTrace();
+				PTMUtil.systemExit("Error while reading the position oriented particle input file: "+smeltInputFileName);
 			}
 		}
-
-		if (swimInputsSet){
-			if (fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")){
-				String smeltInputFileName = config.smelt_input_filename;
-				if (smeltInputFileName==null) {
-					PTMUtil.systemExit("No smelt input file name found, exit.");
-				}
-
-				try{
-					setSmeltParticleBehavior(smeltInputFileName);
-				}catch (IOException e){
-					e.printStackTrace();
-					PTMUtil.systemExit("Error while reading the position oriented particle input file: "+smeltInputFileName);
+		else if (fishType.equalsIgnoreCase("SALMON_PARTICLE")) {
+			
+			// Abort if we're running a salmon particle and the swim inputs parameters aren't set.
+			for (String par : new String[] {"sunrise", "sunset", "stst_threshold", "tidal_cycles_to_calculate_channel_direction",
+					"confusion_probability_constant", "max_confusion_probability", "confusion_probability_slope", 
+					"random_assess", "assess_probability", "stuck_threshold"}) {
+				if(!config.isSet(par)) {
+					PTMUtil.systemExit(par + " missing in configuration file.");
 				}
 			}
-			else if (fishType.equalsIgnoreCase("SALMON_PARTICLE")){
-				try{
-					_sunrise = PTMUtil.getPairFromString(config.sunrise);
-					_sunset = PTMUtil.getPairFromString(config.sunset);
-					_floodHoldVel = config.stst_threshold;
-					_numTidalCycles = config.tidal_cycles_to_calculate_channel_direction;
-					_constProbConfusion = config.confusion_probability_constant;
-					_maxProbConfusion = config.max_confusion_probability;
-					_slopeProbConfusion = config.confusion_probability_slope;
-					_randomAccess = config.random_assess;
-					_accessProb = config.assess_probability;
-					THRESHOLD_STUCK = config.stuck_threshold*24*60*60;
-				}catch (NumberFormatException e){
-					e.printStackTrace();
-					PTMUtil.systemExit("number format is wrong in one of the swimming input lines");
-				}
-				setChannelGroups();
+			
+			try {
+				_sunrise = PTMUtil.getPairFromString(config.sunrise);
+				_sunset = PTMUtil.getPairFromString(config.sunset);
+				_floodHoldVel = config.stst_threshold;
+				_numTidalCycles = config.tidal_cycles_to_calculate_channel_direction;
+				_constProbConfusion = config.confusion_probability_constant;
+				_maxProbConfusion = config.max_confusion_probability;
+				_slopeProbConfusion = config.confusion_probability_slope;
+				_randomAccess = config.random_assess;
+				_accessProb = config.assess_probability;
+				THRESHOLD_STUCK = config.stuck_threshold*24*60*60;
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+				PTMUtil.systemExit("The number format is wrong in one of the swimming input lines.");
 			}
-			else
-				PTMUtil.systemExit("No swimming input is expected, but found swimming input parameters (sunrise, sunset, etc.). System exit.");
+			setChannelGroups();
 		}
 		_fishType = fishType;
 	}
