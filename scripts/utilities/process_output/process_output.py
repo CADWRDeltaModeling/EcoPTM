@@ -147,7 +147,7 @@ class ProcessOutput:
                 thisFlux = flux[flux["daysFromRelease"]>=days].iloc[0]
 
                 with open(outputFile, "a") as fH:
-                    row = f"{dt.strftime(startDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
+                    row = f"{dt.strftime(firstReleaseDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
                     for loc in fluxDatLocs:
                         try:
                             row+=f", {thisFlux[loc.upper()]}"
