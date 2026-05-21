@@ -17,7 +17,7 @@ strVars = ["particle_type", "time_zone", "use_new_random_seed", "sunrise", "suns
            "ptm_end_date", "ptm_end_time", "tidefile", "travel_time_output_path", "output_path_entrainment", "trans_probs_path", "output_path_flux",
            "survival_output_path", "route_survival_output_path", "fates_output_path", "display_simulation_timestep_write_all", "flux_write_all",
            "entrainment_write_all", "survival_write_all", "ptm_ivert", "ptm_itrans", "ptm_iey", "ptm_iez", "ptm_iprof", "ptm_igroup", "ptm_flux_percent",
-           "ptm_group_percent", "ptm_flux_cumulative"]
+           "ptm_group_percent", "ptm_flux_cumulative", "position_oriented_behavior_path"]
 floatVars = ["stst_threshold", "tidal_cycles_to_calculate_channel_direction", "confusion_probability_constant",
            "max_confusion_probability", "confusion_probability_slope", "assess_probability", "stuck_threshold", "dicu_filter_efficiency", "max_leakage_gate_closed",
            "theta", "ptm_random_seed", "ptm_trans_constant", "ptm_vert_constant", "ptm_trans_a_coef", "ptm_trans_b_coef", "ptm_num_animated", "ctmm_time_step_min"]

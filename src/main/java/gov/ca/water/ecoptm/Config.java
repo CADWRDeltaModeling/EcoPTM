@@ -164,7 +164,7 @@ public class Config {
 
 	public List<IOfileLine> io_file;
 
-	public String smelt_input_filename;
+	public String position_oriented_behavior_path;
 
 	public String cross_stream_frac_method;
 	public float cross_stream_frac_beta_a;
@@ -583,7 +583,7 @@ public class Config {
 
 		// strLen300
 		for(String s: new String[] {"tidefile", "travel_time_output_path", "output_path_entrainment", "trans_probs_path",
-				"output_path_flux", "survival_output_path", "route_survival_output_path", "fates_output_path"}) {		
+				"output_path_flux", "survival_output_path", "route_survival_output_path", "fates_output_path", "position_oriented_behavior_path"}) {		
 			builder.addVariable(s, DataType.CHAR, "strLen300");
 		}
 
@@ -634,6 +634,7 @@ public class Config {
 		writeStr(writer, "ptm_end_time", this.ptm_end_time);
 		writeStr(writer, "ptm_time_step", this.ptm_time_step);
 		writeStr(writer, "display_intvl", this.display_intvl);
+		writeStr(writer, "position_oriented_behavior_path", this.position_oriented_behavior_path);
 
 		writeStr(writer, "use_new_random_seed", Boolean.toString(this.use_new_random_seed));
 		writeStr(writer, "random_assess", Boolean.toString(this.random_assess));

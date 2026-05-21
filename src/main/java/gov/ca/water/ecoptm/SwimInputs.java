@@ -28,9 +28,9 @@ public class SwimInputs {
 		config = PTMFixedData.getConfig();
 
 		if (fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")) {
-			String smeltInputFileName = config.smelt_input_filename;
+			String smeltInputFileName = config.position_oriented_behavior_path;
 			if (smeltInputFileName==null) {
-				PTMUtil.systemExit("No smelt input file name found, exit.");
+				PTMUtil.systemExit("No position_oriented_behavior_path found in configuration file. System exit.");
 			}
 
 			try {
