@@ -21,6 +21,16 @@ class ProcessOutput:
         """Initialize a ProcessOutput object""" 
         self.figWidth = 6
         self.figHeight = 6
+    
+    def verifyConfig(self, config, varList):
+        """Verify that the config file contains all of the variables in varList"""
+        success = True
+        for v in varList:
+            if v not in config:
+                success = False
+                print(f"Required variable {v} not found in configuration file.")
+
+        return success
 
     def extractFlux(self, fluxOutputDir, fluxFiles):
         """Extract all flux time series
@@ -65,7 +75,7 @@ class ProcessOutput:
             
             ds.close()
 
-    def createFluxDat(self, fluxOutputDir, fluxFiles, fluxSimLoc, fluxDatLocs, fluxDatDays):
+    def createFluxDat(self, fluxOutputDir, fluxFiles, fluxSimLoc, fluxDatLocs, fluxDatDays, fluxDatTotals):
         """Create dat file of flux outputs
         
         Keyword arguments:
@@ -74,9 +84,8 @@ class ProcessOutput:
         fluxSimLoc (str) -- insertion location
         fluxDatLocs (list) -- list of flux locations
         fluxDatDays (list) -- list of integer days from simulation start to record flux
+        fluxDatTotals (dict) -- dict containing lists of flux locations to add and subtract
         """
-        print("="*80)
-
         # Make sure the output directory exists
         os.makedirs(fluxOutputDir, exist_ok=True)
 
@@ -90,6 +99,9 @@ class ProcessOutput:
 
         for days in fluxDatDays:
 
+            print("="*80)
+            print(f"Creating {days} day flux output file.")
+
             outputFile = os.path.join(fluxOutputDir, f"ptm_fate_results_{days}day.dat")
 
             with open(outputFile, "w") as fH:
@@ -98,10 +110,18 @@ class ProcessOutput:
                 header = "SimPeriod,SimLoc"
                 for loc in fluxDatLocs:
                     header+=f",{loc.upper()}"
+                
+                # try protects against empty fluxDatTotals
+                try:
+                    for t in fluxDatTotals:
+                        header+=f",{t}"
+                except TypeError:
+                    fluxDatTotals = []
+
                 print(header, file=fH)
 
             for fluxFile in fluxFiles:
-                print(f"Creating *.dat flux output file using outputs in {fluxFile}")
+                print(f"Creating {days} day *.dat flux output file using outputs in {fluxFile}")
 
                 ds = xr.open_dataset(fluxFile)
 
@@ -139,21 +159,53 @@ class ProcessOutput:
                 flux["daysFromRelease"] = [(d - firstReleaseDatetime).total_seconds()/timedelta(days=1).total_seconds() for d in flux["datetime"]]
 
                 if flux["daysFromRelease"].max()<days:
-                    print("-"*80)
-                    print(f"No flux data found at or after {days} days from the first release date. The latest flux data is {int(np.floor(flux['daysFromRelease'].max()))} days after release. Skipping this fluxDatDays.")
-                    print("-"*80)
+                    self.printWarning((f"No flux data found at or after {days} days from the first release date. " + 
+                                       f"The latest flux data is {int(np.floor(flux['daysFromRelease'].max()))} days after release. Skipping {fluxFile}."))
                     continue
                 
-                thisFlux = flux[flux["daysFromRelease"]>=days].iloc[0]
+                thisFlux = flux[flux["daysFromRelease"]>=days].iloc[0:1]
 
                 with open(outputFile, "a") as fH:
                     row = f"{dt.strftime(firstReleaseDatetime, '%d%b%Y').upper()}, {fluxSimLoc}"
                     for loc in fluxDatLocs:
                         try:
-                            row+=f", {thisFlux[loc.upper()]}"
+                            row+=f", {thisFlux[loc.upper()].values[0]}"
                         except:
                             row+=","
+                        
+                    # Add totals
+                    for t in fluxDatTotals:
+                        thisTot = 0
+
+                        try:
+                            addLocs = fluxDatTotals[t]["add"]
+                            subtractLocs = fluxDatTotals[t]["subtract"]
+                        except KeyError as e:
+                            self.printWarning(f"Missing entry in fluxDatTotals[{t}]: {e.args[0]}. Skipping this total calculation.")
+                            continue
+
+                        # try protects against empty lists for "add" or "subtract"
+                        try:
+                            for a in addLocs:
+                                if a.upper() not in thisFlux:
+                                    self.printWarning(f"Flux location {a.upper()} not found in output. Excluding from {t} total calculation.")
+                                    continue
+
+                                thisTot+=thisFlux[a.upper()].values[0]
+
+                            for s in subtractLocs:
+                                if s.upper() not in thisFlux:
+                                    self.printWarning(f"Flux location {s.upper()} not found in output. Excluding from {t} total calculation.")
+                                    continue
+
+                                thisTot-=thisFlux[s.upper()].values[0]
+                        except TypeError:
+                            pass
+                        
+                        row+=f", {float(thisTot)}"
+
                     print(row, file=fH)
+            print(f"Done creating {days} day flux output file.")
                 
     def getDelayDays(self, outputFile):
         """Obtain minimum release delay in days"""
@@ -301,6 +353,10 @@ class ProcessOutput:
         echoConfigNetCDF (str) -- path to the netCDF echoConfig output file 
         """
         print("="*80)
+        if not os.path.exists(echoConfigNetCDF):
+            print(f"File {echoConfigNetCDF} does not exist. Skipping echoConfig.")
+            return
+
         print(f"Echoing configuration values in {echoConfigNetCDF}")
 
         ds = xr.open_dataset(echoConfigNetCDF)
@@ -357,6 +413,12 @@ class ProcessOutput:
         dF = dF.map(lambda x: x.decode("utf-8") if isinstance(x, bytes) else x)
         dF.reset_index(inplace=True)
         return dF
+    
+    def printWarning(self, message):
+        """Print a warning message"""
+        print("-"*80)
+        print(message)
+        print("-"*80)
 
 if __name__=="__main__":
     import argparse
@@ -366,8 +428,6 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Script to perform basic post-processing of ECO-PTM output.")
     parser.add_argument("--configFile", action="store", dest="configFile", required=True)
     args = parser.parse_args()
-
-    p = ProcessOutput()
 
     configFile = args.configFile
 
@@ -383,18 +443,41 @@ if __name__=="__main__":
         print(f"Error while parsing process_output configuration file: {e}")
         sys.exit()
 
+    p = ProcessOutput()
+
+    # Verify that required switches are in config file
+    if not p.verifyConfig(config, ["createFluxDat", "createSurvDat", "processSurvival", "echoConfig", "extractFlux"]):
+        print("One or more required parameters are not found in the configuration file. Aborting.")
+        sys.exit()
+
     print("Launching processes...")
     if config["createFluxDat"]:
-        p.createFluxDat(config["fluxOutputDir"], config["fluxFiles"], config["fluxSimLoc"], config["fluxDatLocs"], config["fluxDatDays"])
+        if not p.verifyConfig(config, ["fluxOutputDir", "fluxFiles", "fluxSimLoc", "fluxDatLocs", "fluxDatDays", "fluxDatTotals"]):
+            print("One or more parameters required for createFluxDat are not found in the configuration file. Skipping.")
+        else:
+            p.createFluxDat(config["fluxOutputDir"], config["fluxFiles"], config["fluxSimLoc"], config["fluxDatLocs"], 
+                            config["fluxDatDays"], config["fluxDatTotals"])
     
     if config["createSurvDat"]:
-        p.createSurvDat(config["survOutputDir"], config["survFiles"], config["survDatLocs"])
+        if not p.verifyConfig(config, ["survOutputDir", "survFiles", "survDatLocs"]):
+            print("One or more parameters required for createSurvDat are not found in the configuration file. Skipping.")
+        else:
+            p.createSurvDat(config["survOutputDir"], config["survFiles"], config["survDatLocs"])
 
     if  config["processSurvival"]:
-        p.processSurvival(config["survivalFile"])
+        if not p.verifyConfig(config, ["survivalFile"]):
+            print("One or more parameters required for processSurvival are not found in the configuration file. Skipping.")
+        else:
+            p.processSurvival(config["survivalFile"])
     
     if config["echoConfig"]:
-        p.printConfig(config["echoConfigNetCDF"])
+        if not p.verifyConfig(config, ["echoConfigNetCDF"]):
+            print("One or more parameters required for echoConfig are not found in the configuration file. Skipping.")
+        else:
+            p.printConfig(config["echoConfigNetCDF"])
     
     if config["extractFlux"]:
-        p.extractFlux(config["fluxOutputDir"], config["fluxFiles"])
+        if not p. verifyConfig(config, ["fluxOutputDir", "fluxFiles"]):
+            print("One or more parameters required for extractFlux are not found in the configuration file. Skipping.")
+        else:
+            p.extractFlux(config["fluxOutputDir"], config["fluxFiles"])
