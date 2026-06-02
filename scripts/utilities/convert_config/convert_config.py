@@ -272,7 +272,7 @@ class ConvertConfig:
         # groups
         try:
             header = Group(Word(alphas + "_")*3)
-            row = Group(Word(alphanums + "_")("name") + Word(alphas)("type") + Word(alphanums + "_()|*."))
+            row = Group(Word(alphanums + "_")("name") + Word(alphas)("type") + Word(alphanums + "_()|*.:-"))
             parser = Group(Suppress("GROUP_MEMBER") + 
                             header("header") + 
                             ZeroOrMore(row, stop_on="END")("rows"))
@@ -685,6 +685,7 @@ class ConvertConfig:
                                     "file":result[0][0]["rows"][i]["file"]}
                         ioFiles.append(thisFile)
                 # Add new output files with default paths
+                ioFiles.append({"type":"anim", "interval":"15min", "file":"./output/ptm_out.ncd"})
                 ioFiles.append({"type":"flux", "interval":"1hour", "file":"./output/ptm_out.ncd"})
                 ioFiles.append({"type":"survival", "interval":"none", "file": "./output/ptm_out.ncd"})
                 ioFiles.append({"type":"echoConfig", "interval":"none", "file": "./output/echoConfig.yaml"})
@@ -744,6 +745,7 @@ class ConvertConfig:
                                     "file":result[0][0]["rows"][i]["file"]}
                         ioFiles.append(thisFile)
                 # Add new output files with default paths
+                ioFiles.append({"type":"anim", "interval":"15min", "file":"./output/ptm_out.ncd"})
                 ioFiles.append({"type":"flux", "interval":"1hour", "file":"./output/ptm_out.ncd"})
                 ioFiles.append({"type":"echoConfig", "interval":"none", "file": "./output/echoConfig.yaml"})
                 ioFiles.append({"type":"echoConfigNetCDF", "interval":"none", "file": "./output/ptm_out.ncd"})
