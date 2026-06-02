@@ -1,12 +1,12 @@
 variable,value
-tidefile,C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTMcalSouthDeltaInputs_10apr24/v1.1.88.4_2011.h5
-trans_probs_path,C:/Users/dougj/OneDrive - QEDA Consulting/Documents/QEDA/DWR/ECO_PTM_scenarios/ECO_PTM_calibration_08dec23/transProbs.csv 
-release_loc_nodeID,17
-release_loc_channelID,17
-release_loc_distance,100
-release_loc_stationName,Vernalis
-releases_release_date,05/01/2011
+tidefile,C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/hist_fc_mss_preprocessed_GZIP.h5
+trans_probs_path,C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/routingProcessor_output/transProbs.csv
+release_loc_nodeID,331
+release_loc_channelID,411
+release_loc_distance,0
+release_loc_stationName,SacAboveFreeport
+releases_release_date,5/1/2015
 releases_release_time,1:00
 releases_particle_number,100
-ptm_start_date,21APR2011
-ptm_end_date,28SEP2011
+ptm_start_date,21APR2015
+ptm_end_date,28SEP2015
