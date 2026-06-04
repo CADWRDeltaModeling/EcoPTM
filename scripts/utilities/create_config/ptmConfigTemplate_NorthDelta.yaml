@@ -13,7 +13,7 @@ use_new_random_seed: true
 # Node has to be upnode, and distance in feet is from upnode.
 # In DSM2 map, upstream of a flow arrow is upnode, downstream is downnode.
 # Only one travel time output location can be specified. 
-travel_time_output_path: .\output\travel_time_in_min, .csv
+travel_time_output_path: .\output\travel_time_in_min.csv
 travel_time_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
 travel_time:
   - [339, 379, 951, Sutter]
@@ -63,7 +63,8 @@ channel_groups:
               350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,
               370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,
               390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,
-              418,419,420,421,422,423,424,426,427,428,429,430,549,550,552,553,555,556,557,558,559]
+              418,419,420,421,422,423,424,426,427,428,429,430,492,493,549,550,552,553,555,556,557,
+              558,559,710,711,712,713,714]
 
 # Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
 output_path_entrainment: .\output\entrainment.csv
@@ -407,6 +408,7 @@ groups:
   - [chipps_east, chan, (288|294|291)]
   - [chipps_west, chan, (442|437)]
   - [ag_div, qext, dicu_div_.*]
+  - [ag_div, qext, bbid.*]
   - [swp, qext, swp]
   - [cvp, qext, cvp]
   - [mtz, stage, mtz.*]

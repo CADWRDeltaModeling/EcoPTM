@@ -21,7 +21,7 @@ use_new_random_seed: true
 # Node has to be upnode, and distance in feet is from upnode.
 # In DSM2 map, upstream of a flow arrow is upnode, downstream is downnode.
 # Only one travel time output location can be specified. 
-travel_time_output_path: .\output\travel_time_in_min, .csv
+travel_time_output_path: .\output\travel_time_in_min.csv
 travel_time_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
 travel_time:
   - [339, 379, 951, Sutter]

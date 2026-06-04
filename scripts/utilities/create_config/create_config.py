@@ -10,6 +10,7 @@ import os
 import re
 import yaml
 import pandas as pd
+from datetime import datetime as dt
 
 class CreateConfig:
     
@@ -33,6 +34,8 @@ class CreateConfig:
         # Read input file
         self.inputs = pd.read_csv(self.inputFileCSV)
 
+        self.formatInput()
+
         configSouthDelta = self.replacePlaceholders(templateSouthDelta)
         configNorthDelta = self.replacePlaceholders(templateNorthDelta)
         
@@ -49,6 +52,35 @@ class CreateConfig:
             print(f"Wrote config file to {os.path.join(self.outputDir, "ptmConfig_NorthDelta.yaml")}")
         except:
             print(f"Could not write config file to {os.path.join(self.outputDir, "ptmConfig_NorthDelta.yaml")}")
+    
+    def formatInput(self):
+        """Format input and report errors"""
+        try:
+            releaseDatetime = dt.strptime(self.inputs.loc[self.inputs["variable"]=="releases_release_date", "value"].values[0], "%d/%m/%Y")
+            self.inputs.loc[self.inputs["variable"]=="releases_release_date", "value"] = dt.strftime(releaseDatetime, "%d/%m/%Y")
+        except:
+            print("-"*100)
+            print("Unable to properly format releases_release_date. Use a text editor to verify that it is in d/m/Y format, e.g., 05/01/2015. ")
+            print(f"Value found: {self.inputs.loc[self.inputs["variable"]=="releases_release_date", "value"].values[0]}")
+            print("-"*100)
+
+        try:
+            ptmStartDate = dt.strptime(self.inputs.loc[self.inputs["variable"]=="ptm_start_date", "value"].values[0], "%d%b%Y")
+            self.inputs.loc[self.inputs["variable"]=="ptm_start_date", "value"] = dt.strftime(ptmStartDate, "%d%b%Y")
+        except:
+            print("-"*100)
+            print("Unable to properly format ptm_start_date. Use a text editor to verify that it is in %d%b%Y format, e.g., 21APR2015. ")
+            print(f"Value found: {self.inputs.loc[self.inputs["variable"]=="ptm_start_date", "value"].values[0]}")
+            print("-"*100)
+
+        try:
+            ptmEndDate = dt.strptime(self.inputs.loc[self.inputs["variable"]=="ptm_end_date", "value"].values[0], "%d%b%Y")
+            self.inputs.loc[self.inputs["variable"]=="ptm_end_date", "value"] = dt.strftime(ptmEndDate, "%d%b%Y")
+        except:
+            print("-"*100)
+            print("Unable to properly format ptm_end_date. Use a text editor to verify that it is in %d%b%Y format, e.g., 21APR2015. ")
+            print(f"Value found: {self.inputs.loc[self.inputs["variable"]=="ptm_end_date", "value"].values[0]}")
+            print("-"*100)
 
     def replacePlaceholders(self, template):
         """Replace placeholders in template with specified values"""
