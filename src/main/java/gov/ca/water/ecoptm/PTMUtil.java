@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Calendar;
 import java.util.Set;
 import java.util.regex.*;
@@ -549,8 +550,8 @@ public class PTMUtil {
 
 		dateStr = String.format("%d-%02d-%02d", year, month, day);
 
-		MMformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LLLformatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		MMformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.US);
+		LLLformatter = DateTimeFormatter.ofPattern("ddLLLyyyy").withLocale(Locale.US);
 
 		d = LocalDate.parse(dateStr, MMformatter);
 
@@ -574,7 +575,7 @@ public class PTMUtil {
 		numDay = new int[] {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 		base = 693960;
 
-		formatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		formatter = DateTimeFormatter.ofPattern("ddLLLyyyy").withLocale(Locale.US);
 		d = LocalDate.parse(dat, formatter);
 
 		year = d.getYear();
@@ -638,8 +639,8 @@ public class PTMUtil {
 
 		tempDateStr = String.format("%d-%02d-%02d", year, month, day);
 
-		MMformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LLLformatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		MMformatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.US);
+		LLLformatter = DateTimeFormatter.ofPattern("ddLLLyyyy").withLocale(Locale.US);
 
 		d = LocalDate.parse(tempDateStr, MMformatter);
 

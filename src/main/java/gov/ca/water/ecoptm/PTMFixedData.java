@@ -941,7 +941,7 @@ public class PTMFixedData {
 		hour = datetime.getHour();
 		min = datetime.getMinute();
 
-		datjulFormatter = DateTimeFormatter.ofPattern("ddLLLyyyy");
+		datjulFormatter = DateTimeFormatter.ofPattern("ddLLLyyyy").withLocale(Locale.US);
 
 		julian = PTMUtil.datjul(datetime.format(datjulFormatter));
 

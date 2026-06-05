@@ -1,6 +1,7 @@
 package gov.ca.water.ecoptm;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -173,7 +174,7 @@ public abstract class AltRouteBehavior extends SalmonUpSacRouteBehavior {
 			subTimeStep = (int) Math.max(0, Math.min(PTMtimeStep, Math.floor(PTMtimeStep - p.getTmLeft())));
 
 			datetime = datetime.plusSeconds(subTimeStep);
-			insertionDatetime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(datetime);
+			insertionDatetime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withLocale(Locale.US).format(datetime);
 
 			// Determine which channel the particle is entering from
 			insertionChannelName = channelMap.get(p.wb.getEnvIndex());
