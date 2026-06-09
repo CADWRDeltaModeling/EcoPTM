@@ -167,6 +167,7 @@ public class PTMBehaviorInputs {
 			else
 				PTMUtil.systemExit("Wrong time zone input, exit.");
 		}
+		
 		Globals.TIME_ZONE = _timeZone;
 
 		if (config.use_new_random_seed) {PTMUtil.setRandomNumber();}

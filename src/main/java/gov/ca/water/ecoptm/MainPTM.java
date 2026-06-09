@@ -280,7 +280,7 @@ public class MainPTM {
 			
 			// Report any warnings that were suppressed
 			if(BasicHydroCalculator.getCountExceededNumSubTimeSteps()>0) {
-				System.err.println("Warning: Exceeded maximum number of sub time steps. " + BasicHydroCalculator.getCountExceededNumSubTimeSteps() + " occurrences.");
+				PTMUtil.printInfoMessage("Warning: Exceeded maximum number of sub time steps. " + BasicHydroCalculator.getCountExceededNumSubTimeSteps() + " occurrences.");
 			}
 
 			System.out.println("done simulation");
