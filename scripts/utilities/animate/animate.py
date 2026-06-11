@@ -253,22 +253,72 @@ fluxLocs = list(fluxLocs)
 fluxLocs.sort()
 
 if animatePlot:
+    # Apply responsive defaults to all HoloViews elements before any plot is created.
+    # This prevents hvplot from injecting its default fixed width/height, which would
+    # conflict with responsive=True and trigger Bokeh's sizing_mode warning.
+    hv.opts.defaults(
+        hv.opts.Scatter(responsive=True, min_height=figHeight),
+        hv.opts.Segments(responsive=True, min_height=figHeight),
+        hv.opts.Tiles(responsive=True, min_height=figHeight),
+    )
+
+    # Background tile map (EPSG:3857 matches the particle data projection)
+    plotMap = hv.element.tiles.CartoLight()
+
     chans, extents = getChans()
-    chanPlot = hv.Segments(chans, kdims=["upNodeX", "upNodeY", "downNodeX", "downNodeY"]).opts(color="orange")
+    chanPlot = hv.Segments(chans, kdims=["upNodeX", "upNodeY", "downNodeX", "downNodeY"]).opts(color="orange", line_width=0.5)
 
     datetimePlayer = pn.widgets.Player(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), visible_buttons=["play", "pause"], 
                                        name="Animation controls", loop_policy="loop", step=animationStep, interval=pauseInterval_ms, align="center", 
                                        show_loop_controls=False, show_value=True)
-    anim1rx = pn.rx(anim1)
-    anim1 = chanPlot*anim1rx[anim1rx["datetimeIndex"]==datetimePlayer].hvplot(x="easting", y="northing", kind="scatter",
-                                                                    xlabel="", ylabel="", xticks=0, yticks=0).opts(title=animFile1,
-                                                                                            fontsize={"title": titleFont},
-                                                                                            width=figWidth,
-                                                                                            height=figHeight,
-                                                                                            aspect="equal",
-                                                                                            xlim=(extents1[0], extents1[2]),
-                                                                                            ylim=(extents1[1], extents1[3])) 
-    animPane = pn.panel(anim1, widget_location="top")
+    anim1_df = anim1  # preserve DataFrame reference before binding
+
+    def get_clock_str(timestep):
+        try:
+            val = anim1_df[anim1_df["datetimeIndex"] == timestep]["modelDatetime"].values[0]
+            valDatetime = dt.strptime(str(val)[:26], "%Y-%m-%dT%H:%M:%S.%f")
+            return f"## {dt.strftime(valDatetime, '%Y-%m-%d  %H:%M')}"
+        except:
+            return str(anim1_df[anim1_df["datetimeIndex"] == timestep]["modelDatetime"].values[0])
+
+    clockPane = pn.pane.Markdown(pn.bind(get_clock_str, timestep=datetimePlayer), align="center")
+
+    def make_scatter(timestep):
+        frame = anim1_df[anim1_df["datetimeIndex"] == timestep]
+        # Pass responsive=True directly to hvplot so it never sets fixed width/height
+        return frame.hvplot(x="easting", y="northing", kind="scatter",
+                            xlabel="", ylabel="", xticks=0, yticks=0,
+                            responsive=True, min_height=figHeight).opts(
+                                title=animFile1,
+                                fontsize={"title": titleFont},
+                                xlim=(extents1[0], extents1[2]),
+                                ylim=(extents1[1], extents1[3]))
+
+    scatter_dmap = hv.DynamicMap(pn.bind(make_scatter, timestep=datetimePlayer))
+    scatter_dmap.cache_size = 1  # discard old frames immediately to prevent memory growth
+
+    # data_aspect=1 enforces equal x/y scaling (no distortion) while remaining responsive.
+    # aspect="equal" cannot be used with responsive mode; data_aspect=1 is the Bokeh equivalent.
+    def set_grid_style(plot, element):
+        p = plot.handles["plot"]
+        p.xgrid.grid_line_width = 2
+        p.ygrid.grid_line_width = 2
+        p.xgrid.grid_line_color = "gray"
+        p.ygrid.grid_line_color = "gray"
+        p.xgrid.grid_line_alpha = 0.6
+        p.ygrid.grid_line_alpha = 0.6
+
+    combined = (plotMap * chanPlot * scatter_dmap).opts(
+        data_aspect=1,
+        show_grid=True,
+        hooks=[set_grid_style],
+    )
+    animPane = pn.Column(
+        datetimePlayer,
+        clockPane,
+        pn.panel(combined, sizing_mode="stretch_both"),
+        sizing_mode="stretch_both"
+    )
 
     server = animPane.show()
 
