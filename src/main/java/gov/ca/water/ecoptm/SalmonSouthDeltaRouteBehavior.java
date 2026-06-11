@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 /**
  * Common methods used for the South Delta river junction models
  * 
@@ -428,7 +429,7 @@ public abstract class SalmonSouthDeltaRouteBehavior extends SalmonBasicRouteBeha
 		modelDate = Globals.getModelDate(Globals.currentModelTime);
 		modelDate = modelDate.substring(0, 2) + modelDate.substring(2, 3) + modelDate.substring(3, 5).toLowerCase() +
 				modelDate.substring(5);
-		datetime = ZonedDateTime.parse(modelDate + modelTime + "(UTC-08:00)", DateTimeFormatter.ofPattern("ddMMMyyyyHHmm(VV)"));
+		datetime = ZonedDateTime.parse(modelDate + modelTime + "(UTC-08:00)", DateTimeFormatter.ofPattern("ddMMMyyyyHHmm'(UTC'XXX')'").withLocale(Locale.US));
 
 		return datetime;
 	}

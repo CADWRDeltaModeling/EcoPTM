@@ -51,56 +51,31 @@ public class TypeFlux extends Flux {
 			int traceNum = 1;
 			int particleFlux = 0;
 			int maxTraces = traceArray[pNum].getNumberOfTraces();
-			//System.out.println("Particle #: " + pNum);
+
 			try {
-				for (int index = 0; index < numberOfTimeSteps; index++) {
-					while (traceNum <= maxTraces
-							&& traceArray[pNum].getTime(traceNum)
-							== index* timeStep + startTime) {
+				for (int index=0; index<numberOfTimeSteps; index++) {
+					while (traceNum <= maxTraces && traceArray[pNum].getTime(traceNum)==index*timeStep + startTime) {
 
-						Waterbody wbIn = Globals.Environment
-								.getWaterbody(traceArray[pNum]
-										.getWaterbodyId(traceNum - 1));
-						Waterbody wbOut = Globals.Environment
-								.getWaterbody(traceArray[pNum]
-										.getWaterbodyId(traceNum));
+						Waterbody wbIn = Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum - 1));
+						Waterbody wbOut = Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum));
 
-						//System.out.println("Out WB type" + wbOut.getType());
-						/* if (wbOut.getType() !=100){
-    		   System.out.println("Index : " + index);
-    		   System.out.println("In : " + wbIn);
-    		   System.out.println("Out : " + wbOut);
-    		   System.out.println("Flux check");
-    		   System.out.println("Out Flux check: " + info.getOutGroup().containsWaterbody(wbOut));
-    		   System.out.println("Out Flux check2: " + info.getOutGroup().containsWaterbody(wbIn));
-    		   System.out.println("In Flux check: " + info.getInGroup().containsWaterbody(wbOut));
-    		   System.out.println("In Flux check2: " + info.getInGroup().containsWaterbody(wbIn));
-
-    		   }*/
-						//System.out.println("Out : " + wbOut);
-						if (info.getInGroup().containsWaterbody(wbIn)
-								&& info.getOutGroup().containsWaterbody(wbOut)) {
-							//System.out.println("Flux recognized");
+						if (info.getInGroup().containsWaterbody(wbIn) && info.getOutGroup().containsWaterbody(wbOut)) {
 							particleFlux++;
 						}
-						if (info.getOutGroup().containsWaterbody(wbIn)
-								&& info.getInGroup().containsWaterbody(wbOut)){
-							//System.out.println("Reverse Flux recognized");
-							if ( wbOut != null ) {
+						if (info.getOutGroup().containsWaterbody(wbIn) && info.getInGroup().containsWaterbody(wbOut)){
+							if (wbOut!=null) {
 								particleFlux--;
 							}
 						}
 						traceNum++;
-					}// end while
-					//if (traceArray[pNum].getTime(traceNum) == index*
+					}
 					flux[index] += particleFlux;
-					//System.out.println("particleFlux["+index+"]="+Flux[index]);
-				}// end for(index)
+				}
 
 			} catch (java.lang.ArrayIndexOutOfBoundsException e) {
 				e.printStackTrace();
-			} // end try
-		}// end for(pNum)
+			}
+		}
 	}
 
 	/**

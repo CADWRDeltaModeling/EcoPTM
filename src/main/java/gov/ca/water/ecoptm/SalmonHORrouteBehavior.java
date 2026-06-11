@@ -5,6 +5,7 @@ package gov.ca.water.ecoptm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 
 import java.time.ZonedDateTime;
@@ -69,7 +70,7 @@ public class SalmonHORrouteBehavior extends SalmonSouthDeltaRouteBehavior {
 		transProbs = TransProbs.readTransProbs(modelDatetime);
 
 		// Obtain the relevant transition probabilities given fromChannelGroup
-		transProbIndex = "HOR_" + modelDatetime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:SS"));
+		transProbIndex = "HOR_" + modelDatetime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:SS").withLocale(Locale.US));
 		
 		// Verify that the required transition probabilities are present
 		for (String transition : transitions) {

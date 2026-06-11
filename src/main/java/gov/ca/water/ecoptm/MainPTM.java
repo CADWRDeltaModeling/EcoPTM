@@ -277,6 +277,11 @@ public class MainPTM {
 			}
 
 			Grid.closeTidefile();
+			
+			// Report any warnings that were suppressed
+			if(BasicHydroCalculator.getCountExceededNumSubTimeSteps()>0) {
+				PTMUtil.printInfoMessage("Warning: Exceeded maximum number of sub time steps. " + BasicHydroCalculator.getCountExceededNumSubTimeSteps() + " occurrences.");
+			}
 
 			System.out.println("done simulation");
 

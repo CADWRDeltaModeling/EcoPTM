@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -129,9 +130,9 @@ public class TransProbs {
 		secondDatetimeStr = fields[1];
 
 		firstDatetime = ZonedDateTime.parse(firstDatetimeStr + "(UTC-08:00)",
-				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
+				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'(UTC'XXX')'").withLocale(Locale.US));
 		secondDatetime = ZonedDateTime.parse(secondDatetimeStr + "(UTC-08:00)",
-				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss(VV)"));
+				DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss'(UTC'XXX')'").withLocale(Locale.US));
 
 		d = Duration.between(firstDatetime, secondDatetime);
 		timeStep_min = Math.toIntExact(d.toMinutes());

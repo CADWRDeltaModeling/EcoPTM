@@ -134,8 +134,13 @@ public class BasicHydroCalculator implements HydroCalculator {
 		int numOfSubTimeSteps = 1;
 		if (minTimeStep < timeStep) numOfSubTimeSteps=(int) (timeStep/minTimeStep+1);
 
-		if (numOfSubTimeSteps > MAX_NUM_OF_SUB_TIME_STEPS){
-			System.err.println("Warning: Number Of Sub Time Steps exceeds a maximum of "+MAX_NUM_OF_SUB_TIME_STEPS);
+		if (numOfSubTimeSteps > MAX_NUM_OF_SUB_TIME_STEPS) {
+			// Only warning about exceeding maximum number of sub time steps the first time
+			if(countExceededNumSubTimeSteps==0) {
+				System.err.println("Warning: Number Of sub time steps exceeds a maximum of " + MAX_NUM_OF_SUB_TIME_STEPS);
+			}
+			countExceededNumSubTimeSteps++;
+			
 			return MAX_NUM_OF_SUB_TIME_STEPS;
 		}
 		else
@@ -297,6 +302,11 @@ public class BasicHydroCalculator implements HydroCalculator {
 	public float getTerminalVelocity(){
 		return 1.0e-10f;
 	}
+	
+	public static int getCountExceededNumSubTimeSteps() {
+		return countExceededNumSubTimeSteps;
+	}
+	
 	ConcurrentHashMap<Integer, Float> getVerticalDiffCoef(){return _pVertD;}
 	ConcurrentHashMap<Integer, float[]> getPreWidthDepth(){return _prePWidthDepth;}
 	float getEtToEvSqrt() {return EtToEvSqrt;}
@@ -313,7 +323,10 @@ public class BasicHydroCalculator implements HydroCalculator {
 	private float EvConst;
 	private boolean _transMove, _vertMove;
 	private static final float EMIN=0.0001f;
+	
 	private static final int MAX_NUM_OF_SUB_TIME_STEPS=10000;
+	private static int countExceededNumSubTimeSteps = 0;
+	
 	/**
 	 *  Limiting factor for the movement during 1 time step due to mixing.<br>
 	 *  Used for sub-time step calculation

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -104,7 +105,7 @@ public class AltRouteInterface {
 		// Calculate time one hour in the future for placeholder reinsertion specs
 		datetime = getModelDatetime();
 		datetime = datetime.plusMinutes(60);
-		datetimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z");
+		datetimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z").withLocale(Locale.US);
 		System.out.println();
 
 		if(lastUpdatedModelTime<Globals.currentModelTime) {
@@ -171,7 +172,7 @@ public class AltRouteInterface {
 		String datetimeString;
 
 		datetime = getModelDatetime();
-		datetimeString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").format(datetime);
+		datetimeString = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withLocale(Locale.US).format(datetime);
 
 		insertionSpec = "{\"modelTimeECOPTM\": \"" + datetimeString + "\",";
 		insertionSpec+="\"timeStepECOPTM_min\": \"" + Globals.Environment.getPTMTimeStep() + "\",";
@@ -280,7 +281,7 @@ public class AltRouteInterface {
 		modelDate = Globals.getModelDate(Globals.currentModelTime);
 		modelDate = modelDate.substring(0, 2) + modelDate.substring(2, 3) + modelDate.substring(3, 5).toLowerCase() +
 				modelDate.substring(5);
-		datetime = ZonedDateTime.parse(modelDate + modelTime + "(UTC-08:00)", DateTimeFormatter.ofPattern("ddMMMyyyyHHmm(VV)"));
+		datetime = ZonedDateTime.parse(modelDate + modelTime + "(UTC-08:00)", DateTimeFormatter.ofPattern("ddMMMyyyyHHmm'(UTC'XXX')'").withLocale(Locale.US));
 
 		return datetime;
 	}
