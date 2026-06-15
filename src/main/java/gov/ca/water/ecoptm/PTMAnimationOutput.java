@@ -70,6 +70,10 @@ public class PTMAnimationOutput extends PTMOutput{
 
 	private final int MAX_NUMBER_OF_PARTICLES=20000;
 
+	// These values will be added to channelNum to indicate stuck or dead particles
+	private final short STUCK_PARTICLE_OFFSET = 10000;
+	private final short DEAD_PARTICLE_OFFSET = 20000;
+	
 	// number of outputs for instantaneous
 	private int numberOfParticles;
 
@@ -211,6 +215,7 @@ public class PTMAnimationOutput extends PTMOutput{
 	public void recordNetCDF(InstantaneousOutput[] outputData) {
 		int julianMin;
 		String modelDate, modelTime;
+		short stuckOffset, deadOffset, recordedChannelNumber;
 
 		julianMin = Globals.currentModelTime;
 		modelDate = Globals.getModelDate(julianMin);
@@ -219,9 +224,14 @@ public class PTMAnimationOutput extends PTMOutput{
 		modelTimes.add(modelTime);
 
 		for (int i=0; i<numberOfParticles; i++) {
+			// Determine whether to add offsets indicating that the vFish is stuck or dead
+			stuckOffset = particlePtrArray[i].getStuckDatetime() == null ? 0 : STUCK_PARTICLE_OFFSET;
+			deadOffset = particlePtrArray[i].getDeathDatetime() == null ? 0 : DEAD_PARTICLE_OFFSET;
+			
 			particleNumbers.add(outputData[i].particleNumber);
 			if(outputData[i].channelNumber!=-1) {
-				channelNumbers.add((short) PTMFixedData.getExtChanNum(outputData[i].channelNumber));
+				recordedChannelNumber = (short) (PTMFixedData.getExtChanNum(outputData[i].channelNumber) + stuckOffset + deadOffset);
+				channelNumbers.add(recordedChannelNumber);
 			} 
 			else {
 				channelNumbers.add(outputData[i].channelNumber);
