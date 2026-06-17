@@ -115,9 +115,8 @@ def getChans():
     b = DSM2chans.to_crs(epsg=3857).geometry.bounds
     extents = (b.minx.min(), b.miny.min(), b.maxx.max(), b.maxy.max())
 
-    # Specify coordinates for channel number placeholder
-    chans = pd.concat([pd.DataFrame([{"extChannel":-1, "upNodeX":extents[0], "upNodeY":extents[1],
-                                             "downNodeX":extents[0], "downNodeY":extents[1]}]), 
+    # Hide vFish that haven't been inserted yet
+    chans = pd.concat([pd.DataFrame([{"extChannel":-1, "upNodeX":np.nan, "upNodeY":np.nan, "downNodeX":np.nan, "downNodeY":np.nan}]), 
                        chans])
     
     return chans, extents
