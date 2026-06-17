@@ -143,17 +143,19 @@ public class SurvivalCalculation {
 		}
 
 		// Calculate survivals
-		System.out.println("===================================================================");
+		if(PTMFixedData.getConfig().show_route_survival_detail) 
+			System.out.println("===================================================================");
 		for (String key: survEqs.keySet()) {
 			thisSurvEq = survEqs.get(key);
 			// Replace # wildcards in equation with WILDCARD, which is an allowable component of a variable name
 			thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
 			thisSurvEq = translateEquation(thisSurvEq);
 			thisSurv = ctx.eval("js", thisSurvEq);
-
-			System.out.println("Survival output " + key + ": " + thisSurv);
-			System.out.println("===================================================================");
-
+			
+			if(PTMFixedData.getConfig().show_route_survival_detail) {
+				System.out.println("Survival output " + key + ": " + thisSurv);
+				System.out.println("===================================================================");
+			}
 			surv.put(key, Float.parseFloat(thisSurv.toString()));
 
 			// Store survival output details
@@ -162,7 +164,8 @@ public class SurvivalCalculation {
 		}
 
 		// Calculate dependent survivals after inserting the appropriate survival values calculated above
-		System.out.println("===================================================================");
+		if(PTMFixedData.getConfig().show_route_survival_detail)
+			System.out.println("===================================================================");
 		for(String key: dependentSurvEqs.keySet()) {
 			thisSurvEq = dependentSurvEqs.get(key);
 
@@ -175,8 +178,10 @@ public class SurvivalCalculation {
 			thisSurvEq = thisSurvEq.replaceAll("#", WILDCARD);
 			thisSurvEq = translateEquation(thisSurvEq);
 			thisSurv = ctx.eval("js", thisSurvEq);
-			System.out.println("Survival output " + key + ": " + thisSurv);
-			System.out.println("===================================================================");
+			if(PTMFixedData.getConfig().show_route_survival_detail) {
+				System.out.println("Survival output " + key + ": " + thisSurv);
+				System.out.println("===================================================================");
+			}
 
 			surv.put(key, Float.parseFloat(thisSurv.toString()));
 
@@ -187,7 +192,8 @@ public class SurvivalCalculation {
 
 		// Categorize final fates (passed Chipps, died, lost or entrained in pumps, etc.)
 		categorizeFates();
-		System.out.println("===================================================================");
+		if(PTMFixedData.getConfig().show_route_survival_detail)
+			System.out.println("===================================================================");
 	}
 
 	/**
@@ -578,14 +584,15 @@ public class SurvivalCalculation {
 				numLost++;
 			}
 		}
-
-		System.out.println("===================================================================");
-		System.out.println("Total number of vFish with recorded fates: " + (numDied + numStuck + numTransported + numExited + numLost));
-		System.out.println("Number of vFish that died: " + numDied);
-		System.out.println("Number of vFish that got stuck: " + numStuck);
-		System.out.println("Number of vFish that were transported: " + numTransported);
-		System.out.println("Number of vFish that exited: " + numExited);
-		System.out.println("Number of vFish that were lost: " + numLost);
+		if(PTMFixedData.getConfig().show_route_survival_detail) {
+			System.out.println("===================================================================");
+			System.out.println("Total number of vFish with recorded fates: " + (numDied + numStuck + numTransported + numExited + numLost));
+			System.out.println("Number of vFish that died: " + numDied);
+			System.out.println("Number of vFish that got stuck: " + numStuck);
+			System.out.println("Number of vFish that were transported: " + numTransported);
+			System.out.println("Number of vFish that exited: " + numExited);
+			System.out.println("Number of vFish that were lost: " + numLost);
+		}
 		if(PTMFixedData.getConfig().show_route_survival_detail) {
 			System.out.println("Counts of unique transport station sequences: " + transportPrevStations.toString());
 		}

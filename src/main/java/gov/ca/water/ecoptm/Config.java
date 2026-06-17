@@ -1044,7 +1044,8 @@ public class Config {
 				ac = new ArrayChar.D2(shape[0], shape[1]);
 				ima = ac.getIndex();
 				for(int i=0; i<shape[0]; i++) {
-					System.out.println("exit_stations: " + this.exit_stations[i]);
+					if(survival_detail_write_all) 
+						System.out.println("exit_stations: " + this.exit_stations[i]);
 					ac.setString(ima.set(i), this.exit_stations[i]);
 				}
 				writer.write(v, ac);
