@@ -17,6 +17,9 @@ import logging
 
 workingDir = os.path.dirname(os.path.realpath(__file__))
 
+# Hide vFish that have exited
+exitChan = 441
+
 if __name__=="__main__":
     import argparse
 
@@ -78,16 +81,6 @@ if __name__=="__main__":
     else:
         figHeight = 600
     
-    """ 
-    # Settings for testing in IDE
-    animFile1 = "C:/Users/admin/Documents/QEDA/DWR/ECO_PTM_runs/test_NorthDelta_23apr25/output/ptm_out.ncd"
-    animFile2 = animFile1
-    fluxFile1 = animFile1
-    fluxFile2 = animFile1
-    animatePlot = False
-    DSM2flowlineShapefile = os.path.join(workingDir, "shapefile", "i12_DSM2_Model_VSDG1_Channels_Centerlines_Straightlines.shp")
-    """
-
 ####################################################################################################
 # Functions
 ####################################################################################################
@@ -161,6 +154,9 @@ def createAnimDF(animFile):
     # Calculate interpolated location
     anim["easting"] = anim["upNodeX"] + (anim["normXdist"]/100)*(anim["downNodeX"] - anim["upNodeX"])
     anim["northing"] = anim["upNodeY"] + (anim["normXdist"]/100)*(anim["downNodeY"] - anim["upNodeY"])
+
+    # Hide vFish that have exited
+    anim = anim.loc[anim["extChannel"]!=exitChan]
     
     print(f"PTM animation file has {numRecords} records")
     print(f"Animation start at {modelDatetime[0]}")
