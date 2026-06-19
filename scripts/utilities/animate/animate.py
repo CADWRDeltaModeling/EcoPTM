@@ -14,6 +14,9 @@ import panel as pn
 import xarray as xr
 from datetime import datetime as dt
 import logging
+import warnings
+
+warnings.filterwarnings("ignore", category=RuntimeWarning, message="invalid value encountered")
 
 workingDir = os.path.dirname(os.path.realpath(__file__))
 
