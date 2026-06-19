@@ -107,10 +107,6 @@ def getChans():
 
     b = DSM2chans.to_crs(epsg=3857).geometry.bounds
     extents = (b.minx.min(), b.miny.min(), b.maxx.max(), b.maxy.max())
-
-    # Hide vFish that haven't been inserted yet
-    chans = pd.concat([pd.DataFrame([{"extChannel":-1, "upNodeX":np.nan, "upNodeY":np.nan, "downNodeX":np.nan, "downNodeY":np.nan}]), 
-                       chans])
     
     return chans, extents
 
@@ -157,7 +153,7 @@ def createAnimDF(animFile):
 
     # Hide vFish that have exited
     p_type = ds["particle_type"].item().decode("utf8")
-    print("particle type: "+p_type)
+    print(f"particle type: {p_type}")
     if (p_type.upper() == "SALMON_PARTICLE"):
         anim = anim.loc[anim["extChannel"]!=exitChan]
     
