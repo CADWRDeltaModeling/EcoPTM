@@ -14,9 +14,6 @@ import panel as pn
 import xarray as xr
 from datetime import datetime as dt
 import logging
-import warnings
-
-warnings.filterwarnings("ignore", category=RuntimeWarning, message="invalid value encountered")
 
 workingDir = os.path.dirname(os.path.realpath(__file__))
 
@@ -159,7 +156,10 @@ def createAnimDF(animFile):
     anim["northing"] = anim["upNodeY"] + (anim["normXdist"]/100)*(anim["downNodeY"] - anim["upNodeY"])
 
     # Hide vFish that have exited
-    anim = anim.loc[anim["extChannel"]!=exitChan]
+    p_type = ds["particle_type"].item().decode("utf8")
+    print("particle type: "+p_type)
+    if (p_type.upper() == "SALMON_PARTICLE"):
+        anim = anim.loc[anim["extChannel"]!=exitChan]
     
     print(f"PTM animation file has {numRecords} records")
     print(f"Animation start at {modelDatetime[0]}")
