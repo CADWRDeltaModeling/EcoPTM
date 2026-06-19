@@ -1,0 +1,19 @@
+extractFlux: false
+createFluxDat: false
+fluxOutputDir: "./output"
+fluxFiles: ["output/ptm_out.ncd"]
+fluxSimLoc: 411
+fluxDatLocs: ["SUT_flux", "STM_flux", "GS_flux", "pass_rio", "EXPORT_SWP", "Past_Chipps", "past_mtz", "Diversion_Ag", "WHOLE"]
+fluxDatTotals:
+  total_all:
+    add: []
+    subtract: [] 
+fluxDatDays: [30, 90]
+createSurvDat: true
+survOutputDir: "./output"
+survFiles: ["output/ptm_out.ncd"]
+survDatLocs: ["fracSUT", "fracSTM", "fracDCC", "fracGEO","SUT","STM","SAC","DCC","GS","overall"]
+processSurvival: true
+survivalFile: "output/ptm_out.ncd"
+echoConfig: false
+echoConfigNetCDF: "echoConfig.yaml"

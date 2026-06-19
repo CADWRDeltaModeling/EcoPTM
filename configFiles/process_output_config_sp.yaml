@@ -1,0 +1,26 @@
+extractFlux: true
+createFluxDat: true
+fluxOutputDir: "./output"
+fluxFiles: ["output/ptm_out.ncd"]
+fluxSimLoc: 1
+fluxDatLocs: ["EXPORT_CVP", "EXPORT_CCF", "EXPORT_IF", "Past_MTZ", "Past_Chipps",
+              "Diversion_Ag", "To_NBA", "OTH_DIV", "WHOLE"]
+fluxDatTotals:
+  total_all:
+    add: ["WHOLE", "EXPORT_CVP", "EXPORT_CCF", "Past_MTZ", "Diversion_Ag", "To_NBA", "OTH_DIV", "EXPORT_IF"]
+    subtract: ["CLIFTON"]
+  total_eastchipps:
+    add: ["WHOLE", "EXPORT_CVP", "EXPORT_CCF", "Past_MTZ", "Diversion_Ag", "To_NBA", "OTH_DIV", "EXPORT_IF"]
+    subtract: ["CLIFTON", "Past_Chipps"]
+  sjr_to_sdelta:
+    add: ["OLDR_MOUTH", "Columb_Trnr", "Dut_Fal_fish", "MidR_Mouth"]
+    subtract: []
+fluxDatDays: [30, 90]
+createSurvDat: false
+survOutputDir: "./"
+survFiles: ["ptm_out.ncd"]
+survDatLocs: ["SJR", "OMR", "TC", "overall"]
+processSurvival: false
+survivalFile: "ptm_out.ncd"
+echoConfig: false
+echoConfigNetCDF: "echoConfig.yaml"

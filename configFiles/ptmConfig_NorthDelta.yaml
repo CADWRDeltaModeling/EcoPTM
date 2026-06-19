@@ -1,13 +1,13 @@
 ---
-tidefile: C:/Users/dougj/Documents/QEDA/DWR/TomPaineSlough/fromXiao/tom_paine_slough_HYDRO_04may26/tom_paine_slough/dsm2_studies/studies/historical/output/hist_fc_mss_preprocessed_GZIP.h5
+tidefile: '../../../tidefiles/hist_fc_mss_gz.h5'
 
 # ECO-PTM behavior configuration
 particle_type: Salmon_Particle
 
 # PTM configuration
-ptm_start_date: 21APR2015
+ptm_start_date: 08MAR2018
 ptm_start_time: 0000
-ptm_end_date: 28SEP2015
+ptm_end_date: 15AUG2018
 ptm_end_time: 0000
 ptm_time_step: 15min
 display_intvl: 1day
@@ -16,12 +16,12 @@ display_intvl: 1day
 time_zone: PST
 
 # true will use System.currentTimeMills as the random seed; false will use a default seed (usually for a debugging or tuning purpose)
-use_new_random_seed: true
+use_new_random_seed: false
 
 # Node has to be upnode, and distance in feet is from upnode.
 # In DSM2 map, upstream of a flow arrow is upnode, downstream is downnode.
 # Only one travel time output location can be specified. 
-travel_time_output_path: .\output\travel_time_in_min.csv
+travel_time_output_path: .\output\nolongerused_tt
 travel_time_header: [NodeID, ChannelID/ReservoirName/Obj2objName, Distance, Station_Name]
 travel_time:
   - [339, 379, 951, Sutter]
@@ -34,98 +34,102 @@ release_groups:
     release_loc: [331, 411, 0, SacAboveFreeport]
     releases_header: [Release_Date, Release_Time, Particle_Number, Release_Style]
     releases:
-      - [05/01/2015, 1:00, 10, Random]
-      - [05/01/2015, 1:15, 10, Random]
-      - [05/01/2015, 1:30, 10, Random]
-      - [05/01/2015, 1:45, 10, Random]
-      - [05/01/2015, 2:00, 10, Random]
-      - [05/01/2015, 2:15, 10, Random]
-      - [05/01/2015, 2:30, 10, Random]
-      - [05/01/2015, 2:45, 10, Random]
-      - [05/01/2015, 3:00, 10, Random]
-      - [05/01/2015, 3:15, 10, Random]
-      - [05/01/2015, 3:30, 10, Random]
-      - [05/01/2015, 3:45, 10, Random]
-      - [05/01/2015, 4:00, 10, Random]
-      - [05/01/2015, 4:15, 10, Random]
-      - [05/01/2015, 4:30, 10, Random]
-      - [05/01/2015, 4:45, 10, Random]
-      - [05/01/2015, 5:00, 10, Random]
-      - [05/01/2015, 5:15, 10, Random]
-      - [05/01/2015, 5:30, 10, Random]
-      - [05/01/2015, 5:45, 10, Random]
-      - [05/01/2015, 6:00, 10, Random]
-      - [05/01/2015, 6:15, 10, Random]
-      - [05/01/2015, 6:30, 10, Random]
-      - [05/01/2015, 6:45, 10, Random]
-      - [05/01/2015, 7:00, 10, Random]
-      - [05/01/2015, 7:15, 10, Random]
-      - [05/01/2015, 7:30, 10, Random]
-      - [05/01/2015, 7:45, 10, Random]
-      - [05/01/2015, 8:00, 10, Random]
-      - [05/01/2015, 8:15, 10, Random]
-      - [05/01/2015, 8:30, 10, Random]
-      - [05/01/2015, 8:45, 10, Random]
-      - [05/01/2015, 9:00, 10, Random]
-      - [05/01/2015, 9:15, 10, Random]
-      - [05/01/2015, 9:30, 10, Random]
-      - [05/01/2015, 9:45, 10, Random]
-      - [05/01/2015, 10:00, 10, Random]
-      - [05/01/2015, 10:15, 10, Random]
-      - [05/01/2015, 10:30, 10, Random]
-      - [05/01/2015, 10:45, 10, Random]
-      - [05/01/2015, 11:00, 10, Random]
-      - [05/01/2015, 11:15, 10, Random]
-      - [05/01/2015, 11:30, 10, Random]
-      - [05/01/2015, 11:45, 10, Random]
-      - [05/01/2015, 12:00, 10, Random]
-      - [05/01/2015, 12:15, 10, Random]
-      - [05/01/2015, 12:30, 10, Random]
-      - [05/01/2015, 12:45, 10, Random]
-      - [05/01/2015, 13:00, 10, Random]
-      - [05/01/2015, 13:15, 10, Random]
-      - [05/01/2015, 13:30, 10, Random]
-      - [05/01/2015, 13:45, 10, Random]
-      - [05/01/2015, 14:00, 10, Random]
-      - [05/01/2015, 14:15, 10, Random]
-      - [05/01/2015, 14:30, 10, Random]
-      - [05/01/2015, 14:45, 10, Random]
-      - [05/01/2015, 15:00, 10, Random]
-      - [05/01/2015, 15:15, 10, Random]
-      - [05/01/2015, 15:30, 10, Random]
-      - [05/01/2015, 15:45, 10, Random]
-      - [05/01/2015, 16:00, 10, Random]
-      - [05/01/2015, 16:15, 10, Random]
-      - [05/01/2015, 16:30, 10, Random]
-      - [05/01/2015, 16:45, 10, Random]
-      - [05/01/2015, 17:00, 10, Random]
-      - [05/01/2015, 17:15, 10, Random]
-      - [05/01/2015, 17:30, 10, Random]
-      - [05/01/2015, 17:45, 10, Random]
-      - [05/01/2015, 18:00, 10, Random]
-      - [05/01/2015, 18:15, 10, Random]
-      - [05/01/2015, 18:30, 10, Random]
-      - [05/01/2015, 18:45, 10, Random]
-      - [05/01/2015, 19:00, 10, Random]
-      - [05/01/2015, 19:15, 10, Random]
-      - [05/01/2015, 19:30, 10, Random]
-      - [05/01/2015, 19:45, 10, Random]
-      - [05/01/2015, 20:00, 10, Random]
-      - [05/01/2015, 20:15, 10, Random]
-      - [05/01/2015, 20:30, 10, Random]
-      - [05/01/2015, 20:45, 10, Random]
-      - [05/01/2015, 21:00, 10, Random]
-      - [05/01/2015, 21:15, 10, Random]
-      - [05/01/2015, 21:30, 10, Random]
-      - [05/01/2015, 21:45, 10, Random]
-      - [05/01/2015, 22:00, 10, Random]
-      - [05/01/2015, 22:15, 10, Random]
-      - [05/01/2015, 22:30, 10, Random]
-      - [05/01/2015, 22:45, 10, Random]
-      - [05/01/2015, 23:00, 10, Random]
-      - [05/01/2015, 23:15, 10, Random]
-      - [05/01/2015, 23:30, 10, Random]
-      - [05/01/2015, 23:45, 10, Random]
+      - [03/18/2018,             0:00, 50, Random]
+      - [03/18/2018,             0:15, 50, Random]
+      - [03/18/2018,             0:30, 50, Random]
+      - [03/18/2018,             0:45, 50, Random]
+      - [03/18/2018,             1:00, 50, Random]
+      - [03/18/2018,             1:15, 50, Random]
+      - [03/18/2018,             1:30, 50, Random]
+      - [03/18/2018,             1:45, 50, Random]
+      - [03/18/2018,             2:00, 50, Random]
+      - [03/18/2018,             2:15, 50, Random]
+      - [03/18/2018,             2:30, 50, Random]
+      - [03/18/2018,             2:45, 50, Random]
+      - [03/18/2018,             3:00, 50, Random]
+      - [03/18/2018,             3:15, 50, Random]
+      - [03/18/2018,             3:30, 50, Random]
+      - [03/18/2018,             3:45, 50, Random]
+      - [03/18/2018,             4:00, 50, Random]
+      - [03/18/2018,             4:15, 50, Random]
+      - [03/18/2018,             4:30, 50, Random]
+      - [03/18/2018,             4:45, 50, Random]
+      - [03/18/2018,             5:00, 50, Random]
+      - [03/18/2018,             5:15, 50, Random]
+      - [03/18/2018,             5:30, 50, Random]
+      - [03/18/2018,             5:45, 50, Random]
+      - [03/18/2018,             6:00, 50, Random]
+      - [03/18/2018,             6:15, 50, Random]
+      - [03/18/2018,             6:30, 50, Random]
+      - [03/18/2018,             6:45, 50, Random]
+      - [03/18/2018,             7:00, 50, Random]
+      - [03/18/2018,             7:15, 50, Random]
+      - [03/18/2018,             7:30, 50, Random]
+      - [03/18/2018,             7:45, 50, Random]
+      - [03/18/2018,             8:00, 50, Random]
+      - [03/18/2018,             8:15, 50, Random]
+      - [03/18/2018,             8:30, 50, Random]
+      - [03/18/2018,             8:45, 50, Random]
+      - [03/18/2018,             9:00, 50, Random]
+      - [03/18/2018,             9:15, 50, Random]
+      - [03/18/2018,             9:30, 50, Random]
+      - [03/18/2018,             9:45, 50, Random]
+      - [03/18/2018,             10:00, 50, Random]
+      - [03/18/2018,             10:15, 50, Random]
+      - [03/18/2018,             10:30, 50, Random]
+      - [03/18/2018,             10:45, 50, Random]
+      - [03/18/2018,             11:00, 50, Random]
+      - [03/18/2018,             11:15, 50, Random]
+      - [03/18/2018,             11:30, 50, Random]
+      - [03/18/2018,             11:45, 50, Random]
+      - [03/18/2018,             12:00, 50, Random]
+      - [03/18/2018,             12:15, 50, Random]
+      - [03/18/2018,             12:30, 50, Random]
+      - [03/18/2018,             12:45, 50, Random]
+      - [03/18/2018,             13:00, 50, Random]
+      - [03/18/2018,             13:15, 50, Random]
+      - [03/18/2018,             13:30, 50, Random]
+      - [03/18/2018,             13:45, 50, Random]
+      - [03/18/2018,             14:00, 50, Random]
+      - [03/18/2018,             14:15, 50, Random]
+      - [03/18/2018,             14:30, 50, Random]
+      - [03/18/2018,             14:45, 50, Random]
+      - [03/18/2018,             15:00, 50, Random]
+      - [03/18/2018,             15:15, 50, Random]
+      - [03/18/2018,             15:30, 50, Random]
+      - [03/18/2018,             15:45, 50, Random]
+      - [03/18/2018,             16:00, 50, Random]
+      - [03/18/2018,             16:15, 50, Random]
+      - [03/18/2018,             16:30, 50, Random]
+      - [03/18/2018,             16:45, 50, Random]
+      - [03/18/2018,             17:00, 50, Random]
+      - [03/18/2018,             17:15, 50, Random]
+      - [03/18/2018,             17:30, 50, Random]
+      - [03/18/2018,             17:45, 50, Random]
+      - [03/18/2018,             18:00, 50, Random]
+      - [03/18/2018,             18:15, 50, Random]
+      - [03/18/2018,             18:30, 50, Random]
+      - [03/18/2018,             18:45, 50, Random]
+      - [03/18/2018,             19:00, 50, Random]
+      - [03/18/2018,             19:15, 50, Random]
+      - [03/18/2018,             19:30, 50, Random]
+      - [03/18/2018,             19:45, 50, Random]
+      - [03/18/2018,             20:00, 50, Random]
+      - [03/18/2018,             20:15, 50, Random]
+      - [03/18/2018,             20:30, 50, Random]
+      - [03/18/2018,             20:45, 50, Random]
+      - [03/18/2018,             21:00, 50, Random]
+      - [03/18/2018,             21:15, 50, Random]
+      - [03/18/2018,             21:30, 50, Random]
+      - [03/18/2018,             21:45, 50, Random]
+      - [03/18/2018,             22:00, 50, Random]
+      - [03/18/2018,             22:15, 50, Random]
+      - [03/18/2018,             22:30, 50, Random]
+      - [03/18/2018,             22:45, 50, Random]
+      - [03/18/2018,             23:00, 50, Random]
+      - [03/18/2018,             23:15, 50, Random]
+      - [03/18/2018,             23:30, 50, Random]
+      - [03/18/2018,             23:45, 50, Random]
 
 # Swim inputs
 # North Delta sunrise: 6:31
@@ -166,7 +170,7 @@ channel_groups:
               558,559,710,711,712,713,714]
 
 # Entrainment output is for debug purpose.  leave blank, if you don't want to output entrainment rates.  The file is ver big and take a lot of memory.
-output_path_entrainment: .\output\entrainment.csv
+output_path_entrainment: 
 trans_probs_path: 
 output_path_flux: ./output/flux.csv
 
@@ -182,12 +186,6 @@ channel_name_lookup:
   - [SUT, 379]
   - [STM, 383]
   - [SACDOWNSTM, 420]
-  - [TC_U, 25]
-  - [TC_T, 172]
-  - [TC_D, 31]
-  - [HOR_U, 7]
-  - [HOR_T, 54]
-  - [HOR_D, 8]
 
 # Users are allowed to modify calculated entrainment rates. 100 means no change,150 means calculated_chance*1.5, and 50 means calculated_chance*0.5
 # except for STM & SUT if and only if pct > 100, pct is added e.g. 110 means calculated_chance + 0.1 
@@ -206,15 +204,13 @@ barriers:
     schedule_header: [Date, Time, On/Off]
     schedule:
       - [1/1/1980, 0:00, 0]
-      - [12/31/2022, 21:20, 0]
+      - [12/31/2030, 21:20, 0]
 
 dicu_filter_efficiency: 0.0
 
 fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
 fish_screens:
   - [330, 700]
-
-max_leakage_gate_closed: 5.0
 
 survival_output_path: .\output\survival.csv
 
@@ -396,7 +392,7 @@ survival_groups:
     survival_params:
       - [441, -999, -999, -999]
 
-simulation_start_date: INSERTION_DATE
+simulation_start_date: 3-18-2018
 simulation_scenario: STUDY_SCENARIO
 
 particle_flux_header: [Name, From_Survival_Calculation_Group, To_Survival_Calculation_Group]
@@ -416,7 +412,7 @@ individual_route_survival:
   - [GEO_suv, "(2,3,7,10)"]
   - [DCC_suv, "(2,3,8,10)"]
 
-show_route_survival_detail: true
+show_route_survival_detail: false
 route_survival_equations_header: [Name, Route_Survival_Equation]
 route_survival_equations:
   - [SAC, "S(FPT_SUT.STM.SACUP)*S(SACUP_GEO1.GEO2.DCC)*frac(FPT_SACUP/FPT_SUT.STM.SACUP)*S(GEO1_RIO)*frac(SACUP_GEO1/SACUP_GEO1.GEO2.DCC)*S(RIO_Chipps#)"]
@@ -435,11 +431,11 @@ individual_reach_survival:
 exit_stations: [Chipps1, Chipps2, Chipps3]
 
 display_simulation_timestep_write_all: true
-flux_write_all: true
-entrainment_write_all: true
-survival_write_all: true
-route_survival_write_all: true
-fates_write_all: true
+flux_write_all: false
+entrainment_write_all: false
+survival_write_all: false
+route_survival_write_all: false
+fates_write_all: false
 
 theta: 0.6                            # Theta to interpolate velocity
 
@@ -511,10 +507,9 @@ groups:
   - [whole, res, .*]
 
 io_file:
-  # Note: animation output can result in large output files. Disable by commenting out all three lines if not using anim output.
-  - type: anim
-    interval: 15min
-    file: ./output/ptm_out.ncd
+#  - type: anim
+#    interval: 15min
+#    file: ./output/ptm_out.ncd
   - type: trace
     interval: none
     file: ./output/trace.out

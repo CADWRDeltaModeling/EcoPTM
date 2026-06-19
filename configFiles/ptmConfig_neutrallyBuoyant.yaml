@@ -1,0 +1,139 @@
+---
+tidefile: '../../tidefiles/hist_fc_mss_gz.h5'
+
+simulation_scenario: hist_fc_mss_gz
+
+# ECO-PTM behavior configuration
+particle_type: neutrally_buoyant_particle
+
+# timeZone only takes PST, or MST, or CST, or EST. If timeZone is not entered, default timeZone is PST. 
+time_zone: PST
+
+# true will use System.currentTimeMills as the random seed; false will use a default seed (usually for a debugging or tuning purpose)
+use_new_random_seed: false
+
+dicu_filter_efficiency: 0.0
+
+fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
+fish_screens:
+  - [330, 700]
+
+display_simulation_timestep_write_all: true
+# for neutrally_buoyant_particle, flux_write_all must be true
+flux_write_all: true
+entrainment_write_all: false
+survival_write_all: false
+route_survival_write_all: false
+fates_write_all: false
+
+display_intvl: 1day
+
+particle_insertion_header: [node, nparts, delay, duration]
+particle_insertion:
+  - [17, 4000, 0day, 1485minutes]
+
+# PTM configuration
+ptm_start_date: 08APR2018
+ptm_start_time: 0000
+ptm_end_date: 15Aug2018
+ptm_end_time: 0000
+ptm_time_step: 15min
+display_intvl: 1day
+
+theta: 0.6                            # Theta to interpolate velocity
+
+# Boolean variables
+ptm_ivert: true                       # Use vertical velocity profile
+ptm_itrans: true                      # Use transverse velocity profile
+ptm_iey: true                         # Use transverse mixing
+ptm_iez: true                         # Use vertical mixing
+ptm_iprof: false                      # 
+
+# Set this to false for now. In the Fortran code, it is set by process_fixed.f90. See 22jul24 Obsidian
+ptm_igroup: false
+
+ptm_flux_percent: true                # Output flux as a percentage
+ptm_group_percent: true               # Output groups as a percentage
+ptm_flux_cumulative: true             # Output flux as cumulative values
+
+# Numeric variables
+ptm_random_seed: 32001                # Random number seed
+ptm_trans_constant: 0.6               # Transverse mixing constant 
+ptm_vert_constant: 0.067              # Vertical mixing constant
+
+ptm_trans_a_coef: 1.2                 # Transverse a coefficient
+ptm_trans_b_coef: 0.3                 # Transverse b coefficient
+ptm_trans_c_coef: -1.5                # Transverse c coefficient
+
+ptm_num_animated: 20000                # Maximum number of particles to animate
+
+max_leakage_gate_closed: 5.0
+
+particle_group_output_header: [name, groupName]
+particle_group_output:
+  - [clifton, clfct]
+  - [whole, whole]
+  - [Oth_Div, other_div]    
+
+particle_flux_output_header: [name, from_wb, from_wb_type, to_wb, to_wb_type]
+particle_flux_output:
+  - [export_ccf, ccf_east, group, clifton_court, res]
+  - [export_cvp, 216, chan, cvp, group]
+  - [past_mtz, 441, chan, mtz, group]
+  - [past_chipps, chipps_east, group, chipps_west, group]
+  - [diversion_ag, all, group, ag_div, group]
+  - [export_swp, clifton_court, res, swp, group]
+  # Channel 607 isn't in diversion_off.h5
+  # - [EXPORT_IF, 607, chan, 608, chan]
+  - [To_NBA, 406, chan, nba, group]
+  - [OLDR_Mouth, sjr_oldr_mouth, group, 124, chan]
+  - [Dut_Fal_fish, SJR_West, group, Dut_False_Fish, group]
+  - [MidR_Mouth, MIDR_Mouth_chan, group, 161, chan]
+  - [Columb_Trnr, SJR_Trnr_Col, group, Columb_Turnr, group]
+
+groups_header: [name, type, pattern]
+groups:
+
+  - [whole, chan, .*]
+  - [whole, res, .*]
+  - [other_div, qext, ccc]
+  - [other_div, qext, cccoldr]
+  - [other_div, qext, ccw]
+  - [other_div, qext, pump62]
+  - [other_div, qext, pump63]
+  - [other_div, qext, jones_in]
+  - [other_div, qext, yolo_toe]
+  - [clfct, res, clifton_court]
+  - [cvp, qext, cvp]
+  - [ccf_east, chan, (232|217|82)]
+  - [swp, qext, swp]
+  - [mtz, stage, mtz.*]
+  - [ag_div, qext, dicu_div_.*]
+  - [ag_div, qext, bbid.*]
+  - [nba, qext, north_bay]
+  - [chipps_east, chan, (288|294|291)]
+  - [chipps_west, chan, (442|437)]
+  - [SJR_OLDR_Mouth, chan, (43|42)]
+  - [SJR_Trnr_Col, chan, (35|33|32|27|30|26|25)]
+  - [Columb_Turnr, chan, (160|172)]
+  - [SJR_West, chan, (50|49|83|48|47|46)]
+  - [Dut_False_Fish, chan, (280|279|275|260)]
+  - [MIDR_Mouth_chan, chan, (162|163)]
+
+io_file:
+#  - type: anim
+#    interval: 15min
+#    file: ./output/ptm_out.ncd
+  - type: trace
+    interval: none
+    file: ./output/trace.out
+  - type: flux
+    interval: 1hour
+    file: ./output/ptm_out.ncd
+  - type: echoConfig
+    interval: none
+    file: ./output/echoConfig.yaml
+  - type: echoConfigNetCDF
+    interval: none
+    file: ./output/ptm_out.ncd
+    
