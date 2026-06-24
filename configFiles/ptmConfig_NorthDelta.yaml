@@ -212,6 +212,8 @@ fish_screens_header: [NodeID, ChannelID/ReservoirName/Obj2objName]
 fish_screens:
   - [330, 700]
 
+max_leakage_gate_closed: 5.0
+
 survival_output_path: .\output\survival.csv
 
 # Station is defined by (channel number, distance from upstream node)
@@ -507,9 +509,10 @@ groups:
   - [whole, res, .*]
 
 io_file:
-#  - type: anim
-#    interval: 15min
-#    file: ./output/ptm_out.ncd
+  # Note: animation output can result in large output files. Disable by commenting out all three lines if not using anim output.
+  #- type: anim
+  #  interval: 15min
+  #  file: ./output/ptm_out.ncd
   - type: trace
     interval: none
     file: ./output/trace.out
