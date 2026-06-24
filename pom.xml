@@ -5,7 +5,7 @@
 
   <groupId>gov.ca.water</groupId>
   <artifactId>ecoptm</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>v0.0.0-beta</version>
   <packaging>jar</packaging>
 
   <name>ecoptm</name>
