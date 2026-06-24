@@ -4,7 +4,7 @@ For active swimming particles, the model incorporates fish-like swimming behavio
 The two passive particle types are commonly used to evaluate effects on Delta Smelt (Hypomesus transpacificus) and Longfin Smelt (Spirinchus thaleichthys) larvae, whereas the active swimming particles represent juvenile Chinook Salmon (Oncorhynchus tshawytscha). Overall, the model provides a quantitative framework for exploring and evaluating management actions that support species recovery efforts while balancing California’s water supply needs.
 
 ## Documentation
-The ECO-PTM online documentation is available at the following link:  https://data.ca.gov/dataset/ecological-particle-tracking-model-eco-ptm
+The ECO-PTM online documentation is available at the following link:  https://data.cnra.ca.gov/dataset/eco-ptm-0-0-0-beta
 
 ## Usage
 The main model can be run using the ECO-PTM executable JAR file. Preprocessing and post-processing scripts should be run from an Anaconda PowerShell Prompt with the ECO-PTM environment activated. Both the environment and JAR files are provided. The hydrodynamic input file (tide file) must be generated using DSM2 HYDRO v8.5.1 or later and then preprocessed to convert to GZIP compression. DSM2 HYDRO v8.5.1 is available at the following link: https://github.com/CADWRDeltaModeling/dsm2/releases/tag/v8.5.1.
