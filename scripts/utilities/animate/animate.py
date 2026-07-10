@@ -156,7 +156,9 @@ def createAnimDF(animFile):
     print(f"particle type: {p_type}")
     if (p_type.upper() == "SALMON_PARTICLE"):
         anim = anim.loc[anim["extChannel"]!=exitChan]
-    
+
+    ds.close()
+
     print(f"PTM animation file has {numRecords} records")
     print(f"Animation start at {modelDatetime[0]}")
     print(f"Animation ends at {modelDatetime[-1]}")
@@ -236,13 +238,21 @@ if fluxFile1 is not None:
     fluxLocs = fluxLocs | set(thisLocs)
 
     # Create an array of flux1 datetimes to be used for looking up the closest entry for each animation modelDatetime
-    flux1datetime = pn.rx(np.array(flux1["datetime"]))
+    flux1datetime = np.array(flux1["datetime"])
 
 if fluxFile2 is not None:
     flux2 = createFluxDF(fluxFile2)
     thisLocs = list(flux2.columns)
     thisLocs.remove("datetime")
     fluxLocs = fluxLocs | set(thisLocs)
+
+# Use whichever flux datetime array is available for closest-match lookups
+if fluxFile1 is not None:
+    _flux_datetime = flux1datetime
+elif fluxFile2 is not None:
+    _flux_datetime = np.array(flux2["datetime"])
+else:
+    _flux_datetime = None
 fluxLocs = list(fluxLocs)
 fluxLocs.sort()
 
@@ -314,43 +324,69 @@ if animatePlot:
         sizing_mode="stretch_both"
     )
 
+    def _on_session_destroyed(session_context):
+        import threading
+        def _exit():
+            import time
+            time.sleep(0.01)
+            os._exit(0)
+        threading.Thread(target=_exit, daemon=True).start()
+
+    pn.state.on_session_destroyed(_on_session_destroyed)
     server = animPane.show()
 
 else:
     # Tiles always in pseudo mercator epsg=3857
-    plotMap = hv.element.tiles.CartoLight().opts(width=figWidth, height=figHeight)
+    plotMap = hv.element.tiles.CartoLight().opts(responsive=True, min_height=200)
     plotMap.extents = extents1
-    
+
     pn.config.throttled = True
 
     datetimeIndexSlider = pn.widgets.IntSlider(value=0, start=0, end=(np.max([numRecords1, numRecords2])-1), name="datetime index")
 
-    # Spatial plots
-    rdf1 = pn.rx(anim1)
-    p1 = plotMap*rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
-                                                                    y="northing", 
-                                                                    kind="scatter").opts(title=animFile1, fontsize={"title": titleFont}) 
+    # Spatial plots — use pn.bind + hv.DynamicMap so the slider is never auto-embedded
+    def make_p1(timestep):
+        frame = anim1[anim1["datetimeIndex"] == timestep].dropna(subset=["easting", "northing"])
+        return (plotMap * frame.hvplot(x="easting", y="northing", kind="scatter",
+                                       responsive=True, min_height=200))\
+            .opts(title=animFile1, fontsize={"title": titleFont},
+                  data_aspect=1,
+                  xlim=(extents1[0], extents1[2]),
+                  ylim=(extents1[1], extents1[3]))
 
-    col1 = pn.Column(pn.panel(pn.bind(getDatetime1, value=datetimeIndexSlider), align="center"), pn.panel(p1, widget_location="top"))
+    dmap_p1 = hv.DynamicMap(pn.bind(make_p1, timestep=datetimeIndexSlider))
+    dmap_p1.cache_size = 1
+    col1 = pn.Column(
+        pn.panel(pn.bind(getDatetime1, value=datetimeIndexSlider), align="center"),
+        pn.panel(dmap_p1, sizing_mode="stretch_both"),
+        sizing_mode="stretch_both"
+    )
 
     col2 = pn.Column()
     if animFile2 is not None:
-        rdf2 = pn.rx(anim2)
+        def make_p2(timestep):
+            frame = anim2[anim2["datetimeIndex"] == timestep].dropna(subset=["easting", "northing"])
+            return (plotMap * frame.hvplot(x="easting", y="northing", kind="scatter",
+                                           responsive=True, min_height=200))\
+                .opts(title=animFile2, fontsize={"title": titleFont},
+                      data_aspect=1,
+                      xlim=(extents2[0], extents2[2]),
+                      ylim=(extents2[1], extents2[3]))
 
-        p2 = plotMap*rdf2[rdf2["datetimeIndex"]==datetimeIndexSlider].hvplot(x="easting", 
-                                                                            y="northing", 
-                                                                            kind="scatter").opts(title=animFile2, fontsize={"title": titleFont})
-
+        dmap_p2 = hv.DynamicMap(pn.bind(make_p2, timestep=datetimeIndexSlider))
+        dmap_p2.cache_size = 1
         col2.append(pn.panel(pn.bind(getDatetime2, value=datetimeIndexSlider), align="center"))
-        col2.append(pn.panel(p2, widget_location="top"))
-    
-    animPane = pn.Column(pn.Row(col1, col2, sizing_mode="stretch_both"))
+        col2.append(pn.panel(dmap_p2, sizing_mode="stretch_both"))
+        col2.sizing_mode = "stretch_both"
+
+    animPane = pn.Column(pn.Row(pn.HSpacer(), datetimeIndexSlider, pn.HSpacer()), pn.Row(col1, col2, sizing_mode="stretch_both", styles={"flex": "2", "min-height": "0"}), sizing_mode="stretch_both")
 
     # Flux plots
     initFluxLocs = []
     for loc in ["EXPORT_CVP", "EXPORT_SWP", "PAST_CHIPPS"]:
-        initFluxLocs.append(loc)
-    if len(initFluxLocs)==0:
+        if loc in fluxLocs:
+            initFluxLocs.append(loc)
+    if len(initFluxLocs) == 0 and len(fluxLocs) > 0:
         initFluxLocs = [fluxLocs[0]]
 
     selectFluxLoc = pn.widgets.MultiSelect(name="loc", options=fluxLocs, value=initFluxLocs, size=8)
@@ -358,45 +394,76 @@ else:
     # Define a callback function to prevent unselecting all options
     def preventUnselectAll(event):
         if len(selectFluxLoc.value) == 0:
-            # Revert to the previous selection
             selectFluxLoc.value = event.old
 
-    # Attach the callback to the MultiSelect widget
     selectFluxLoc.param.watch(preventUnselectAll, "value")
 
-    fluxPane = pn.Row()
-    fluxLinePane = pn.Row()
     fluxLongList = []
     if fluxFile1 is not None:
         flux1long = pd.melt(flux1, id_vars="datetime", var_name="loc", value_name="flux")
-        flux1rx = pn.rx(flux1long)
-        flux1plot = flux1rx[flux1rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", xlabel="", by=["loc"], width=figWidth, height=int(figHeight/2))
-        fluxLinePane.append(pn.panel(flux1plot, widget_location="top"))
-
         flux1long["file"] = "file 1"
         fluxLongList.append(flux1long)
 
     if fluxFile2 is not None:
         flux2long = pd.melt(flux2, id_vars="datetime", var_name="loc", value_name="flux")
-        flux2rx = pn.rx(flux2long)
-        flux2plot = flux2rx[flux2rx["loc"].isin(selectFluxLoc)].hvplot.line(x="datetime", y="flux", xlabel="", by=["loc"], width=figWidth, height=int(figHeight/2))
-        fluxLinePane.append(pn.panel(flux2plot, widget_location="top"))
-
         flux2long["file"] = "file 2"
         fluxLongList.append(flux2long)
-    
-    if len(fluxLongList)>0:
+
+    # Time series tab: one selectFluxLoc at top, line plots side by side
+    fluxLineRow = pn.Row(sizing_mode="stretch_both")
+    if fluxFile1 is not None:
+        def make_flux1line(locs):
+            return flux1long[flux1long["loc"].isin(locs)].hvplot.line(
+                x="datetime", y="flux", xlabel="", by=["loc"],
+                title=fluxFile1, responsive=True, height=350)
+        fluxLineRow.append(pn.panel(hv.DynamicMap(pn.bind(make_flux1line, locs=selectFluxLoc)), sizing_mode="stretch_width"))
+
+    if fluxFile2 is not None:
+        def make_flux2line(locs):
+            return flux2long[flux2long["loc"].isin(locs)].hvplot.line(
+                x="datetime", y="flux", xlabel="", by=["loc"],
+                title=fluxFile2, responsive=True, height=350)
+        fluxLineRow.append(pn.panel(hv.DynamicMap(pn.bind(make_flux2line, locs=selectFluxLoc)), sizing_mode="stretch_width"))
+
+    fluxLinePane = pn.Column(selectFluxLoc, fluxLineRow, sizing_mode="stretch_both")
+
+    if len(fluxLongList) > 0:
         fluxLong = pd.concat(fluxLongList, ignore_index=True)
 
-        fluxLongRx = pn.rx(fluxLong)
-        fluxFiltered = fluxLongRx[(fluxLongRx["loc"].isin(selectFluxLoc)) & 
-                                        (fluxLongRx["datetime"]==flux1datetime[np.abs(rdf1[rdf1["datetimeIndex"]==datetimeIndexSlider]["modelDatetime"].values[0] - 
-                                                                                           flux1datetime).argmin()])].hvplot.bar(x="loc", y="flux", by="file",
-                                                                                                                                 xlabel="", ylabel="flux",
-                                                                                                                                 width=figWidth, height=int(figHeight/2))
-        animPane.append(pn.Row(pn.panel(fluxFiltered, widget_location="left"), sizing_mode="stretch_width"))
+        def make_bar(timestep, locs):
+            model_dt = anim1[anim1["datetimeIndex"] == timestep]["modelDatetime"].values[0]
+            closest_dt = _flux_datetime[np.abs(_flux_datetime - model_dt).argmin()]
+            filtered = fluxLong[(fluxLong["loc"].isin(locs)) & (fluxLong["datetime"] == closest_dt)]
+            bar_width = max(150, len(locs) * 100)
+            if len(fluxLongList) > 1:
+                return filtered.hvplot.bar(x="loc", y="flux", by="file",
+                                           xlabel="", ylabel="flux",
+                                           frame_width=bar_width)
+            else:
+                return filtered.hvplot.bar(x="loc", y="flux",
+                                           xlabel="", ylabel="flux",
+                                           frame_width=bar_width)
 
+        animPane.append(pn.Row(
+            selectFluxLoc,
+            pn.Column(
+                pn.panel(pn.bind(make_bar, timestep=datetimeIndexSlider, locs=selectFluxLoc), sizing_mode="stretch_height"),
+                scroll=True,
+                sizing_mode="stretch_both",
+            ),
+            sizing_mode="stretch_width",
+            styles={"flex": "1", "min-height": "0"},
+        ))
 
-    tabs = pn.Tabs(("Animation", animPane), ("Time series", fluxLinePane))
+    tabs = pn.Tabs(("Animation", animPane), ("Time series", fluxLinePane), sizing_mode="stretch_both")
 
+    def _on_session_destroyed(session_context):
+        import threading
+        def _exit():
+            import time
+            time.sleep(0.01)
+            os._exit(0)
+        threading.Thread(target=_exit, daemon=True).start()
+
+    pn.state.on_session_destroyed(_on_session_destroyed)
     server = tabs.show()
