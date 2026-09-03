@@ -152,7 +152,10 @@ public abstract class Waterbody{
 		}
 		
 		if (getLeakageSet()) {
-			nonLeakageFlow = flowAt[nodeId] - timeAvgLeakageAt[nodeId];
+			if (Math.abs(flowAt[nodeId])> Math.abs(timeAvgLeakageAt[nodeId]))
+				nonLeakageFlow = flowAt[nodeId] - timeAvgLeakageAt[nodeId];
+			else
+				nonLeakageFlow = 0.0f;
 		}
 		else {
 			nonLeakageFlow = flowAt[nodeId];
@@ -163,7 +166,14 @@ public abstract class Waterbody{
 		}
 		return nonLeakageFlow;
 	}
-	
+	public float getTimeAvgLeakage(int nodeEnvId){
+		int nodeId = getNodeLocalIndex(nodeEnvId);
+		return timeAvgLeakageAt[nodeId];
+	}
+	public float getLeakage(int nodeEnvId){
+		int nodeId = getNodeLocalIndex(nodeEnvId);
+		return leakageAt[nodeId];
+	}
 	// sv is a swimming velocity from a particle
 	public abstract float getInflowWSV(int nodeEnvId, float sv);
 	/**
@@ -315,6 +325,7 @@ public abstract class Waterbody{
 		
 		// If flow and leakage are both near zero, gate state is unknown => return previous value
 		if(Math.abs(instFlowAt[localIndex])<=leakageMarginOfError && Math.abs(leakageAt[localIndex])<=leakageMarginOfError) {
+			//return prevGateClosed = getLeakageSet()? true : prevGateClosed;
 			return prevGateClosed;
 		}
 		
