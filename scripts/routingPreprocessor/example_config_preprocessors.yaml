@@ -9,6 +9,7 @@ routingPreprocessor:
   transProbsStartDate: 02jan2015 # At least 90 minutes after the start of the datetime range covered by the tide file
   transProbsEndDate: 30dec2015 # At least 90 minutes before the end of the datetime range covered by the tide file
   sampleTime_min: 15
+  useInstFlow: false  
   numCores: 8
 tidefilePreprocessor:
   runInCondaEnv: true

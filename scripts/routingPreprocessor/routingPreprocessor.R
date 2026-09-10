@@ -262,6 +262,30 @@ runArgsQA <- function() {
     
     return(TRUE)
 }
+
+readInstFlow <- function() {
+    instFlow <- h5read(tideFile, "/hydro/data/inst flow")
+    compPoint <- h5read(tideFile, "/hydro/geometry/hydro_comp_point")
+    
+    # Create a table of comp indices
+    compIndices <- compPoint |> group_by(channel) |> 
+        summarize(upIndex=comp_index[which.min(distance)], downIndex=comp_index[which.max(distance)], .groups="drop")
+    
+    # Create array of instantaneous channel flows
+    instChannelFlows <- array(0, dim=dim(channelFlows))
+    
+    # Fill in array
+    for(i in 1:nrow(compIndices)) {
+        channelNum<- compIndices$channel[i]
+        upIndex <- compIndices$upIndex[i]
+        downIndex <- compIndices$downIndex[i]
+        
+        instChannelFlows[1, channelNum, ] <- instFlow[upIndex, ]
+        instChannelFlows[2, channelNum, ] <- instFlow[downIndex, ]
+    }
+    
+    return(instChannelFlows)
+}
 ####################################################################################################
 # Run
 ####################################################################################################
@@ -326,9 +350,14 @@ for(i in 1:nrow(stationLoc)) {
 stationLoc$channelFrac <- pmax(0, pmin(stationLoc$channelDist_ft/stationLoc$channelLen_ft, 1))
 stationNames <- unique(stationLoc$stationName)
 
-# Read flows for all channels
+# Read flows for all channels. Optionally use instantaneous flow.
 cat("Reading flows, start datetime, and end datetime...\n")
 channelFlows <- h5read(tideFile, "/hydro/data/channel flow")
+
+if(config$useInstFlow) {
+    cat("Reading instantaneous channel flows...\n")
+    channelFlows <- readInstFlow()
+}
 
 # Read the start datetime from the channel flow attributes
 channelFlowAttrib <- h5readAttributes(tideFile, "hydro/data/channel flow")
