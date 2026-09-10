@@ -116,6 +116,7 @@ public class Particle{
 	public static boolean DEBUG = false;
 	//if flux needs to be calculated, ADD_TRACE will be set true in RouteInputs.java line 35
 	public static boolean ADD_TRACE = false;
+	
 
 	/**
 	 *  Total number of particles in the system.
@@ -166,6 +167,8 @@ public class Particle{
 	private int _randomSeed;
 	
 	private PTMrng _rng;
+	private float diff = -0.0005f;
+	
 	public float getRandomNumber() {return _rng.getUniform();}
 	public double getGaussian() {return _rng.getGaussian();}
 	/**
@@ -539,8 +542,10 @@ public class Particle{
 	// particle remembers seconds left within a model time step (usually 900 seconds) after certain sub-time-steps.
 	public float getTmLeftInSecs() {
 		float t_step_left = _tStepInSecs -  _timeUsedInSecond;
-		if (t_step_left < 0)
-			PTMUtil.systemExit("Called getTmLeftInSecs and got negative number, system exit");
+		if (t_step_left > diff && t_step_left < 0)
+			t_step_left = 0.0f;
+		else if (t_step_left < diff)
+			PTMUtil.systemExit("Called getTmLeftInSecs and got negative number, system exit PId: "+Id + " time left: "+t_step_left);
 		return t_step_left;
 	}
 	//check if the particle is a holder. fish particles have holding behaviors, e.g., holding during day time.
